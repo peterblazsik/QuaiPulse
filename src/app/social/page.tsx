@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Image from "next/image";
 import {
   MapPin,
   Dumbbell,
@@ -17,6 +18,7 @@ import { VENUES, type VenueData } from "@/lib/data/venues";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
 import type { VenueType } from "@/lib/types";
 import { formatCHF } from "@/lib/utils";
+import { SOCIAL_IMAGES } from "@/lib/data/images";
 
 const CATEGORY_CONFIG: {
   type: VenueType;
@@ -55,7 +57,10 @@ export default function SocialPage() {
     NEIGHBORHOODS.find((n) => n.id === id)?.name ?? id;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Ambient glow */}
+      <div className="ambient-glow glow-amber" />
+
       {/* Header */}
       <div>
         <h1 className="font-display text-2xl font-bold text-text-primary">
@@ -66,6 +71,24 @@ export default function SocialPage() {
           neighborhoods. Your social life, organized.
         </p>
       </div>
+
+      {/* Category hero images */}
+      {activeFilter !== "all" && SOCIAL_IMAGES[activeFilter] && (
+        <div className="card-hero relative h-32 overflow-hidden rounded-xl">
+          <Image
+            src={SOCIAL_IMAGES[activeFilter]}
+            alt={activeFilter}
+            fill
+            className="object-cover"
+          />
+          <div className="img-overlay-full" />
+          <div className="relative z-10 flex h-full items-end p-4">
+            <p className="font-display text-lg font-bold text-white">
+              {CATEGORY_CONFIG.find(c => c.type === activeFilter)?.label}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Category filter tabs */}
       <div className="flex flex-wrap gap-2">

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { MapPin, ChevronRight } from "lucide-react";
 import type { ScoredNeighborhood } from "@/lib/engines/scoring";
 import { formatScore, scoreTextClass } from "@/lib/engines/scoring";
@@ -9,6 +10,7 @@ import { RadarChart } from "./radar-chart";
 import { ScoreBadge } from "./score-badge";
 import { SCORE_DIMENSIONS } from "@/lib/constants";
 import type { ScoreDimension } from "@/lib/types";
+import { NEIGHBORHOOD_IMAGES } from "@/lib/data/images";
 
 interface NeighborhoodCardProps {
   neighborhood: ScoredNeighborhood;
@@ -28,8 +30,19 @@ export function NeighborhoodCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 500, damping: 35 }}
-      className="group rounded-xl border border-border-default bg-bg-secondary overflow-hidden hover:border-accent-primary/40 transition-colors"
+      className="card group overflow-hidden relative"
     >
+      {/* Background image (subtle) */}
+      {NEIGHBORHOOD_IMAGES[n.id] && (
+        <div className="absolute inset-0 pointer-events-none">
+          <Image
+            src={NEIGHBORHOOD_IMAGES[n.id]}
+            alt=""
+            fill
+            className="object-cover opacity-[0.07] group-hover:opacity-[0.12] transition-opacity duration-500"
+          />
+        </div>
+      )}
       {/* Compact view */}
       <button
         onClick={onToggle}
@@ -86,7 +99,26 @@ export function NeighborhoodCard({
           transition={{ duration: 0.2 }}
           className="border-t border-border-subtle"
         >
-          <div className="p-5 space-y-5">
+          <div className="p-5 space-y-5 relative z-10">
+            {/* Neighborhood hero image */}
+            {NEIGHBORHOOD_IMAGES[n.id] && (
+              <div className="relative h-40 rounded-lg overflow-hidden">
+                <Image
+                  src={NEIGHBORHOOD_IMAGES[n.id]}
+                  alt={n.name}
+                  fill
+                  className="object-cover"
+                />
+                <div className="img-overlay-fade" />
+                <div className="absolute bottom-3 left-3 z-10">
+                  <p className="font-display text-lg font-bold text-white drop-shadow-lg">
+                    {n.name}
+                  </p>
+                  <p className="text-[10px] text-white/70">{n.vibe}</p>
+                </div>
+              </div>
+            )}
+
             {/* Description */}
             <p className="text-sm text-text-secondary leading-relaxed">
               {n.description}

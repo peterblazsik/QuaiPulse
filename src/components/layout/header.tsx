@@ -35,7 +35,7 @@ export function Header() {
     "";
 
   return (
-    <header className="flex h-12 shrink-0 items-center justify-between border-b border-border-default bg-bg-secondary/80 px-6 backdrop-blur-sm">
+    <header className="glass-header flex h-12 shrink-0 items-center justify-between px-6">
       <h1 className="text-sm font-medium text-text-primary">{title}</h1>
 
       <div className="flex items-center gap-4">

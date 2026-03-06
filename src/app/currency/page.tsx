@@ -55,7 +55,9 @@ export default function CurrencyPage() {
   const viennaCostsEur = FIXED_COSTS_OUTSIDE * RATES["CHF/EUR"].rate;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Ambient glow */}
+      <div className="ambient-glow glow-amber" />
       {/* Header */}
       <div>
         <h1 className="font-display text-2xl font-bold text-text-primary">

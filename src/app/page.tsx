@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { daysUntil, formatCHF } from "@/lib/utils";
 import { MOVE_DATE } from "@/lib/constants";
 import { useBudgetStore, FIXED_INCOME, FIXED_COSTS_OUTSIDE } from "@/lib/stores/budget-store";
@@ -9,7 +11,7 @@ import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
 import { rankNeighborhoods, formatScore, scoreTextClass } from "@/lib/engines/scoring";
 import { calculateBudget, EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
 import { RadarChart } from "@/components/neighborhoods/radar-chart";
-import Link from "next/link";
+import { HERO_IMAGES, NEIGHBORHOOD_IMAGES } from "@/lib/data/images";
 
 export default function DashboardPage() {
   const values = useBudgetStore((s) => s.values);
@@ -30,14 +32,42 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Hero row */}
+    <div className="space-y-6 relative">
+      {/* Ambient glow */}
+      <div className="ambient-glow glow-blue" />
+
+      {/* Hero banner */}
+      <div className="card-hero relative h-48 overflow-hidden rounded-xl">
+        <Image
+          src={HERO_IMAGES.dashboard}
+          alt="Zurich twilight"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="img-overlay-full" />
+        <div className="relative z-10 flex h-full flex-col justify-end p-6">
+          <p className="text-[10px] uppercase tracking-widest text-text-muted">
+            Zurich Life Navigator
+          </p>
+          <h2 className="font-display text-3xl font-bold text-text-primary mt-1">
+            Welcome back, Peter
+          </h2>
+          <p className="text-sm text-text-secondary mt-1">
+            Your move to Zurich in{" "}
+            <span className="font-data font-bold text-accent-primary">
+              {days} days
+            </span>
+          </p>
+        </div>
+      </div>
+
+      {/* KPI row */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {/* Countdown */}
-        <div className="rounded-xl border border-border-default bg-bg-secondary p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-text-muted">
-            Days to Zurich
-          </p>
+        <div className="card elevation-1 p-5 relative overflow-hidden">
+          <div className="card-hover-line" />
+          <p className="section-label">Days to Zurich</p>
           <p className="mt-2 font-data text-4xl font-bold text-accent-primary">
             {days}
           </p>
@@ -45,10 +75,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Monthly Surplus */}
-        <div className="rounded-xl border border-border-default bg-bg-secondary p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-text-muted">
-            Monthly Surplus
-          </p>
+        <div className="card elevation-1 p-5 relative overflow-hidden">
+          <div className="card-hover-line" />
+          <p className="section-label">Monthly Surplus</p>
           <p
             className={`mt-2 font-data text-4xl font-bold ${surplus >= 0 ? "text-success" : "text-danger"}`}
           >
@@ -60,26 +89,24 @@ export default function DashboardPage() {
         </div>
 
         {/* Savings Rate */}
-        <div className="rounded-xl border border-border-default bg-bg-secondary p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-text-muted">
-            Savings Rate
-          </p>
+        <div className="card elevation-1 p-5 relative overflow-hidden">
+          <div className="card-hover-line" />
+          <p className="section-label">Savings Rate</p>
           <p className="mt-2 font-data text-4xl font-bold text-success">
             {savingsRate}%
           </p>
-          <div className="mt-3 h-2 overflow-hidden rounded-full bg-bg-tertiary">
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-bg-tertiary relative">
             <div
-              className="h-full rounded-full bg-success transition-all"
+              className="h-full rounded-full bg-success transition-all progress-shimmer relative"
               style={{ width: `${Math.max(0, Math.min(100, savingsRate))}%` }}
             />
           </div>
         </div>
 
         {/* Quick Profile */}
-        <div className="rounded-xl border border-border-default bg-bg-secondary p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-text-muted">
-            Mission
-          </p>
+        <div className="card elevation-1 p-5 relative overflow-hidden">
+          <div className="card-hover-line" />
+          <p className="section-label">Mission</p>
           <p className="mt-2 font-display text-lg font-semibold text-text-primary">
             Peter Blazsik
           </p>
@@ -90,52 +117,68 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Top Neighborhoods + placeholders */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {top3.map((n, i) => (
-          <Link
-            key={n.id}
-            href="/neighborhoods"
-            className="rounded-xl border border-border-default bg-bg-secondary p-4 hover:border-accent-primary/40 transition-colors"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <span className="font-data text-sm font-bold text-text-muted">
-                  #{i + 1}
-                </span>
-                <span className="font-display text-sm font-semibold text-text-primary">
-                  {n.name}
-                </span>
-                <span className="text-[10px] text-text-muted">
-                  K{n.kreis}
-                </span>
+      {/* Top Neighborhoods */}
+      <div>
+        <p className="section-label mb-3">Top Neighborhoods</p>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {top3.map((n, i) => (
+            <Link
+              key={n.id}
+              href="/neighborhoods"
+              className="card card-interactive relative overflow-hidden"
+            >
+              <div className="card-hover-line" />
+              {/* Background image */}
+              {NEIGHBORHOOD_IMAGES[n.id] && (
+                <div className="absolute inset-0">
+                  <Image
+                    src={NEIGHBORHOOD_IMAGES[n.id]}
+                    alt={n.name}
+                    fill
+                    className="object-cover opacity-30"
+                  />
+                  <div className="img-overlay-fade" />
+                </div>
+              )}
+              <div className="relative z-10 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="font-data text-sm font-bold text-text-muted">
+                      #{i + 1}
+                    </span>
+                    <span className="font-display text-sm font-semibold text-text-primary">
+                      {n.name}
+                    </span>
+                    <span className="text-[10px] text-text-muted">
+                      K{n.kreis}
+                    </span>
+                  </div>
+                  <span
+                    className={`font-data text-lg font-bold ${scoreTextClass(n.weightedScore)}`}
+                  >
+                    {formatScore(n.weightedScore)}
+                  </span>
+                </div>
+                <div className="flex justify-center">
+                  <RadarChart scores={n.scores} size={120} showLabels={false} />
+                </div>
+                <p className="text-[10px] text-text-muted text-center mt-2 italic">
+                  {n.vibe}
+                </p>
               </div>
-              <span
-                className={`font-data text-lg font-bold ${scoreTextClass(n.weightedScore)}`}
-              >
-                {formatScore(n.weightedScore)}
-              </span>
-            </div>
-            <div className="flex justify-center">
-              <RadarChart scores={n.scores} size={120} showLabels={false} />
-            </div>
-            <p className="text-[10px] text-text-muted text-center mt-2 italic">
-              {n.vibe}
-            </p>
-          </Link>
-        ))}
+            </Link>
+          ))}
+        </div>
       </div>
 
-      {/* Budget snapshot + placeholders */}
+      {/* Budget snapshot */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {/* Budget mini chart */}
         <Link
           href="/budget"
-          className="rounded-xl border border-border-default bg-bg-secondary p-4 hover:border-accent-primary/40 transition-colors col-span-1 md:col-span-2"
+          className="card card-interactive p-4 relative overflow-hidden col-span-1 md:col-span-2"
         >
-          <p className="text-[10px] uppercase tracking-wider text-text-muted mb-3">
-            Budget Snapshot
-          </p>
+          <div className="card-hover-line" />
+          <p className="section-label mb-3">Budget Snapshot</p>
           <div className="h-5 rounded-full overflow-hidden flex bg-bg-tertiary mb-2">
             {EXPENSE_CONFIG.slice(0, 5).map((e) => {
               const val = values[e.key as keyof typeof values];
@@ -166,30 +209,31 @@ export default function DashboardPage() {
           </div>
         </Link>
 
-        <PlaceholderCard
-          title="Katie Visit"
-          description="Visit planner coming in Phase 4"
-        />
-        <PlaceholderCard
-          title="Next Actions"
-          description="Checklist coming in Phase 6"
-        />
-      </div>
-    </div>
-  );
-}
+        <Link href="/katie" className="card card-interactive relative overflow-hidden">
+          <div className="card-hover-line" />
+          {HERO_IMAGES.katie && (
+            <div className="absolute inset-0">
+              <Image
+                src={HERO_IMAGES.katie}
+                alt="Katie visits"
+                fill
+                className="object-cover opacity-20"
+              />
+              <div className="img-overlay-fade" />
+            </div>
+          )}
+          <div className="relative z-10 flex flex-col items-center justify-center p-8 text-center">
+            <p className="text-sm font-medium text-text-secondary">Katie Planner</p>
+            <p className="mt-1 text-xs text-text-muted">8 visits planned</p>
+          </div>
+        </Link>
 
-function PlaceholderCard({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-default bg-bg-secondary/50 p-8 text-center">
-      <p className="text-sm font-medium text-text-secondary">{title}</p>
-      <p className="mt-1 text-xs text-text-muted">{description}</p>
+        <Link href="/checklist" className="card card-interactive p-8 text-center relative overflow-hidden">
+          <div className="card-hover-line" />
+          <p className="text-sm font-medium text-text-secondary">Move Checklist</p>
+          <p className="mt-1 text-xs text-text-muted">30 tasks, 4 phases</p>
+        </Link>
+      </div>
     </div>
   );
 }

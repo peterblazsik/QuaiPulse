@@ -19,7 +19,9 @@ export default function BudgetPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Ambient glow */}
+      <div className="ambient-glow glow-green" />
       {/* Header */}
       <div>
         <h1 className="font-display text-2xl font-bold text-text-primary">

@@ -27,11 +27,13 @@ export default function NeighborhoodsPage() {
   )[0];
 
   return (
-    <div className="flex gap-6 h-full">
+    <div className="flex gap-6 h-full relative">
+      {/* Ambient glow */}
+      <div className="ambient-glow glow-blue" />
       {/* Left sidebar — Priority Controls */}
       <div className="w-64 shrink-0 hidden lg:block">
         <div className="sticky top-0 space-y-5">
-          <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
+          <div className="card elevation-1 p-4">
             <PrioritySliders />
           </div>
 

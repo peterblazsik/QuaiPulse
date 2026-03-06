@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   Building2,
   ExternalLink,
@@ -14,6 +15,7 @@ import { PORTALS, SEARCH_CRITERIA } from "@/lib/data/portal-urls";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
 import { formatCHF } from "@/lib/utils";
 import type { ApartmentStatus } from "@/lib/types";
+import { HERO_IMAGES } from "@/lib/data/images";
 
 interface SavedApartment {
   id: string;
@@ -84,27 +86,38 @@ export default function ApartmentsPage() {
   const topKreise = SEARCH_CRITERIA.targetKreise;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-text-primary">
-            Apartment Listings
-          </h1>
-          <p className="text-sm text-text-tertiary mt-1">
-            Portal links, saved listings, and pipeline tracking. Target:{" "}
-            {SEARCH_CRITERIA.rooms} rooms, {formatCHF(SEARCH_CRITERIA.priceMin)}-
-            {formatCHF(SEARCH_CRITERIA.priceMax)}, Kreis{" "}
-            {topKreise.join(", ")}.
-          </p>
+    <div className="space-y-6 relative">
+      {/* Ambient glow */}
+      <div className="ambient-glow glow-purple" />
+
+      {/* Hero banner */}
+      <div className="card-hero relative h-36 overflow-hidden rounded-xl">
+        <Image
+          src={HERO_IMAGES.apartments}
+          alt="Modern apartment interior"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="img-overlay-full" />
+        <div className="relative z-10 flex h-full items-end justify-between p-5">
+          <div>
+            <h1 className="font-display text-2xl font-bold text-text-primary">
+              Apartment Listings
+            </h1>
+            <p className="text-sm text-text-secondary mt-1">
+              Target: {SEARCH_CRITERIA.rooms} rooms, {formatCHF(SEARCH_CRITERIA.priceMin)}-
+              {formatCHF(SEARCH_CRITERIA.priceMax)}, Kreis {topKreise.join(", ")}.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="flex items-center gap-1.5 rounded-lg bg-accent-primary px-3 py-2 text-xs font-medium text-white hover:bg-accent-hover transition-colors shrink-0"
+          >
+            {showForm ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+            {showForm ? "Cancel" : "Add Listing"}
+          </button>
         </div>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-1.5 rounded-lg bg-accent-primary px-3 py-2 text-xs font-medium text-white hover:bg-accent-hover transition-colors"
-        >
-          {showForm ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
-          {showForm ? "Cancel" : "Add Listing"}
-        </button>
       </div>
 
       {/* Manual entry form */}

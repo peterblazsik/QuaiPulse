@@ -40,7 +40,9 @@ export default function ChecklistPage() {
   }, [completed]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Ambient glow */}
+      <div className="ambient-glow glow-cyan" />
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>

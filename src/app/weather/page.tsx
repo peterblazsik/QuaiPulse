@@ -75,7 +75,9 @@ function WeatherIcon({ icon, className = "h-8 w-8" }: { icon: string; className?
 
 export default function WeatherPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Ambient glow */}
+      <div className="ambient-glow glow-cyan" />
       {/* Header */}
       <div>
         <h1 className="font-display text-2xl font-bold text-text-primary">

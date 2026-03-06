@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { Heart, Plane, Train, Calendar, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatCHF } from "@/lib/utils";
 import { PLANNED_VISITS, COST_DEFAULTS, KEY_DATES } from "@/lib/data/katie-visits";
+import { HERO_IMAGES } from "@/lib/data/images";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -76,15 +78,28 @@ export default function KatiePage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="font-display text-2xl font-bold text-text-primary">
-          Katie Visit Planner
-        </h1>
-        <p className="text-sm text-text-tertiary mt-1">
-          Every trip planned. Every CHF accounted for. Maximum Katie time.
-        </p>
+    <div className="space-y-6 relative">
+      {/* Ambient glow */}
+      <div className="ambient-glow glow-pink" />
+
+      {/* Hero banner */}
+      <div className="card-hero relative h-40 overflow-hidden rounded-xl">
+        <Image
+          src={HERO_IMAGES.katie}
+          alt="Father and daughter at train station"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="img-overlay-full" />
+        <div className="relative z-10 flex h-full flex-col justify-end p-6">
+          <h1 className="font-display text-2xl font-bold text-text-primary">
+            Katie Visit Planner
+          </h1>
+          <p className="text-sm text-text-secondary mt-1">
+            Every trip planned. Every CHF accounted for. Maximum Katie time.
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
