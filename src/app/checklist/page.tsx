@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Check, Circle, Clock, AlertTriangle } from "lucide-react";
 import { CHECKLIST_ITEMS, type ChecklistItemData } from "@/lib/data/checklist-items";
+import { useChecklistStore } from "@/lib/stores/checklist-store";
 
 const PHASES = [
   { key: "mar-apr" as const, label: "Mar-Apr", months: "March - April", color: "#3b82f6" },
@@ -13,16 +14,8 @@ const PHASES = [
 ];
 
 export default function ChecklistPage() {
-  const [completed, setCompleted] = useState<Set<string>>(new Set());
-
-  const toggle = (id: string) => {
-    setCompleted((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
+  const { completedIds, toggle } = useChecklistStore();
+  const completed = useMemo(() => new Set(completedIds), [completedIds]);
 
   const stats = useMemo(() => {
     const total = CHECKLIST_ITEMS.length;

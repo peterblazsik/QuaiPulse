@@ -106,7 +106,7 @@ export default function SettingsPage() {
               </span>
             </div>
             <span className="text-[10px] text-text-muted">
-              Stored in session (resets on refresh)
+              Persisted in localStorage
             </span>
           </div>
         </div>

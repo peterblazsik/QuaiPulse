@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Bot, Send, Sparkles, User, AlertCircle, Square } from "lucide-react";
+import Markdown from "react-markdown";
 
 interface Message {
   id: string;
@@ -220,29 +221,8 @@ export default function AIPage() {
                   : "bg-accent-primary/15 border border-accent-primary/25"
               }`}
             >
-              <div className="text-xs text-text-secondary leading-relaxed whitespace-pre-wrap prose-sm">
-                {msg.content.split("\n").map((line, i) => {
-                  const boldParsed = line.replace(
-                    /\*\*(.*?)\*\*/g,
-                    '<strong class="text-text-primary">$1</strong>'
-                  );
-                  const codeParsed = boldParsed.replace(
-                    /`(.*?)`/g,
-                    '<code class="bg-bg-tertiary px-1 rounded text-accent-primary">$1</code>'
-                  );
-                  return (
-                    <span
-                      key={i}
-                      dangerouslySetInnerHTML={{ __html: codeParsed }}
-                    />
-                  );
-                }).reduce((prev, curr, i) => (
-                  <>
-                    {prev}
-                    {i > 0 && <br />}
-                    {curr}
-                  </>
-                ))}
+              <div className="text-xs text-text-secondary leading-relaxed prose-sm [&_strong]:text-text-primary [&_code]:bg-bg-tertiary [&_code]:px-1 [&_code]:rounded [&_code]:text-accent-primary [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4 [&_li]:mt-1 [&_p]:mt-1 [&_p:first-child]:mt-0 [&_a]:text-accent-primary [&_a]:underline">
+                <Markdown>{msg.content}</Markdown>
                 {msg.role === "assistant" && msg.content === "" && isStreaming && (
                   <span className="inline-block h-3 w-1.5 bg-accent-primary animate-pulse rounded-sm" />
                 )}

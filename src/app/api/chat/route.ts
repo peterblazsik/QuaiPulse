@@ -1,5 +1,18 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextRequest } from "next/server";
+import { z } from "zod";
+
+const ChatRequestSchema = z.object({
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant"]),
+        content: z.string().min(1).max(10_000),
+      })
+    )
+    .min(1)
+    .max(50),
+});
 
 const SYSTEM_PROMPT = `You are Pulse, an expert AI assistant for Peter Blazsik's relocation to Zurich. You have deep knowledge of Zurich neighborhoods, Swiss systems, and Peter's specific situation.
 
@@ -45,10 +58,22 @@ const SYSTEM_PROMPT = `You are Pulse, an expert AI assistant for Peter Blazsik's
 - Keep responses concise but thorough — quality over length`;
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const { messages } = body as {
-    messages: { role: "user" | "assistant"; content: string }[];
-  };
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ error: "Invalid JSON body." }, { status: 400 });
+  }
+
+  const parsed = ChatRequestSchema.safeParse(body);
+  if (!parsed.success) {
+    return Response.json(
+      { error: "Invalid request.", details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
+  }
+
+  const { messages } = parsed.data;
 
   const key = process.env.GEMINI_API_KEY;
 
@@ -92,9 +117,9 @@ export async function POST(request: NextRequest) {
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
         controller.close();
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Unknown error";
+        console.error("Gemini API error:", err);
         controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ error: message })}\n\n`)
+          encoder.encode(`data: ${JSON.stringify({ error: "AI service temporarily unavailable. Please try again." })}\n\n`)
         );
         controller.close();
       }
