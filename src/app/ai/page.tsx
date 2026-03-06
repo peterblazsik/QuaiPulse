@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Bot, Send, Sparkles, User } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Bot, Send, Sparkles, User, AlertCircle, Square } from "lucide-react";
 
 interface Message {
   id: string;
@@ -21,8 +21,7 @@ const SUGGESTION_CHIPS = [
   "How does the Swiss tax system work?",
 ];
 
-const MOCK_RESPONSES: Record<string, string> = {
-  default: `I'm Pulse, your Zurich relocation AI assistant. I have full context on your profile, priorities, budget, and neighborhood rankings.
+const WELCOME_MESSAGE = `I'm Pulse, your Zurich relocation AI assistant. I have full context on your profile, priorities, budget, and neighborhood rankings.
 
 **I can help with:**
 - Neighborhood comparisons and deep-dives
@@ -32,63 +31,134 @@ const MOCK_RESPONSES: Record<string, string> = {
 - Swiss admin, insurance, and tax questions
 - Social life recommendations
 
-Ask me anything about your move to Zurich. I know your constraints (knee, Katie visits, budget) and preferences (gym, chess, AI meetups) intimately.
-
-*Note: I'm currently in demo mode. Connect your Anthropic API key in Settings to enable live Claude responses.*`,
-};
+Ask me anything about your move to Zurich. I know your constraints (knee, Katie visits, budget) and preferences (gym, chess, AI meetups) intimately.`;
 
 export default function AIPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
       role: "assistant",
-      content: MOCK_RESPONSES.default,
+      content: WELCOME_MESSAGE,
       timestamp: new Date(),
     },
   ]);
   const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = (text?: string) => {
-    const content = text ?? input.trim();
-    if (!content) return;
+  const handleStop = useCallback(() => {
+    abortRef.current?.abort();
+    setIsStreaming(false);
+  }, []);
 
-    const userMsg: Message = {
-      id: `user-${Date.now()}`,
-      role: "user",
-      content,
-      timestamp: new Date(),
-    };
+  const handleSend = useCallback(
+    async (text?: string) => {
+      const content = text ?? input.trim();
+      if (!content || isStreaming) return;
 
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    setIsTyping(true);
+      setError(null);
 
-    // Mock response after delay
-    setTimeout(() => {
-      const response: Message = {
-        id: `assistant-${Date.now()}`,
-        role: "assistant",
-        content: `Great question about "${content.slice(0, 50)}${content.length > 50 ? "..." : ""}".
-
-This is a demo response. In production, I would:
-
-1. **Analyze your context** — current neighborhood rankings, budget state, saved apartments
-2. **Pull relevant data** — scores, rent ranges, venue proximity
-3. **Generate a personalized answer** using Claude with your full profile as system context
-
-To enable live AI responses, add your \`ANTHROPIC_API_KEY\` in the Settings page.`,
+      const userMsg: Message = {
+        id: `user-${Date.now()}`,
+        role: "user",
+        content,
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, response]);
-      setIsTyping(false);
-    }, 1200);
-  };
+
+      const assistantId = `assistant-${Date.now()}`;
+      const assistantMsg: Message = {
+        id: assistantId,
+        role: "assistant",
+        content: "",
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, userMsg, assistantMsg]);
+      setInput("");
+      setIsStreaming(true);
+
+      // Build conversation history (exclude welcome message)
+      const history = [...messages.filter((m) => m.id !== "welcome"), userMsg].map(
+        (m) => ({ role: m.role, content: m.content })
+      );
+
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: history }),
+          signal: controller.signal,
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error ?? `HTTP ${res.status}`);
+        }
+
+        const reader = res.body?.getReader();
+        if (!reader) throw new Error("No response stream");
+
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const payload = line.slice(6);
+            if (payload === "[DONE]") break;
+
+            try {
+              const parsed = JSON.parse(payload);
+              if (parsed.error) throw new Error(parsed.error);
+              if (parsed.text) {
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantId
+                      ? { ...m, content: m.content + parsed.text }
+                      : m
+                  )
+                );
+              }
+            } catch {
+              // skip malformed chunks
+            }
+          }
+        }
+      } catch (err: unknown) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          // User cancelled — keep partial response
+        } else {
+          const message =
+            err instanceof Error ? err.message : "Unknown error";
+          setError(message);
+          // Remove empty assistant message on error
+          setMessages((prev) =>
+            prev.filter((m) => m.id !== assistantId || m.content.length > 0)
+          );
+        }
+      } finally {
+        setIsStreaming(false);
+        abortRef.current = null;
+      }
+    },
+    [input, isStreaming, messages]
+  );
 
   return (
     <div className="flex flex-col h-[calc(100vh-var(--header-height)-var(--status-bar-height)-48px)]">
@@ -103,11 +173,22 @@ To enable live AI responses, add your \`ANTHROPIC_API_KEY\` in the Settings page
               Pulse AI
             </h1>
             <p className="text-[10px] text-text-muted">
-              Context-aware assistant for your Zurich move
+              Context-aware assistant for your Zurich move — powered by Gemini
             </p>
           </div>
         </div>
       </div>
+
+      {/* Error banner */}
+      {error && (
+        <div className="shrink-0 mb-3 rounded-lg border border-danger/30 bg-danger/10 px-4 py-2 flex items-start gap-2">
+          <AlertCircle className="h-4 w-4 text-danger shrink-0 mt-0.5" />
+          <div>
+            <p className="text-xs text-danger font-medium">Error</p>
+            <p className="text-[11px] text-text-secondary mt-0.5">{error}</p>
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto space-y-4 pb-4">
@@ -141,7 +222,6 @@ To enable live AI responses, add your \`ANTHROPIC_API_KEY\` in the Settings page
             >
               <div className="text-xs text-text-secondary leading-relaxed whitespace-pre-wrap prose-sm">
                 {msg.content.split("\n").map((line, i) => {
-                  // Basic markdown rendering
                   const boldParsed = line.replace(
                     /\*\*(.*?)\*\*/g,
                     '<strong class="text-text-primary">$1</strong>'
@@ -163,6 +243,9 @@ To enable live AI responses, add your \`ANTHROPIC_API_KEY\` in the Settings page
                     {curr}
                   </>
                 ))}
+                {msg.role === "assistant" && msg.content === "" && isStreaming && (
+                  <span className="inline-block h-3 w-1.5 bg-accent-primary animate-pulse rounded-sm" />
+                )}
               </div>
               <p className="text-[9px] text-text-muted mt-2">
                 {msg.timestamp.toLocaleTimeString("en-GB", {
@@ -173,21 +256,6 @@ To enable live AI responses, add your \`ANTHROPIC_API_KEY\` in the Settings page
             </div>
           </div>
         ))}
-
-        {isTyping && (
-          <div className="flex gap-3">
-            <div className="h-7 w-7 rounded-lg bg-accent-primary/20 flex items-center justify-center shrink-0">
-              <Bot className="h-3.5 w-3.5 text-accent-primary" />
-            </div>
-            <div className="rounded-xl bg-bg-secondary border border-border-default px-4 py-3">
-              <div className="flex gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-text-muted animate-bounce [animation-delay:0ms]" />
-                <span className="h-1.5 w-1.5 rounded-full bg-text-muted animate-bounce [animation-delay:150ms]" />
-                <span className="h-1.5 w-1.5 rounded-full bg-text-muted animate-bounce [animation-delay:300ms]" />
-              </div>
-            </div>
-          </div>
-        )}
 
         <div ref={endRef} />
       </div>
@@ -214,17 +282,28 @@ To enable live AI responses, add your \`ANTHROPIC_API_KEY\` in the Settings page
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
           placeholder="Ask Pulse anything about your Zurich move..."
           className="flex-1 rounded-xl border border-border-default bg-bg-secondary px-4 py-3 text-xs text-text-primary placeholder:text-text-muted focus:border-accent-primary focus:outline-none transition-colors"
+          disabled={isStreaming}
         />
-        <button
-          onClick={() => handleSend()}
-          disabled={!input.trim()}
-          className="shrink-0 rounded-xl bg-accent-primary px-4 py-3 text-white hover:bg-accent-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-        >
-          <Send className="h-4 w-4" />
-        </button>
+        {isStreaming ? (
+          <button
+            onClick={handleStop}
+            className="shrink-0 rounded-xl bg-danger/80 px-4 py-3 text-white hover:bg-danger transition-colors"
+            title="Stop generating"
+          >
+            <Square className="h-4 w-4" />
+          </button>
+        ) : (
+          <button
+            onClick={() => handleSend()}
+            disabled={!input.trim()}
+            className="shrink-0 rounded-xl bg-accent-primary px-4 py-3 text-white hover:bg-accent-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            <Send className="h-4 w-4" />
+          </button>
+        )}
       </div>
     </div>
   );

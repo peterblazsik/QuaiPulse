@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AnimatePresence, LayoutGroup } from "framer-motion";
-import { MapPin, BarChart3, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
+import { MapPin, BarChart3, TrendingUp, GitCompareArrows, X } from "lucide-react";
 import { usePriorityStore } from "@/lib/stores/priority-store";
+import { useCompareStore } from "@/lib/stores/compare-store";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
 import { rankNeighborhoods, formatScore } from "@/lib/engines/scoring";
 import { PrioritySliders } from "@/components/neighborhoods/priority-sliders";
@@ -13,6 +15,7 @@ import { formatCHF } from "@/lib/utils";
 export default function NeighborhoodsPage() {
   const weights = usePriorityStore((s) => s.weights);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { selectedIds, clear: clearCompare } = useCompareStore();
 
   const ranked = useMemo(
     () => rankNeighborhoods(NEIGHBORHOODS, weights),
@@ -101,6 +104,49 @@ export default function NeighborhoodsPage() {
             </div>
           </AnimatePresence>
         </LayoutGroup>
+
+        {/* Floating compare bar */}
+        <AnimatePresence>
+          {selectedIds.length >= 2 && (
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 rounded-xl border border-accent-primary/30 bg-bg-primary/95 backdrop-blur-xl px-5 py-3 shadow-2xl"
+            >
+              <GitCompareArrows className="h-4 w-4 text-accent-primary shrink-0" />
+              <span className="text-sm text-text-secondary">
+                {selectedIds.length} selected
+              </span>
+              <div className="flex items-center gap-1.5">
+                {selectedIds.map((id) => {
+                  const nb = NEIGHBORHOODS.find((x) => x.id === id);
+                  return nb ? (
+                    <span
+                      key={id}
+                      className="text-xs px-2 py-0.5 rounded bg-accent-primary/10 text-accent-primary font-medium"
+                    >
+                      {nb.name}
+                    </span>
+                  ) : null;
+                })}
+              </div>
+              <Link
+                href={`/neighborhoods/compare?ids=${selectedIds.join(",")}`}
+                className="ml-2 rounded-lg bg-accent-primary px-4 py-1.5 text-sm font-semibold text-white hover:bg-accent-primary/90 transition-colors"
+              >
+                Compare
+              </Link>
+              <button
+                onClick={clearCompare}
+                className="ml-1 text-text-muted hover:text-text-primary transition-colors"
+                title="Clear selection"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

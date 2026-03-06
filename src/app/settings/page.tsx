@@ -1,14 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import {
   Settings,
   User,
   Key,
   Database,
   Download,
-  Trash2,
-  Save,
   MapPin,
   Wallet,
   Heart,
@@ -17,18 +14,8 @@ import { usePriorityStore } from "@/lib/stores/priority-store";
 import { useBudgetStore } from "@/lib/stores/budget-store";
 
 export default function SettingsPage() {
-  const [apiKey, setApiKey] = useState("");
-  const [saved, setSaved] = useState(false);
   const resetWeights = usePriorityStore((s) => s.resetWeights);
   const resetBudget = useBudgetStore((s) => s.resetValues);
-
-  const handleSaveApiKey = () => {
-    if (apiKey) {
-      localStorage.setItem("ANTHROPIC_API_KEY", apiKey);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    }
-  };
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -59,35 +46,20 @@ export default function SettingsPage() {
         </div>
       </SettingsSection>
 
-      {/* API Keys */}
+      {/* API Configuration */}
       <SettingsSection
         icon={<Key className="h-4 w-4" />}
         title="API Configuration"
       >
-        <div>
-          <label className="text-[10px] uppercase tracking-wider text-text-muted block mb-1">
-            Anthropic API Key (for Pulse AI)
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="password"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder="sk-ant-..."
-              className="flex-1 rounded-lg border border-border-default bg-bg-primary px-3 py-2 text-xs text-text-primary placeholder:text-text-muted focus:border-accent-primary focus:outline-none"
-            />
-            <button
-              onClick={handleSaveApiKey}
-              className="flex items-center gap-1.5 rounded-lg bg-accent-primary px-3 py-2 text-xs font-medium text-white hover:bg-accent-hover transition-colors"
-            >
-              <Save className="h-3 w-3" />
-              {saved ? "Saved!" : "Save"}
-            </button>
-          </div>
-          <p className="text-[10px] text-text-muted mt-1">
-            Stored locally in browser. Never sent to our servers.
-          </p>
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-success shrink-0" />
+          <span className="text-xs text-text-secondary">
+            Gemini API — configured via server environment variable
+          </span>
         </div>
+        <p className="text-[10px] text-text-muted mt-2">
+          API key is stored securely in <code className="bg-bg-tertiary px-1 rounded text-accent-primary">.env.local</code> and never exposed to the browser.
+        </p>
       </SettingsSection>
 
       {/* Data management */}

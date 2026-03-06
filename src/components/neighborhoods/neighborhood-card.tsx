@@ -2,7 +2,8 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { MapPin, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { MapPin, ChevronRight, ExternalLink, GitCompareArrows } from "lucide-react";
 import type { ScoredNeighborhood } from "@/lib/engines/scoring";
 import { formatScore, scoreTextClass } from "@/lib/engines/scoring";
 import { formatCHF } from "@/lib/utils";
@@ -11,6 +12,7 @@ import { ScoreBadge } from "./score-badge";
 import { SCORE_DIMENSIONS } from "@/lib/constants";
 import type { ScoreDimension } from "@/lib/types";
 import { NEIGHBORHOOD_IMAGES } from "@/lib/data/images";
+import { useCompareStore } from "@/lib/stores/compare-store";
 
 interface NeighborhoodCardProps {
   neighborhood: ScoredNeighborhood;
@@ -23,6 +25,9 @@ export function NeighborhoodCard({
   isExpanded,
   onToggle,
 }: NeighborhoodCardProps) {
+  const compareSelected = useCompareStore((s) => s.selectedIds.includes(n.id));
+  const toggleCompare = useCompareStore((s) => s.toggle);
+
   return (
     <motion.div
       layout
@@ -81,8 +86,22 @@ export function NeighborhoodCard({
           </div>
         </div>
 
-        {/* Score */}
+        {/* Compare + Score */}
         <div className="shrink-0 flex items-center gap-3">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleCompare(n.id);
+            }}
+            className={`h-7 w-7 rounded-md flex items-center justify-center transition-colors ${
+              compareSelected
+                ? "bg-accent-primary/20 text-accent-primary"
+                : "text-text-muted hover:text-text-secondary hover:bg-bg-tertiary"
+            }`}
+            title={compareSelected ? "Remove from comparison" : "Add to comparison"}
+          >
+            <GitCompareArrows className="h-3.5 w-3.5" />
+          </button>
           <ScoreBadge score={n.weightedScore} size="lg" />
           <ChevronRight
             className={`h-4 w-4 text-text-muted transition-transform ${isExpanded ? "rotate-90" : ""}`}
@@ -230,6 +249,15 @@ export function NeighborhoodCard({
                 </ul>
               </div>
             </div>
+
+            {/* Deep-dive link */}
+            <Link
+              href={`/neighborhoods/${n.slug}`}
+              className="inline-flex items-center gap-2 text-sm font-medium text-accent-primary hover:underline transition-colors"
+            >
+              Full deep-dive
+              <ExternalLink className="h-3.5 w-3.5" />
+            </Link>
           </div>
         </motion.div>
       )}

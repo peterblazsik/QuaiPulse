@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, lazy, Suspense } from "react";
 import Image from "next/image";
 import {
   MapPin,
@@ -13,12 +13,18 @@ import {
   Laptop,
   ExternalLink,
   Star,
+  Map,
+  List,
 } from "lucide-react";
 import { VENUES, type VenueData } from "@/lib/data/venues";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
 import type { VenueType } from "@/lib/types";
 import { formatCHF } from "@/lib/utils";
 import { SOCIAL_IMAGES } from "@/lib/data/images";
+
+const VenueMap = lazy(() =>
+  import("@/components/social/venue-map").then((m) => ({ default: m.VenueMap }))
+);
 
 const CATEGORY_CONFIG: {
   type: VenueType;
@@ -37,6 +43,7 @@ const CATEGORY_CONFIG: {
 
 export default function SocialPage() {
   const [activeFilter, setActiveFilter] = useState<VenueType | "all">("all");
+  const [view, setView] = useState<"list" | "map">("list");
 
   const filtered = useMemo(() => {
     if (activeFilter === "all") return VENUES;
@@ -62,14 +69,40 @@ export default function SocialPage() {
       <div className="ambient-glow glow-amber" />
 
       {/* Header */}
-      <div>
-        <h1 className="font-display text-2xl font-bold text-text-primary">
-          Social Infrastructure
-        </h1>
-        <p className="text-sm text-text-tertiary mt-1">
-          {VENUES.length} venues mapped across {NEIGHBORHOODS.length}{" "}
-          neighborhoods. Your social life, organized.
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-text-primary">
+            Social Infrastructure
+          </h1>
+          <p className="text-sm text-text-tertiary mt-1">
+            {VENUES.length} venues mapped across {NEIGHBORHOODS.length}{" "}
+            neighborhoods. Your social life, organized.
+          </p>
+        </div>
+        <div className="flex items-center rounded-lg border border-border-default bg-bg-secondary overflow-hidden shrink-0">
+          <button
+            onClick={() => setView("list")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors ${
+              view === "list"
+                ? "bg-accent-primary/15 text-accent-primary"
+                : "text-text-muted hover:text-text-secondary"
+            }`}
+          >
+            <List className="h-3.5 w-3.5" />
+            List
+          </button>
+          <button
+            onClick={() => setView("map")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors ${
+              view === "map"
+                ? "bg-accent-primary/15 text-accent-primary"
+                : "text-text-muted hover:text-text-secondary"
+            }`}
+          >
+            <Map className="h-3.5 w-3.5" />
+            Map
+          </button>
+        </div>
       </div>
 
       {/* Category hero images */}
@@ -117,30 +150,52 @@ export default function SocialPage() {
         })}
       </div>
 
-      {/* Venue grid by neighborhood */}
-      <div className="space-y-6">
-        {Object.entries(grouped)
-          .sort(([a], [b]) => neighborhoodName(a).localeCompare(neighborhoodName(b)))
-          .map(([nid, venues]) => (
-            <div key={nid}>
-              <div className="flex items-center gap-2 mb-3">
-                <MapPin className="h-3.5 w-3.5 text-text-muted" />
-                <h3 className="text-sm font-semibold text-text-primary">
-                  {neighborhoodName(nid)}
-                </h3>
-                <span className="text-[10px] text-text-muted">
-                  {venues.length} venue{venues.length !== 1 ? "s" : ""}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {venues.map((venue) => (
-                  <VenueCard key={venue.id} venue={venue} />
-                ))}
+      {/* Map view */}
+      {view === "map" && (
+        <Suspense
+          fallback={
+            <div className="h-[500px] rounded-xl border border-border-default bg-bg-secondary flex items-center justify-center">
+              <div className="flex items-center gap-2 text-text-muted text-xs">
+                <div className="h-3 w-3 rounded-full border-2 border-accent-primary border-t-transparent animate-spin" />
+                Loading map...
               </div>
             </div>
-          ))}
-      </div>
+          }
+        >
+          <VenueMap
+            venues={filtered}
+            activeFilter={activeFilter}
+            className="h-[500px]"
+          />
+        </Suspense>
+      )}
+
+      {/* Venue grid by neighborhood */}
+      {view === "list" && (
+        <div className="space-y-6">
+          {Object.entries(grouped)
+            .sort(([a], [b]) => neighborhoodName(a).localeCompare(neighborhoodName(b)))
+            .map(([nid, venues]) => (
+              <div key={nid}>
+                <div className="flex items-center gap-2 mb-3">
+                  <MapPin className="h-3.5 w-3.5 text-text-muted" />
+                  <h3 className="text-sm font-semibold text-text-primary">
+                    {neighborhoodName(nid)}
+                  </h3>
+                  <span className="text-[10px] text-text-muted">
+                    {venues.length} venue{venues.length !== 1 ? "s" : ""}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {venues.map((venue) => (
+                    <VenueCard key={venue.id} venue={venue} />
+                  ))}
+                </div>
+              </div>
+            ))}
+        </div>
+      )}
     </div>
   );
 }
