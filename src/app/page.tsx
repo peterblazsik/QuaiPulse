@@ -1,15 +1,27 @@
 "use client";
 
+import { useMemo } from "react";
 import { daysUntil, formatCHF } from "@/lib/utils";
 import { MOVE_DATE } from "@/lib/constants";
 import { useBudgetStore, FIXED_INCOME, FIXED_COSTS_OUTSIDE } from "@/lib/stores/budget-store";
+import { usePriorityStore } from "@/lib/stores/priority-store";
+import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
+import { rankNeighborhoods, formatScore, scoreTextClass } from "@/lib/engines/scoring";
+import { RadarChart } from "@/components/neighborhoods/radar-chart";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const values = useBudgetStore((s) => s.values);
+  const weights = usePriorityStore((s) => s.weights);
   const days = daysUntil(MOVE_DATE);
   const zurichCosts = Object.values(values).reduce((a, b) => a + b, 0);
   const surplus = FIXED_INCOME - FIXED_COSTS_OUTSIDE - zurichCosts;
   const savingsRate = Math.round((surplus / FIXED_INCOME) * 100);
+
+  const top3 = useMemo(
+    () => rankNeighborhoods(NEIGHBORHOODS, weights).slice(0, 3),
+    [weights]
+  );
 
   return (
     <div className="space-y-6">
@@ -72,20 +84,40 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Status cards placeholder */}
+      {/* Top Neighborhoods + placeholders */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <PlaceholderCard
-          title="Top Neighborhoods"
-          description="Weighted scoring engine coming in Phase 1"
-        />
-        <PlaceholderCard
-          title="Budget Snapshot"
-          description="Interactive sliders coming in Phase 2"
-        />
-        <PlaceholderCard
-          title="Apartment Pipeline"
-          description="Listing aggregator coming in Phase 7"
-        />
+        {top3.map((n, i) => (
+          <Link
+            key={n.id}
+            href="/neighborhoods"
+            className="rounded-xl border border-border-default bg-bg-secondary p-4 hover:border-accent-primary/40 transition-colors"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="font-data text-sm font-bold text-text-muted">
+                  #{i + 1}
+                </span>
+                <span className="font-display text-sm font-semibold text-text-primary">
+                  {n.name}
+                </span>
+                <span className="text-[10px] text-text-muted">
+                  K{n.kreis}
+                </span>
+              </div>
+              <span
+                className={`font-data text-lg font-bold ${scoreTextClass(n.weightedScore)}`}
+              >
+                {formatScore(n.weightedScore)}
+              </span>
+            </div>
+            <div className="flex justify-center">
+              <RadarChart scores={n.scores} size={120} showLabels={false} />
+            </div>
+            <p className="text-[10px] text-text-muted text-center mt-2 italic">
+              {n.vibe}
+            </p>
+          </Link>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
