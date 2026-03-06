@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -62,8 +63,14 @@ export function Sidebar() {
     >
       {/* Logo */}
       <div className="flex h-12 items-center gap-3 border-b border-border-default px-4">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-accent-primary font-data text-xs font-bold text-white">
-          QP
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg overflow-hidden bg-black">
+          <Image
+            src="/images/logo/logo-icon.png"
+            alt="QuaiPulse"
+            width={32}
+            height={32}
+            className="object-contain"
+          />
         </div>
         {!sidebarCollapsed && (
           <span className="font-display text-lg font-semibold text-text-primary">

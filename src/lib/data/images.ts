@@ -17,6 +17,8 @@ export const HERO_IMAGES = {
   apartments: "/images/apartments/hero-interior.png",
 };
 
+export const LOGO = "/images/logo/logo-icon.png";
+
 export const SOCIAL_IMAGES: Record<string, string> = {
   gym: "/images/social/gym-header.png",
   chess: "/images/social/chess-header.png",
