@@ -7,6 +7,7 @@ import { useBudgetStore, FIXED_INCOME, FIXED_COSTS_OUTSIDE } from "@/lib/stores/
 import { usePriorityStore } from "@/lib/stores/priority-store";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
 import { rankNeighborhoods, formatScore, scoreTextClass } from "@/lib/engines/scoring";
+import { calculateBudget, EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
 import { RadarChart } from "@/components/neighborhoods/radar-chart";
 import Link from "next/link";
 
@@ -21,6 +22,11 @@ export default function DashboardPage() {
   const top3 = useMemo(
     () => rankNeighborhoods(NEIGHBORHOODS, weights).slice(0, 3),
     [weights]
+  );
+
+  const budget = useMemo(
+    () => calculateBudget(values as unknown as Record<string, number>),
+    [values]
   );
 
   return (
@@ -120,22 +126,53 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      {/* Budget snapshot + placeholders */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <PlaceholderCard
-          title="Next Actions"
-          description="Checklist integration coming in Phase 6"
-        />
+        {/* Budget mini chart */}
+        <Link
+          href="/budget"
+          className="rounded-xl border border-border-default bg-bg-secondary p-4 hover:border-accent-primary/40 transition-colors col-span-1 md:col-span-2"
+        >
+          <p className="text-[10px] uppercase tracking-wider text-text-muted mb-3">
+            Budget Snapshot
+          </p>
+          <div className="h-5 rounded-full overflow-hidden flex bg-bg-tertiary mb-2">
+            {EXPENSE_CONFIG.slice(0, 5).map((e) => {
+              const val = values[e.key as keyof typeof values];
+              const pct = (val / FIXED_INCOME) * 100;
+              return (
+                <div
+                  key={e.key}
+                  className="h-full"
+                  style={{ width: `${pct}%`, backgroundColor: e.color }}
+                  title={`${e.label}: ${formatCHF(val)}`}
+                />
+              );
+            })}
+            {budget.surplus > 0 && (
+              <div
+                className="h-full bg-emerald-500/40"
+                style={{ width: `${(budget.surplus / FIXED_INCOME) * 100}%` }}
+              />
+            )}
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-text-muted">
+              Expenses {formatCHF(budget.totalExpenses)}
+            </span>
+            <span className={`font-data font-bold ${budget.surplus >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+              Surplus {formatCHF(budget.surplus)}
+            </span>
+          </div>
+        </Link>
+
         <PlaceholderCard
           title="Katie Visit"
           description="Visit planner coming in Phase 4"
         />
         <PlaceholderCard
-          title="Weather"
-          description="OpenWeatherMap integration coming in Phase 3"
-        />
-        <PlaceholderCard
-          title="CHF/EUR"
-          description="Currency dashboard coming in Phase 9"
+          title="Next Actions"
+          description="Checklist coming in Phase 6"
         />
       </div>
     </div>
