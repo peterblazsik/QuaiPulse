@@ -11,6 +11,7 @@ import { NEIGHBORHOOD_IMAGES } from "@/lib/data/images";
 import { VENUES } from "@/lib/data/venues";
 import { usePriorityStore } from "@/lib/stores/priority-store";
 import { rankNeighborhoods, formatScore, scoreTextClass, scoreColor } from "@/lib/engines/scoring";
+import { RadarChart } from "@/components/neighborhoods/radar-chart";
 import { ScoreBadge } from "@/components/neighborhoods/score-badge";
 import { SCORE_DIMENSIONS } from "@/lib/constants";
 import { formatCHF } from "@/lib/utils";
@@ -141,7 +142,15 @@ export default function ComparePage() {
           Overlaid Radar
         </h2>
         <div className="flex justify-center">
-          <OverlaidRadar neighborhoods={compared.map((n) => n!)} colors={COMPARE_COLORS} />
+          <RadarChart
+            datasets={compared.map((n, i) => ({
+              scores: n!.scores,
+              color: COMPARE_COLORS[i],
+              id: n!.id,
+            }))}
+            size={320}
+            showLabels={true}
+          />
         </div>
         {/* Legend */}
         <div className="flex justify-center gap-6 mt-4">
@@ -389,134 +398,3 @@ export default function ComparePage() {
   );
 }
 
-/* ---- Overlaid Radar Chart ---- */
-
-import type { ScoredNeighborhood } from "@/lib/engines/scoring";
-
-function OverlaidRadar({
-  neighborhoods,
-  colors,
-}: {
-  neighborhoods: ScoredNeighborhood[];
-  colors: string[];
-}) {
-  const size = 320;
-  const center = size / 2;
-  const radius = (size / 2) * 0.72;
-  const labelRadius = (size / 2) * 0.92;
-  const dims = SCORE_DIMENSIONS;
-  const count = dims.length;
-
-  const rings = [0.2, 0.4, 0.6, 0.8, 1.0];
-
-  const axisPoints = dims.map((_, i) => {
-    const angle = (Math.PI * 2 * i) / count - Math.PI / 2;
-    return {
-      x: center + Math.cos(angle) * radius,
-      y: center + Math.sin(angle) * radius,
-      lx: center + Math.cos(angle) * labelRadius,
-      ly: center + Math.sin(angle) * labelRadius,
-    };
-  });
-
-  const LABEL_SHORT: Record<ScoreDimension, string> = {
-    commute: "COM",
-    gym: "GYM",
-    social: "SOC",
-    lake: "LKE",
-    airport: "AIR",
-    food: "FOD",
-    quiet: "QUI",
-    transit: "TRN",
-  };
-
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {/* Grid rings */}
-      {rings.map((r) => (
-        <polygon
-          key={r}
-          points={dims
-            .map((_, i) => {
-              const angle = (Math.PI * 2 * i) / count - Math.PI / 2;
-              return `${center + Math.cos(angle) * radius * r},${center + Math.sin(angle) * radius * r}`;
-            })
-            .join(" ")}
-          fill="none"
-          stroke="var(--border-default)"
-          strokeWidth={r === 1 ? 1 : 0.5}
-          opacity={0.4}
-        />
-      ))}
-
-      {/* Axis lines */}
-      {axisPoints.map((p, i) => (
-        <line
-          key={i}
-          x1={center}
-          y1={center}
-          x2={p.x}
-          y2={p.y}
-          stroke="var(--border-default)"
-          strokeWidth={0.5}
-          opacity={0.3}
-        />
-      ))}
-
-      {/* Data polygons — one per neighborhood */}
-      {neighborhoods.map((n, ni) => {
-        const points = dims.map((d, i) => {
-          const angle = (Math.PI * 2 * i) / count - Math.PI / 2;
-          const value = n.scores[d.key as ScoreDimension] / 10;
-          return `${center + Math.cos(angle) * radius * value},${center + Math.sin(angle) * radius * value}`;
-        });
-        return (
-          <polygon
-            key={n.id}
-            points={points.join(" ")}
-            fill={colors[ni]}
-            fillOpacity={0.08}
-            stroke={colors[ni]}
-            strokeWidth={2}
-            strokeLinejoin="round"
-          />
-        );
-      })}
-
-      {/* Data points */}
-      {neighborhoods.map((n, ni) =>
-        dims.map((d, i) => {
-          const angle = (Math.PI * 2 * i) / count - Math.PI / 2;
-          const value = n.scores[d.key as ScoreDimension] / 10;
-          return (
-            <circle
-              key={`${n.id}-${d.key}`}
-              cx={center + Math.cos(angle) * radius * value}
-              cy={center + Math.sin(angle) * radius * value}
-              r={3}
-              fill={colors[ni]}
-              stroke="var(--bg-primary)"
-              strokeWidth={1.5}
-            />
-          );
-        })
-      )}
-
-      {/* Labels */}
-      {axisPoints.map((p, i) => (
-        <text
-          key={i}
-          x={p.lx}
-          y={p.ly}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fill="var(--text-tertiary)"
-          fontSize={11}
-          fontFamily="var(--font-jetbrains), monospace"
-        >
-          {LABEL_SHORT[dims[i].key as ScoreDimension]}
-        </text>
-      ))}
-    </svg>
-  );
-}

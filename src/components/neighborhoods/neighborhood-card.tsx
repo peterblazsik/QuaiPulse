@@ -9,6 +9,7 @@ import { formatScore, scoreTextClass } from "@/lib/engines/scoring";
 import { formatCHF } from "@/lib/utils";
 import { RadarChart } from "./radar-chart";
 import { ScoreBadge } from "./score-badge";
+import { RentCard } from "@/components/shared/rent-card";
 import { SCORE_DIMENSIONS } from "@/lib/constants";
 import type { ScoreDimension } from "@/lib/types";
 import { NEIGHBORHOOD_IMAGES } from "@/lib/data/images";
@@ -265,23 +266,3 @@ export function NeighborhoodCard({
   );
 }
 
-function RentCard({
-  label,
-  min,
-  max,
-}: {
-  label: string;
-  min: number;
-  max: number;
-}) {
-  return (
-    <div className="rounded-lg bg-bg-primary/50 border border-border-subtle p-3 text-center">
-      <p className="text-[10px] uppercase tracking-wider text-text-muted">
-        {label}
-      </p>
-      <p className="font-data text-sm font-semibold text-text-primary mt-1">
-        {formatCHF(min)} - {formatCHF(max)}
-      </p>
-    </div>
-  );
-}

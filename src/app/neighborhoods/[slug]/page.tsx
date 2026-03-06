@@ -19,38 +19,12 @@ import { usePriorityStore } from "@/lib/stores/priority-store";
 import { rankNeighborhoods, formatScore, scoreTextClass } from "@/lib/engines/scoring";
 import { RadarChart } from "@/components/neighborhoods/radar-chart";
 import { ScoreBadge } from "@/components/neighborhoods/score-badge";
+import { RentCard } from "@/components/shared/rent-card";
 import { SCORE_DIMENSIONS } from "@/lib/constants";
 import { formatCHF } from "@/lib/utils";
+import { VENUE_TYPE_LABELS, VENUE_TYPE_TEXT_COLORS } from "@/lib/data/venue-config";
+import { PORTALS } from "@/lib/data/portal-urls";
 import type { ScoreDimension, VenueType } from "@/lib/types";
-
-const VENUE_TYPE_LABELS: Record<VenueType, string> = {
-  gym: "Gyms & Fitness",
-  chess: "Chess",
-  ai_meetup: "AI & Tech Meetups",
-  swimming: "Swimming",
-  cycling: "Cycling",
-  restaurant: "Restaurants & Food",
-  social: "Social Spots",
-  coworking: "Coworking",
-};
-
-const VENUE_TYPE_COLORS: Record<VenueType, string> = {
-  gym: "text-emerald-400",
-  chess: "text-amber-400",
-  ai_meetup: "text-violet-400",
-  swimming: "text-cyan-400",
-  cycling: "text-lime-400",
-  restaurant: "text-orange-400",
-  social: "text-pink-400",
-  coworking: "text-blue-400",
-};
-
-const PORTAL_LINKS = [
-  { name: "Homegate", url: "https://www.homegate.ch/rent/real-estate/city-zurich/matching-list" },
-  { name: "Flatfox", url: "https://flatfox.ch/en/search/?east=8.6&north=47.42&south=47.33&west=8.47" },
-  { name: "ImmoScout24", url: "https://www.immoscout24.ch/en/real-estate/rent/city-zuerich" },
-  { name: "Comparis", url: "https://en.comparis.ch/immobilien/marktplatz/zuerich/mieten" },
-];
 
 export default function NeighborhoodDetailPage() {
   const params = useParams();
@@ -261,7 +235,7 @@ export default function NeighborhoodDetailPage() {
         </h2>
         <div className="grid grid-cols-3 gap-4">
           <RentCard label="Studio" min={n.rentStudioMin} max={n.rentStudioMax} />
-          <RentCard label="1 Bedroom" min={n.rentOneBrMin} max={n.rentOneBrMax} highlight />
+          <RentCard label="1 Bedroom" min={n.rentOneBrMin} max={n.rentOneBrMax} highlight={true} />
           <RentCard label="2 Bedroom" min={n.rentTwoBrMin} max={n.rentTwoBrMax} />
         </div>
       </motion.div>
@@ -323,7 +297,7 @@ export default function NeighborhoodDetailPage() {
               ([type, venues]) => (
                 <div key={type}>
                   <h3
-                    className={`text-xs font-semibold uppercase tracking-wider mb-2 ${VENUE_TYPE_COLORS[type]}`}
+                    className={`text-xs font-semibold uppercase tracking-wider mb-2 ${VENUE_TYPE_TEXT_COLORS[type]}`}
                   >
                     {VENUE_TYPE_LABELS[type]}
                   </h3>
@@ -395,10 +369,10 @@ export default function NeighborhoodDetailPage() {
           Search Apartments in {n.name}
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {PORTAL_LINKS.map((portal) => (
+          {PORTALS.map((portal) => (
             <a
-              key={portal.name}
-              href={portal.url}
+              key={portal.id}
+              href={portal.kreisFilters[n.kreis] ? `${portal.baseUrl}${portal.kreisFilters[n.kreis]}` : portal.baseUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-lg border border-border-subtle bg-bg-secondary/50 p-3 hover:border-accent-primary/50 hover:bg-accent-primary/5 transition-colors group text-center"
@@ -438,34 +412,3 @@ export default function NeighborhoodDetailPage() {
   );
 }
 
-function RentCard({
-  label,
-  min,
-  max,
-  highlight = false,
-}: {
-  label: string;
-  min: number;
-  max: number;
-  highlight?: boolean;
-}) {
-  return (
-    <div
-      className={`rounded-lg p-4 text-center ${
-        highlight
-          ? "border-2 border-accent-primary/30 bg-accent-primary/5"
-          : "border border-border-subtle bg-bg-secondary/50"
-      }`}
-    >
-      <p className="text-[10px] uppercase tracking-wider text-text-muted">
-        {label}
-      </p>
-      <p className="font-data text-lg font-semibold text-text-primary mt-1">
-        {formatCHF(min)} - {formatCHF(max)}
-      </p>
-      {highlight && (
-        <p className="text-[10px] text-accent-primary mt-1">Target range</p>
-      )}
-    </div>
-  );
-}

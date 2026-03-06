@@ -6,32 +6,9 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import type { VenueData } from "@/lib/data/venues";
 import type { VenueType } from "@/lib/types";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
+import { OFFICE_COORDS } from "@/lib/constants";
 import { formatCHF } from "@/lib/utils";
-
-const VENUE_COLORS: Record<VenueType, string> = {
-  gym: "#ef4444",
-  chess: "#8b5cf6",
-  ai_meetup: "#3b82f6",
-  swimming: "#06b6d4",
-  cycling: "#84cc16",
-  restaurant: "#f97316",
-  social: "#f59e0b",
-  coworking: "#22c55e",
-};
-
-const VENUE_LABELS: Record<VenueType, string> = {
-  gym: "Gym",
-  chess: "Chess",
-  ai_meetup: "AI/Tech",
-  swimming: "Swimming",
-  cycling: "Cycling",
-  restaurant: "Food",
-  social: "Social",
-  coworking: "Coworking",
-};
-
-// Zurich office location
-const OFFICE = { lat: 47.3629, lng: 8.5318 };
+import { VENUE_TYPE_COLORS, VENUE_TYPE_SHORT_LABELS } from "@/lib/data/venue-config";
 // Map center — slightly north of office to center all venues
 const MAP_CENTER = { lat: 47.375, lng: 8.535 };
 
@@ -99,7 +76,7 @@ export function VenueMap({ venues, activeFilter, className = "" }: VenueMapProps
       .setHTML(`<div style="font-size:11px;font-weight:600;color:#3b82f6;">Quai Zurich Campus</div><div style="font-size:10px;color:#94a3b8;">Mythenquai — Your office</div>`);
 
     new maplibregl.Marker({ element: officeEl })
-      .setLngLat([OFFICE.lng, OFFICE.lat])
+      .setLngLat([OFFICE_COORDS.lng, OFFICE_COORDS.lat])
       .setPopup(officePopup)
       .addTo(mapRef.current!);
 
@@ -116,7 +93,7 @@ export function VenueMap({ venues, activeFilter, className = "" }: VenueMapProps
 
     // Add venue markers
     venues.forEach((venue) => {
-      const color = VENUE_COLORS[venue.type];
+      const color = VENUE_TYPE_COLORS[venue.type];
       const el = document.createElement("div");
       el.style.cssText = `width:14px;height:14px;border-radius:50%;background:${color};border:2px solid rgba(0,0,0,0.3);cursor:pointer;transition:transform 0.15s;box-shadow:0 0 6px ${color}40;`;
       el.addEventListener("mouseenter", () => {
@@ -136,7 +113,7 @@ export function VenueMap({ venues, activeFilter, className = "" }: VenueMapProps
           <div style="font-family:system-ui;padding:2px;">
             <div style="display:flex;align-items:center;gap:4px;">
               <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;"></div>
-              <span style="font-size:10px;color:${color};font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">${VENUE_LABELS[venue.type]}</span>
+              <span style="font-size:10px;color:${color};font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">${VENUE_TYPE_SHORT_LABELS[venue.type]}</span>
               ${ratingHtml}
             </div>
             <div style="font-size:12px;font-weight:600;color:#e2e8f0;margin-top:4px;">${venue.name}</div>
