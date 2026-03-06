@@ -7,7 +7,11 @@
 import { writeFileSync, mkdirSync, existsSync } from "fs";
 import { join } from "path";
 
-const API_KEY = "AIzaSyAVHhuAB27mIpeDxrjbMcoqxLGguLKPPhU";
+const API_KEY = process.env.GEMINI_API_KEY;
+if (!API_KEY) {
+  console.error("ERROR: Set GEMINI_API_KEY environment variable");
+  process.exit(1);
+}
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${API_KEY}`;
 
 const PUBLIC_DIR = join(process.cwd(), "public/images");
