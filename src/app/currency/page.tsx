@@ -1,83 +1,116 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { ArrowLeftRight, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { ArrowLeftRight, TrendingUp, TrendingDown, Minus, RefreshCw } from "lucide-react";
 import { formatCHF } from "@/lib/utils";
 import { FIXED_COSTS_OUTSIDE } from "@/lib/stores/budget-store";
 
-// Mock rates (would be fetched from API in production)
-const RATES = {
-  "CHF/EUR": { rate: 0.9412, change: -0.0023, trend: "down" as const },
-  "CHF/HUF": { rate: 421.35, change: 2.15, trend: "up" as const },
-  "EUR/HUF": { rate: 447.62, change: 1.84, trend: "up" as const },
-  "EUR/CHF": { rate: 1.0625, change: 0.0026, trend: "up" as const },
-};
-
-// Mock 30-day sparkline data
-function generateSparkline(base: number, volatility: number): number[] {
-  const points: number[] = [];
-  let val = base;
-  for (let i = 0; i < 30; i++) {
-    val += (Math.sin(i * 0.5) * volatility + (Math.random() - 0.5) * volatility * 0.3);
-    points.push(Math.round(val * 10000) / 10000);
-  }
-  return points;
+interface RateData {
+  rate: number;
+  change: number;
+  trend: "up" | "down" | "flat";
 }
 
-const SPARKLINES: Record<string, number[]> = {
-  "CHF/EUR": generateSparkline(0.9412, 0.002),
-  "CHF/HUF": generateSparkline(421.35, 1.5),
-  "EUR/CHF": generateSparkline(1.0625, 0.002),
+interface CurrencyData {
+  rates: Record<string, RateData>;
+  sparklines: Record<string, number[]>;
+  updatedAt: string;
+}
+
+// Fallback mock data in case API fails
+const FALLBACK_RATES: Record<string, RateData> = {
+  "CHF/EUR": { rate: 0.9412, change: -0.0023, trend: "down" },
+  "CHF/HUF": { rate: 421.35, change: 2.15, trend: "up" },
+  "EUR/HUF": { rate: 447.62, change: 1.84, trend: "up" },
+  "EUR/CHF": { rate: 1.0625, change: 0.0026, trend: "up" },
 };
 
 export default function CurrencyPage() {
   const [amount, setAmount] = useState(1000);
   const [fromCurrency, setFromCurrency] = useState("CHF");
+  const [data, setData] = useState<CurrencyData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const fetchRates = async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await fetch("/api/currency");
+      if (!res.ok) throw new Error("Failed");
+      const json = await res.json();
+      setData(json);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRates();
+  }, []);
+
+  const rates = data?.rates ?? FALLBACK_RATES;
+  const sparklines = data?.sparklines ?? {};
 
   const conversions = useMemo(() => {
-    if (fromCurrency === "CHF") {
-      return {
-        EUR: amount * RATES["CHF/EUR"].rate,
-        HUF: amount * RATES["CHF/HUF"].rate,
-      };
-    } else if (fromCurrency === "EUR") {
-      return {
-        CHF: amount * RATES["EUR/CHF"].rate,
-        HUF: amount * RATES["EUR/HUF"].rate,
-      };
-    }
-    return {
-      CHF: amount / RATES["CHF/HUF"].rate,
-      EUR: amount / RATES["EUR/HUF"].rate,
-    };
-  }, [amount, fromCurrency]);
+    const chfEur = rates["CHF/EUR"]?.rate ?? 0.94;
+    const chfHuf = rates["CHF/HUF"]?.rate ?? 421;
+    const eurHuf = rates["EUR/HUF"]?.rate ?? 447;
 
-  const viennaCostsEur = FIXED_COSTS_OUTSIDE * RATES["CHF/EUR"].rate;
+    if (fromCurrency === "CHF") {
+      return { EUR: amount * chfEur, HUF: amount * chfHuf };
+    } else if (fromCurrency === "EUR") {
+      return { CHF: amount / chfEur, HUF: amount * eurHuf };
+    }
+    return { CHF: amount / chfHuf, EUR: amount / eurHuf };
+  }, [amount, fromCurrency, rates]);
+
+  const chfEurRate = rates["CHF/EUR"]?.rate ?? 0.94;
+  const viennaCostsEur = FIXED_COSTS_OUTSIDE * chfEurRate;
 
   return (
     <div className="space-y-6 relative">
       {/* Ambient glow */}
       <div className="ambient-glow glow-amber" />
       {/* Header */}
-      <div>
-        <h1 className="font-display text-2xl font-bold text-text-primary">
-          Currency Dashboard
-        </h1>
-        <p className="text-sm text-text-tertiary mt-1">
-          Live rates, trends, and budget impact. Last updated: just now (mock data).
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-text-primary">
+            Currency Dashboard
+          </h1>
+          <p className="text-sm text-text-tertiary mt-1">
+            Live rates from Frankfurter API.{" "}
+            {data?.updatedAt && (
+              <span className="text-text-muted">Updated: {data.updatedAt}</span>
+            )}
+            {error && !data && (
+              <span className="text-amber-400">Using fallback rates</span>
+            )}
+          </p>
+        </div>
+        <button
+          onClick={fetchRates}
+          disabled={loading}
+          className="flex items-center gap-1.5 text-xs text-text-muted hover:text-accent-primary transition-colors disabled:opacity-40"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+          Refresh
+        </button>
       </div>
 
       {/* Rate cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {Object.entries(RATES).map(([pair, data]) => (
+        {Object.entries(rates).map(([pair, rateData]) => (
           <RateCard
             key={pair}
             pair={pair}
-            rate={data.rate}
-            change={data.change}
-            trend={data.trend}
-            sparkline={SPARKLINES[pair]}
+            rate={rateData.rate}
+            change={rateData.change}
+            trend={rateData.trend}
+            sparkline={sparklines[pair]}
+            loading={loading && !data}
           />
         ))}
       </div>
@@ -149,37 +182,21 @@ export default function CurrencyPage() {
               {"\u20AC"}{Math.round(viennaCostsEur).toLocaleString("de-CH")}
             </p>
             <p className="text-xs text-text-muted mt-1">
-              at CHF/EUR {RATES["CHF/EUR"].rate.toFixed(4)}
+              at CHF/EUR {chfEurRate.toFixed(4)}
             </p>
           </div>
 
           <div className="space-y-2 mt-4">
-            <ImpactRow
-              label="Vienna rent"
-              chf={1450}
-              rate={RATES["CHF/EUR"].rate}
-            />
-            <ImpactRow
-              label="Child support"
-              chf={915}
-              rate={RATES["CHF/EUR"].rate}
-            />
-            <ImpactRow
-              label="Utilities"
-              chf={220}
-              rate={RATES["CHF/EUR"].rate}
-            />
-            <ImpactRow
-              label="Car + OAMTC"
-              chf={175}
-              rate={RATES["CHF/EUR"].rate}
-            />
+            <ImpactRow label="Vienna rent" chf={1450} rate={chfEurRate} />
+            <ImpactRow label="Child support" chf={915} rate={chfEurRate} />
+            <ImpactRow label="Utilities" chf={220} rate={chfEurRate} />
+            <ImpactRow label="Car + OAMTC" chf={175} rate={chfEurRate} />
           </div>
 
           <div className="mt-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
             <p className="text-[10px] text-amber-400">
               If CHF weakens to 0.90 EUR, your Vienna costs effectively drop by{" "}
-              {formatCHF(Math.round(FIXED_COSTS_OUTSIDE * (RATES["CHF/EUR"].rate - 0.90)))} /mo in CHF terms.
+              {formatCHF(Math.round(FIXED_COSTS_OUTSIDE * (chfEurRate - 0.90)))} /mo in CHF terms.
             </p>
           </div>
         </div>
@@ -194,12 +211,14 @@ function RateCard({
   change,
   trend,
   sparkline,
+  loading,
 }: {
   pair: string;
   rate: number;
   change: number;
   trend: "up" | "down" | "flat";
   sparkline?: number[];
+  loading?: boolean;
 }) {
   const trendIcon =
     trend === "up" ? (
@@ -214,7 +233,7 @@ function RateCard({
     trend === "up" ? "text-emerald-400" : trend === "down" ? "text-red-400" : "text-text-muted";
 
   return (
-    <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
+    <div className={`rounded-xl border border-border-default bg-bg-secondary p-4 ${loading ? "animate-pulse" : ""}`}>
       <div className="flex items-center justify-between mb-1">
         <span className="text-xs font-semibold text-text-secondary">{pair}</span>
         <div className="flex items-center gap-1">
@@ -230,7 +249,7 @@ function RateCard({
       </p>
 
       {/* Sparkline */}
-      {sparkline && (
+      {sparkline && sparkline.length > 0 && (
         <MiniSparkline data={sparkline} color={trend === "down" ? "#ef4444" : "#22c55e"} />
       )}
     </div>

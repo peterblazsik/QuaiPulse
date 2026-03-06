@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   Settings,
   User,
@@ -12,10 +13,61 @@ import {
 } from "lucide-react";
 import { usePriorityStore } from "@/lib/stores/priority-store";
 import { useBudgetStore } from "@/lib/stores/budget-store";
+import { useChecklistStore } from "@/lib/stores/checklist-store";
+import { useApartmentStore } from "@/lib/stores/apartment-store";
+import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
+import { rankNeighborhoods } from "@/lib/engines/scoring";
+import { calculateBudget, EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
+import { PLANNED_VISITS } from "@/lib/data/katie-visits";
+import {
+  exportBudgetCSV,
+  exportRankingsCSV,
+  exportKatieICS,
+  exportFullBackup,
+} from "@/lib/exports";
 
 export default function SettingsPage() {
   const resetWeights = usePriorityStore((s) => s.resetWeights);
+  const weights = usePriorityStore((s) => s.weights);
   const resetBudget = useBudgetStore((s) => s.resetValues);
+  const budgetValues = useBudgetStore((s) => s.values);
+  const completedIds = useChecklistStore((s) => s.completedIds);
+  const apartments = useApartmentStore((s) => s.apartments);
+
+  const ranked = useMemo(
+    () => rankNeighborhoods(NEIGHBORHOODS, weights),
+    [weights]
+  );
+
+  const breakdown = useMemo(
+    () => calculateBudget(budgetValues as unknown as Record<string, number>),
+    [budgetValues]
+  );
+
+  const handleExportBudget = () => {
+    exportBudgetCSV(
+      breakdown,
+      EXPENSE_CONFIG,
+      budgetValues as unknown as Record<string, number>
+    );
+  };
+
+  const handleExportRankings = () => {
+    exportRankingsCSV(ranked);
+  };
+
+  const handleExportKatie = () => {
+    exportKatieICS(PLANNED_VISITS);
+  };
+
+  const handleExportBackup = () => {
+    exportFullBackup({
+      apartments,
+      budgetValues: budgetValues as unknown as Record<string, number>,
+      neighborhoods: ranked,
+      completedChecklistIds: completedIds,
+    });
+  };
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -51,11 +103,25 @@ export default function SettingsPage() {
         icon={<Key className="h-4 w-4" />}
         title="API Configuration"
       >
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-success shrink-0" />
-          <span className="text-xs text-text-secondary">
-            Gemini API — configured via server environment variable
-          </span>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-success shrink-0" />
+            <span className="text-xs text-text-secondary">
+              Gemini API — configured via server environment variable
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-success shrink-0" />
+            <span className="text-xs text-text-secondary">
+              Currency API — Frankfurter (free, no key needed)
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-success shrink-0" />
+            <span className="text-xs text-text-secondary">
+              Weather API — Open-Meteo (free, no key needed)
+            </span>
+          </div>
         </div>
         <p className="text-[10px] text-text-muted mt-2">
           API key is stored securely in <code className="bg-bg-tertiary px-1 rounded text-accent-primary">.env.local</code> and never exposed to the browser.
@@ -118,14 +184,11 @@ export default function SettingsPage() {
         title="Export"
       >
         <div className="flex flex-wrap gap-2">
-          <ExportButton label="Budget as CSV" />
-          <ExportButton label="Neighborhood rankings as PDF" />
-          <ExportButton label="Katie visits as .ics" />
-          <ExportButton label="Full data backup as JSON" />
+          <ExportButton label="Budget as CSV" onClick={handleExportBudget} />
+          <ExportButton label="Neighborhood rankings as CSV" onClick={handleExportRankings} />
+          <ExportButton label="Katie visits as .ics" onClick={handleExportKatie} />
+          <ExportButton label="Full data backup as JSON" onClick={handleExportBackup} />
         </div>
-        <p className="text-[10px] text-text-muted mt-2 italic">
-          Export functionality coming in Phase 9.
-        </p>
       </SettingsSection>
 
       {/* About */}
@@ -175,9 +238,12 @@ function ProfileField({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ExportButton({ label }: { label: string }) {
+function ExportButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <button className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-lg border border-border-default bg-bg-primary/50 text-text-muted hover:text-text-secondary hover:border-border-default transition-colors">
+    <button
+      onClick={onClick}
+      className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-lg border border-border-default bg-bg-primary/50 text-text-muted hover:text-text-secondary hover:border-accent-primary/30 transition-colors"
+    >
       <Download className="h-2.5 w-2.5" />
       {label}
     </button>
