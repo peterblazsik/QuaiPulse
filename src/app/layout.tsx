@@ -32,7 +32,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{const t=JSON.parse(localStorage.getItem('quaipulse-ui')||'{}');if(t.state?.theme)document.documentElement.setAttribute('data-theme',t.state.theme)}catch(e){}`,
+          }}
+        />
+      </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} ${playfairDisplay.variable} antialiased`}
       >

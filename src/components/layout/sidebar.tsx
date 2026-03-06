@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useUIStore } from "@/lib/stores/ui-store";
 import { cn } from "@/lib/utils";
+import { ThemeSelector } from "./theme-selector";
 
 const ICON_MAP = {
   LayoutDashboard,
@@ -105,6 +106,11 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Theme selector */}
+      <div className="border-t border-border-default">
+        <ThemeSelector collapsed={sidebarCollapsed} />
+      </div>
 
       {/* Collapse toggle */}
       <button

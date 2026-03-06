@@ -4,6 +4,7 @@ import { Sidebar } from "./sidebar";
 import { Header } from "./header";
 import { StatusBar } from "./status-bar";
 import { CommandPalette } from "./command-palette";
+import { ThemeInit } from "./theme-init";
 import { useUIStore } from "@/lib/stores/ui-store";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +13,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-bg-primary">
+      <ThemeInit />
       <Sidebar />
       <div
         className={cn(

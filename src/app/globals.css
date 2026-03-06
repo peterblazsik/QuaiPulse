@@ -1,17 +1,22 @@
 @import "tailwindcss";
 
-:root {
-  /* Base - Slate dark (dark-first) */
+/* ============================================================
+   THEME: MIDNIGHT BLUE (default)
+   ============================================================ */
+
+:root,
+[data-theme="midnight"] {
+  /* Base - Slate dark */
   --bg-primary: #0f172a;
   --bg-secondary: #1e293b;
   --bg-tertiary: #334155;
   --bg-elevated: #1e293b;
 
-  /* Text */
+  /* Text — boosted contrast for readability */
   --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-tertiary: #64748b;
-  --text-muted: #475569;
+  --text-secondary: #b0bec5;
+  --text-tertiary: #8094a8;
+  --text-muted: #607080;
 
   /* Accent */
   --accent-primary: #3b82f6;
@@ -45,17 +50,87 @@
   --border-default: #334155;
   --border-subtle: #1e293b;
 
+  /* Overlay base (for image overlays) */
+  --overlay-rgb: 15, 23, 42;
+
+  /* Glass */
+  --glass-bg: rgba(30, 41, 59, 0.6);
+  --glass-sidebar-bg: rgba(30, 41, 59, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.06);
+
   /* Radius */
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
 
-  /* Sidebar */
+  /* Layout */
   --sidebar-width: 256px;
   --sidebar-collapsed-width: 64px;
   --header-height: 48px;
   --status-bar-height: 32px;
 }
+
+/* ============================================================
+   THEME: OBSIDIAN GOLD
+   ============================================================ */
+
+[data-theme="obsidian"] {
+  /* Base - True black with warm brown undertones */
+  --bg-primary: #0a0a08;
+  --bg-secondary: #161412;
+  --bg-tertiary: #2a2520;
+  --bg-elevated: #1c1916;
+
+  /* Text — warm whites, strong contrast */
+  --text-primary: #f5f0e8;
+  --text-secondary: #c4b8a8;
+  --text-tertiary: #968878;
+  --text-muted: #706050;
+
+  /* Accent - Gold */
+  --accent-primary: #d4a853;
+  --accent-hover: #c49840;
+
+  /* Semantic */
+  --color-success: #22c55e;
+  --color-warning: #f5a623;
+  --color-danger: #e74c3c;
+  --color-info: #d4a853;
+
+  /* Score gradient — warmer tones */
+  --score-1: #e74c3c;
+  --score-3: #e67e22;
+  --score-5: #f5a623;
+  --score-7: #8ab648;
+  --score-9: #22c55e;
+  --score-10: #10b981;
+
+  /* Chart colors — warmer, earthier */
+  --chart-commute: #d4a853;
+  --chart-gym: #c0392b;
+  --chart-social: #e67e22;
+  --chart-lake: #2ea8a0;
+  --chart-airport: #9b59b6;
+  --chart-food: #d4783a;
+  --chart-quiet: #22c55e;
+  --chart-transit: #c06080;
+
+  /* Borders */
+  --border-default: #2a2520;
+  --border-subtle: #1c1916;
+
+  /* Overlay base */
+  --overlay-rgb: 10, 10, 8;
+
+  /* Glass — warm tinted */
+  --glass-bg: rgba(22, 20, 18, 0.7);
+  --glass-sidebar-bg: rgba(22, 20, 18, 0.9);
+  --glass-border: rgba(212, 168, 83, 0.08);
+}
+
+/* ============================================================
+   TAILWIND THEME BRIDGE
+   ============================================================ */
 
 @theme inline {
   --color-bg-primary: var(--bg-primary);
@@ -79,6 +154,10 @@
   --font-sans: var(--font-inter);
 }
 
+/* ============================================================
+   GLOBAL STYLES
+   ============================================================ */
+
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--bg-tertiary) transparent;
@@ -88,11 +167,13 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-inter), -apple-system, system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Monospace numbers - use on any data display */
+/* Monospace numbers */
 .font-data {
   font-family: var(--font-jetbrains), "JetBrains Mono", monospace;
   font-variant-numeric: tabular-nums;
@@ -105,7 +186,6 @@ body {
 
 /* ============================================================
    ELEVATION SYSTEM — Material Design 3 Dark Mode
-   Higher elevation = lighter surface + deeper shadow
    ============================================================ */
 
 .elevation-1 {
@@ -190,8 +270,8 @@ body {
 /* Hero/metric card */
 .card-hero {
   border-radius: var(--radius-lg);
-  background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(145deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  border: 1px solid var(--glass-border);
   box-shadow:
     0 4px 8px rgba(0, 0, 0, 0.3),
     0 8px 24px rgba(0, 0, 0, 0.2),
@@ -225,6 +305,7 @@ body {
 .glow-amber { background: radial-gradient(ellipse, #f59e0b, transparent 70%); }
 .glow-purple { background: radial-gradient(ellipse, #8b5cf6, transparent 70%); }
 .glow-red { background: radial-gradient(ellipse, #ef4444, transparent 70%); }
+.glow-gold { background: radial-gradient(ellipse, #d4a853, transparent 70%); }
 
 /* ============================================================
    DOT GRID BACKGROUND
@@ -255,7 +336,7 @@ body {
 }
 
 /* ============================================================
-   IMAGE OVERLAYS
+   IMAGE OVERLAYS — use CSS var for theme-aware tinting
    ============================================================ */
 
 .img-overlay-bottom {
@@ -268,10 +349,10 @@ body {
   inset: 0;
   background: linear-gradient(
     to top,
-    rgba(15, 23, 42, 1) 0%,
-    rgba(15, 23, 42, 0.85) 25%,
-    rgba(15, 23, 42, 0.4) 60%,
-    rgba(15, 23, 42, 0.2) 100%
+    rgba(var(--overlay-rgb), 1) 0%,
+    rgba(var(--overlay-rgb), 0.85) 25%,
+    rgba(var(--overlay-rgb), 0.4) 60%,
+    rgba(var(--overlay-rgb), 0.2) 100%
   );
   pointer-events: none;
 }
@@ -281,9 +362,9 @@ body {
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(15, 23, 42, 0.6) 0%,
-    rgba(15, 23, 42, 0.4) 50%,
-    rgba(15, 23, 42, 0.85) 100%
+    rgba(var(--overlay-rgb), 0.6) 0%,
+    rgba(var(--overlay-rgb), 0.4) 50%,
+    rgba(var(--overlay-rgb), 0.85) 100%
   );
   pointer-events: none;
 }
@@ -293,8 +374,8 @@ body {
   inset: 0;
   background: linear-gradient(
     to right,
-    rgba(15, 23, 42, 0.95) 0%,
-    rgba(15, 23, 42, 0.6) 40%,
+    rgba(var(--overlay-rgb), 0.95) 0%,
+    rgba(var(--overlay-rgb), 0.6) 40%,
     transparent 70%
   );
   pointer-events: none;
@@ -348,9 +429,9 @@ kbd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 4px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
   font-family: var(--font-jetbrains), monospace;
   font-size: 11px;
   color: var(--text-tertiary);
@@ -381,31 +462,31 @@ kbd {
 }
 
 /* ============================================================
-   GLASSMORPHISM HEADER
+   GLASSMORPHISM
    ============================================================ */
 
 .glass-header {
-  background: rgba(30, 41, 59, 0.6);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px) saturate(1.5);
   -webkit-backdrop-filter: blur(20px) saturate(1.5);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .glass-sidebar {
-  background: rgba(30, 41, 59, 0.85);
+  background: var(--glass-sidebar-bg);
   backdrop-filter: blur(12px) saturate(1.3);
   -webkit-backdrop-filter: blur(12px) saturate(1.3);
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  border-right: 1px solid var(--glass-border);
 }
 
 /* ============================================================
-   SECTION LABEL
+   SECTION LABEL — bumped up for readability
    ============================================================ */
 
 .section-label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
 }
