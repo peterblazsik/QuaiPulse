@@ -11,15 +11,22 @@ import {
   type SleepQuality,
 } from "@/lib/data/sleep-defaults";
 import { computeSleepScoreBreakdown, type SleepScoreBreakdown } from "@/lib/engines/sleep-score";
+import { generateAdvisories, type Advisory } from "@/lib/engines/sleep-advisories";
+import { computeComboMatrix, type ComboMatrix } from "@/lib/engines/sleep-combos";
+import { generateTonightProtocol, getTopPerformers, type TonightProtocol, type TopPerformer } from "@/lib/engines/protocol-recommender";
 
 export interface SupplementStat {
   id: string;
   name: string;
   color: string;
+  tier: number;
   avgWith: number;
   avgWithout: number;
   countWith: number;
   countWithout: number;
+  delta: number;
+  hitRate: number;        // % of nights with quality >= 4 when using
+  latencyDelta: number | null; // latency with - without (negative = better)
 }
 
 export interface InterventionStat {
@@ -30,6 +37,8 @@ export interface InterventionStat {
   avgWithout: number;
   countWith: number;
   delta: number;
+  hitRate: number;
+  latencyDelta: number | null;
 }
 
 export interface LocationStat {
@@ -62,6 +71,12 @@ export interface SleepAnalytics {
   supplementStats: SupplementStat[];
   interventionStats: InterventionStat[];
   locationStats: LocationStat[];
+
+  // ── New intelligence fields ──
+  advisories: Advisory[];
+  comboMatrix: ComboMatrix;
+  tonightProtocol: TonightProtocol;
+  topPerformers: TopPerformer[];
 }
 
 export function useSleepAnalytics(): SleepAnalytics {
@@ -182,65 +197,127 @@ export function useSleepAnalytics(): SleepAnalytics {
     return { label, avg: best.avg };
   }, [last14]);
 
+  // Enhanced supplement stats with delta, hitRate, latencyDelta
   const supplementStats = useMemo(() => {
-    const withSup: Record<string, { sum: number; count: number }> = {};
-    const withoutSup: Record<string, { sum: number; count: number }> = {};
+    const withSup: Record<string, { qualSum: number; qualCount: number; latSum: number; latCount: number }> = {};
+    const withoutSup: Record<string, { qualSum: number; qualCount: number; latSum: number; latCount: number }> = {};
+    const hitCounts: Record<string, { good: number; total: number }> = {};
+
     for (const sup of SUPPLEMENTS) {
-      withSup[sup.id] = { sum: 0, count: 0 };
-      withoutSup[sup.id] = { sum: 0, count: 0 };
+      withSup[sup.id] = { qualSum: 0, qualCount: 0, latSum: 0, latCount: 0 };
+      withoutSup[sup.id] = { qualSum: 0, qualCount: 0, latSum: 0, latCount: 0 };
+      hitCounts[sup.id] = { good: 0, total: 0 };
     }
+
     for (const e of entries) {
       for (const sup of SUPPLEMENTS) {
         if (e.supplements.includes(sup.id)) {
-          withSup[sup.id].sum += e.quality;
-          withSup[sup.id].count++;
+          withSup[sup.id].qualSum += e.quality;
+          withSup[sup.id].qualCount++;
+          if (e.sleepLatency != null) {
+            withSup[sup.id].latSum += e.sleepLatency;
+            withSup[sup.id].latCount++;
+          }
+          hitCounts[sup.id].total++;
+          if (e.quality >= 4) hitCounts[sup.id].good++;
         } else {
-          withoutSup[sup.id].sum += e.quality;
-          withoutSup[sup.id].count++;
+          withoutSup[sup.id].qualSum += e.quality;
+          withoutSup[sup.id].qualCount++;
+          if (e.sleepLatency != null) {
+            withoutSup[sup.id].latSum += e.sleepLatency;
+            withoutSup[sup.id].latCount++;
+          }
         }
       }
     }
-    return SUPPLEMENTS.map((sup) => ({
-      id: sup.id,
-      name: sup.name,
-      color: sup.color,
-      avgWith: withSup[sup.id].count > 0 ? withSup[sup.id].sum / withSup[sup.id].count : 0,
-      avgWithout: withoutSup[sup.id].count > 0 ? withoutSup[sup.id].sum / withoutSup[sup.id].count : 0,
-      countWith: withSup[sup.id].count,
-      countWithout: withoutSup[sup.id].count,
-    })).filter((s) => s.countWith > 0);
+
+    return SUPPLEMENTS.map((sup) => {
+      const wc = withSup[sup.id].qualCount;
+      const woc = withoutSup[sup.id].qualCount;
+      const avgWith = wc > 0 ? withSup[sup.id].qualSum / wc : 0;
+      const avgWithout = woc > 0 ? withoutSup[sup.id].qualSum / woc : 0;
+
+      let latencyDelta: number | null = null;
+      if (withSup[sup.id].latCount >= 2 && withoutSup[sup.id].latCount >= 2) {
+        latencyDelta = (withSup[sup.id].latSum / withSup[sup.id].latCount) -
+          (withoutSup[sup.id].latSum / withoutSup[sup.id].latCount);
+      }
+
+      return {
+        id: sup.id,
+        name: sup.name,
+        color: sup.color,
+        tier: sup.tier,
+        avgWith,
+        avgWithout,
+        countWith: wc,
+        countWithout: woc,
+        delta: wc > 0 && woc > 0 ? avgWith - avgWithout : 0,
+        hitRate: hitCounts[sup.id].total > 0 ? hitCounts[sup.id].good / hitCounts[sup.id].total : 0,
+        latencyDelta,
+      };
+    }).filter((s) => s.countWith > 0);
   }, [entries]);
 
+  // Enhanced intervention stats
   const interventionStats = useMemo(() => {
-    const withInt: Record<string, { sum: number; count: number }> = {};
-    const withoutInt: Record<string, { sum: number; count: number }> = {};
+    const withInt: Record<string, { qualSum: number; qualCount: number; latSum: number; latCount: number }> = {};
+    const withoutInt: Record<string, { qualSum: number; qualCount: number; latSum: number; latCount: number }> = {};
+    const hitCounts: Record<string, { good: number; total: number }> = {};
+
     for (const intv of INTERVENTIONS) {
-      withInt[intv.id] = { sum: 0, count: 0 };
-      withoutInt[intv.id] = { sum: 0, count: 0 };
+      withInt[intv.id] = { qualSum: 0, qualCount: 0, latSum: 0, latCount: 0 };
+      withoutInt[intv.id] = { qualSum: 0, qualCount: 0, latSum: 0, latCount: 0 };
+      hitCounts[intv.id] = { good: 0, total: 0 };
     }
+
     for (const e of entries) {
       const usedInterventions = e.interventions ?? [];
       for (const intv of INTERVENTIONS) {
         if (usedInterventions.includes(intv.id)) {
-          withInt[intv.id].sum += e.quality;
-          withInt[intv.id].count++;
+          withInt[intv.id].qualSum += e.quality;
+          withInt[intv.id].qualCount++;
+          if (e.sleepLatency != null) {
+            withInt[intv.id].latSum += e.sleepLatency;
+            withInt[intv.id].latCount++;
+          }
+          hitCounts[intv.id].total++;
+          if (e.quality >= 4) hitCounts[intv.id].good++;
         } else {
-          withoutInt[intv.id].sum += e.quality;
-          withoutInt[intv.id].count++;
+          withoutInt[intv.id].qualSum += e.quality;
+          withoutInt[intv.id].qualCount++;
+          if (e.sleepLatency != null) {
+            withoutInt[intv.id].latSum += e.sleepLatency;
+            withoutInt[intv.id].latCount++;
+          }
         }
       }
     }
-    return INTERVENTIONS.map((intv) => ({
-      id: intv.id,
-      name: intv.name,
-      category: intv.category,
-      avgWith: withInt[intv.id].count > 0 ? withInt[intv.id].sum / withInt[intv.id].count : 0,
-      avgWithout: withoutInt[intv.id].count > 0 ? withoutInt[intv.id].sum / withoutInt[intv.id].count : 0,
-      countWith: withInt[intv.id].count,
-      delta: withInt[intv.id].count > 0 && withoutInt[intv.id].count > 0
-        ? (withInt[intv.id].sum / withInt[intv.id].count) - (withoutInt[intv.id].sum / withoutInt[intv.id].count)
-        : 0,
-    })).filter((i) => i.countWith > 0).sort((a, b) => b.delta - a.delta);
+
+    return INTERVENTIONS.map((intv) => {
+      const wc = withInt[intv.id].qualCount;
+      const woc = withoutInt[intv.id].qualCount;
+      const avgWith = wc > 0 ? withInt[intv.id].qualSum / wc : 0;
+      const avgWithout = woc > 0 ? withoutInt[intv.id].qualSum / woc : 0;
+
+      let latencyDelta: number | null = null;
+      if (withInt[intv.id].latCount >= 2 && withoutInt[intv.id].latCount >= 2) {
+        latencyDelta = (withInt[intv.id].latSum / withInt[intv.id].latCount) -
+          (withoutInt[intv.id].latSum / withoutInt[intv.id].latCount);
+      }
+
+      return {
+        id: intv.id,
+        name: intv.name,
+        category: intv.category,
+        avgWith,
+        avgWithout,
+        countWith: wc,
+        delta: wc > 0 && woc > 0 ? avgWith - avgWithout : 0,
+        hitRate: hitCounts[intv.id].total > 0 ? hitCounts[intv.id].good / hitCounts[intv.id].total : 0,
+        latencyDelta,
+      };
+    }).filter((i) => i.countWith > 0).sort((a, b) => b.delta - a.delta);
   }, [entries]);
 
   const locationStats = useMemo(() => {
@@ -260,6 +337,12 @@ export function useSleepAnalytics(): SleepAnalytics {
     }).filter((d) => d.count > 0);
   }, [entries]);
 
+  // ── New intelligence computations ──────────────────────────────────────────
+  const advisories = useMemo(() => generateAdvisories(entries), [entries]);
+  const comboMatrix = useMemo(() => computeComboMatrix(entries), [entries]);
+  const tonightProtocol = useMemo(() => generateTonightProtocol(entries), [entries]);
+  const topPerformers = useMemo(() => getTopPerformers(entries), [entries]);
+
   return {
     last14, last30, prev14,
     scoreBreakdown, prevScore, scoreDelta,
@@ -269,5 +352,6 @@ export function useSleepAnalytics(): SleepAnalytics {
     avgAwakenings, prevAvgAwakenings,
     bestLocation, bestSupplement,
     supplementStats, interventionStats, locationStats,
+    advisories, comboMatrix, tonightProtocol, topPerformers,
   };
 }

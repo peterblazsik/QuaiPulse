@@ -288,6 +288,26 @@ body {
   overflow: hidden;
 }
 
+/* Form inputs — shared style for slide-over and forms */
+.form-input {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-default, #334155);
+  background: var(--bg-tertiary, #334155);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--text-primary, #f1f5f9);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.form-input:focus {
+  border-color: var(--accent-primary, #3b82f6);
+}
+.form-input::placeholder {
+  color: var(--text-muted, #708090);
+  opacity: 0.5;
+}
+
 /* ============================================================
    AMBIENT GLOWS — Per-page context color
    ============================================================ */
