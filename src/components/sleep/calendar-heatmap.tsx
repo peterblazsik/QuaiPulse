@@ -170,7 +170,7 @@ export function CalendarHeatmap({ entries }: { entries: SleepEntry[] }) {
       )}
 
       <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-        className="w-full h-auto max-h-[120px]"
+        className="w-full h-auto"
         role="img" aria-label="Sleep quality calendar heatmap">
 
         {/* Month labels */}

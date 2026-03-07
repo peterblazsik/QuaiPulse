@@ -55,8 +55,8 @@ export default function SleepPage() {
       <KpiStrip analytics={analytics} />
 
       {/* Row 1: Score Panel + Trend Chart */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div className="lg:col-span-5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+        <div className="lg:col-span-5 flex">
           <ScorePanel breakdown={analytics.scoreBreakdown} scoreDelta={analytics.scoreDelta} />
         </div>
 
@@ -73,7 +73,7 @@ export default function SleepPage() {
       </div>
 
       {/* Row 2: Heatmap + Sleep Window + Entry Form */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         <div className="lg:col-span-5 card elevation-1 p-3">
           <div className="flex items-center gap-2 mb-1">
             <Star className="h-3 w-3 text-text-muted" />

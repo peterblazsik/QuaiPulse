@@ -20,7 +20,7 @@ interface ScorePanelProps {
 
 export function ScorePanel({ breakdown, scoreDelta }: ScorePanelProps) {
   return (
-    <div className="card elevation-1 p-4 flex items-center gap-4">
+    <div className="card elevation-1 p-4 flex items-center gap-4 w-full">
       {/* Score ring */}
       <div className="flex-shrink-0 flex flex-col items-center">
         <div className="w-28 h-28">
