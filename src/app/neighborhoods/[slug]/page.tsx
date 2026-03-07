@@ -7,24 +7,23 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
-  MapPin,
   ExternalLink,
-  Star,
   ChevronRight,
 } from "lucide-react";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
 import { VENUES } from "@/lib/data/venues";
 import { NEIGHBORHOOD_IMAGES } from "@/lib/data/images";
 import { usePriorityStore } from "@/lib/stores/priority-store";
-import { rankNeighborhoods, formatScore, scoreTextClass } from "@/lib/engines/scoring";
+import { rankNeighborhoods } from "@/lib/engines/scoring";
 import { RadarChart } from "@/components/neighborhoods/radar-chart";
 import { ScoreBadge } from "@/components/neighborhoods/score-badge";
+import { ScoreBreakdown } from "@/components/neighborhoods/score-breakdown";
+import { VenueCard } from "@/components/neighborhoods/venue-card";
 import { RentCard } from "@/components/shared/rent-card";
-import { SCORE_DIMENSIONS } from "@/lib/constants";
 import { formatCHF } from "@/lib/utils";
 import { VENUE_TYPE_LABELS, VENUE_TYPE_TEXT_COLORS } from "@/lib/data/venue-config";
 import { PORTALS } from "@/lib/data/portal-urls";
-import type { ScoreDimension, VenueType } from "@/lib/types";
+import type { VenueType } from "@/lib/types";
 
 export default function NeighborhoodDetailPage() {
   const params = useParams();
@@ -181,45 +180,7 @@ export default function NeighborhoodDetailPage() {
           </div>
 
           {/* Dimension scores */}
-          <div className="space-y-3">
-            {SCORE_DIMENSIONS.map((dim) => {
-              const key = dim.key as ScoreDimension;
-              const score = n.scores[key];
-              const note = n.notes[key];
-              return (
-                <div key={key}>
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="h-2.5 w-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: dim.color }}
-                    />
-                    <span className="text-xs text-text-secondary w-24 font-medium">
-                      {dim.label}
-                    </span>
-                    <div className="flex-1 h-2 rounded-full bg-bg-tertiary overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${(score / 10) * 100}%` }}
-                        transition={{ duration: 0.6, delay: 0.15 }}
-                        className="h-full rounded-full"
-                        style={{ backgroundColor: dim.color }}
-                      />
-                    </div>
-                    <span
-                      className={`font-data text-sm font-semibold w-8 text-right ${scoreTextClass(score)}`}
-                    >
-                      {formatScore(score)}
-                    </span>
-                  </div>
-                  {note && (
-                    <p className="text-[11px] text-text-muted ml-[136px] mt-1 leading-snug">
-                      {note}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          <ScoreBreakdown scores={n.scores} notes={n.notes} />
         </div>
       </motion.div>
 
@@ -303,52 +264,7 @@ export default function NeighborhoodDetailPage() {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {venues.map((v) => (
-                      <div
-                        key={v.id}
-                        className="rounded-lg border border-border-subtle bg-bg-secondary/50 p-3 hover:border-border-default transition-colors"
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-text-primary truncate">
-                              {v.name}
-                            </p>
-                            <p className="text-[11px] text-text-muted flex items-center gap-1 mt-0.5">
-                              <MapPin className="h-3 w-3 shrink-0" />
-                              <span className="truncate">{v.address}</span>
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            {v.rating && (
-                              <span className="flex items-center gap-0.5 text-xs text-amber-400 font-data">
-                                <Star className="h-3 w-3 fill-amber-400" />
-                                {v.rating.toFixed(1)}
-                              </span>
-                            )}
-                            {v.monthlyPrice && (
-                              <span className="font-data text-xs text-text-tertiary">
-                                {formatCHF(v.monthlyPrice)}/mo
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        {v.personalNote && (
-                          <p className="text-[11px] text-text-tertiary mt-1.5 leading-snug italic">
-                            {v.personalNote}
-                          </p>
-                        )}
-                        {v.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {v.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="text-[10px] px-1.5 py-0.5 rounded bg-bg-tertiary text-text-muted"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                      <VenueCard key={v.id} venue={v} />
                     ))}
                   </div>
                 </div>

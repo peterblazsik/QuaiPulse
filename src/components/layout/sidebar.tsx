@@ -52,15 +52,26 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { sidebarCollapsed, toggleSidebar } = useUIStore();
+  const { sidebarCollapsed, toggleSidebar, mobileSidebarOpen, setMobileSidebarOpen } = useUIStore();
 
   return (
-    <aside
-      className={cn(
-        "glass-sidebar fixed left-0 top-0 z-30 flex h-screen flex-col transition-all duration-200",
-        sidebarCollapsed ? "w-16" : "w-64"
+    <>
+      {/* Mobile backdrop */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
       )}
-    >
+      <aside
+        className={cn(
+          "glass-sidebar fixed left-0 top-0 z-40 flex h-screen flex-col transition-all duration-200",
+          // Desktop: show based on collapsed state
+          sidebarCollapsed ? "md:w-16" : "md:w-64",
+          // Mobile: off-screen by default, slide in when open
+          mobileSidebarOpen ? "w-64 translate-x-0" : "-translate-x-full md:translate-x-0"
+        )}
+      >
       {/* Logo */}
       <div className="flex h-12 items-center gap-3 border-b border-border-default px-4">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg overflow-hidden bg-black">
@@ -80,7 +91,7 @@ export function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-2">
+      <nav aria-label="Main navigation" className="flex-1 overflow-y-auto py-2">
         {NAV_ITEMS.map((item) => {
           const Icon = ICON_MAP[item.icon];
           const isActive =
@@ -91,6 +102,8 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              aria-current={isActive ? "page" : undefined}
+              onClick={() => setMobileSidebarOpen(false)}
               className={cn(
                 "group flex items-center gap-3 px-4 py-2 text-sm transition-colors",
                 isActive
@@ -122,6 +135,7 @@ export function Sidebar() {
       {/* Collapse toggle */}
       <button
         onClick={toggleSidebar}
+        aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         className="flex h-10 items-center justify-center border-t border-border-default text-text-tertiary transition-colors hover:text-text-primary"
       >
         {sidebarCollapsed ? (
@@ -131,5 +145,6 @@ export function Sidebar() {
         )}
       </button>
     </aside>
+    </>
   );
 }

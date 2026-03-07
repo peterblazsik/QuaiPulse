@@ -40,16 +40,12 @@ export default function SettingsPage() {
   );
 
   const breakdown = useMemo(
-    () => calculateBudget(budgetValues as unknown as Record<string, number>),
+    () => calculateBudget(budgetValues),
     [budgetValues]
   );
 
   const handleExportBudget = () => {
-    exportBudgetCSV(
-      breakdown,
-      EXPENSE_CONFIG,
-      budgetValues as unknown as Record<string, number>
-    );
+    exportBudgetCSV(breakdown, EXPENSE_CONFIG, budgetValues);
   };
 
   const handleExportRankings = () => {
@@ -63,7 +59,7 @@ export default function SettingsPage() {
   const handleExportBackup = () => {
     exportFullBackup({
       apartments,
-      budgetValues: budgetValues as unknown as Record<string, number>,
+      budgetValues,
       neighborhoods: ranked,
       completedChecklistIds: completedIds,
     });
@@ -200,7 +196,7 @@ export default function SettingsPage() {
           v0.1.0 — Personal Zurich Life Navigator
         </p>
         <p className="text-[10px] text-text-muted mt-1">
-          Built with Next.js 16, React 19, Tailwind 4, tRPC v11, Drizzle ORM
+          Built with Next.js 16, React 19, Tailwind 4, Zustand, Framer Motion
         </p>
       </div>
     </div>

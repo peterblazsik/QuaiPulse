@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, Menu } from "lucide-react";
 import { useUIStore } from "@/lib/stores/ui-store";
 import { daysUntil } from "@/lib/utils";
 import { MOVE_DATE } from "@/lib/constants";
@@ -23,6 +23,7 @@ const ROUTE_TITLES: Record<string, string> = {
 export function Header() {
   const pathname = usePathname();
   const setCommandPaletteOpen = useUIStore((s) => s.setCommandPaletteOpen);
+  const setMobileSidebarOpen = useUIStore((s) => s.setMobileSidebarOpen);
   const days = daysUntil(MOVE_DATE);
 
   const title =
@@ -35,8 +36,17 @@ export function Header() {
     "";
 
   return (
-    <header className="glass-header flex h-12 shrink-0 items-center justify-between px-6">
-      <h1 className="text-sm font-medium text-text-primary">{title}</h1>
+    <header className="glass-header flex h-12 shrink-0 items-center justify-between px-4 md:px-6">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setMobileSidebarOpen(true)}
+          className="md:hidden text-text-tertiary hover:text-text-primary transition-colors"
+          aria-label="Open menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <h1 className="text-sm font-medium text-text-primary">{title}</h1>
+      </div>
 
       <div className="flex items-center gap-4">
         {/* Search trigger */}

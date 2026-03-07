@@ -43,7 +43,7 @@ export function KeyboardHelp({ registerToggle }: KeyboardHelpProps) {
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50">
+        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}

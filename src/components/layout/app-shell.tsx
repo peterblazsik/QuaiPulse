@@ -21,7 +21,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div
         className={cn(
           "flex flex-1 flex-col transition-all duration-200",
-          sidebarCollapsed ? "ml-16" : "ml-64"
+          // No margin on mobile (sidebar is overlay), margin on desktop
+          sidebarCollapsed ? "md:ml-16" : "md:ml-64"
         )}
       >
         <Header />

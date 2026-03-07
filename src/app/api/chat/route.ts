@@ -2,6 +2,22 @@ import { GoogleGenAI } from "@google/genai";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 
+// Simple in-memory rate limiter (per-IP, 10 requests per minute)
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 10;
+const requestCounts = new Map<string, { count: number; resetAt: number }>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = requestCounts.get(ip);
+  if (!entry || now > entry.resetAt) {
+    requestCounts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX;
+}
+
 const ChatRequestSchema = z.object({
   messages: z
     .array(
@@ -58,6 +74,14 @@ const SYSTEM_PROMPT = `You are Pulse, an expert AI assistant for Peter Blazsik's
 - Keep responses concise but thorough — quality over length`;
 
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (isRateLimited(ip)) {
+    return Response.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429 }
+    );
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -67,10 +91,7 @@ export async function POST(request: NextRequest) {
 
   const parsed = ChatRequestSchema.safeParse(body);
   if (!parsed.success) {
-    return Response.json(
-      { error: "Invalid request.", details: parsed.error.flatten().fieldErrors },
-      { status: 400 }
-    );
+    return Response.json({ error: "Invalid request." }, { status: 400 });
   }
 
   const { messages } = parsed.data;
@@ -79,8 +100,8 @@ export async function POST(request: NextRequest) {
 
   if (!key) {
     return Response.json(
-      { error: "GEMINI_API_KEY not configured on the server." },
-      { status: 401 }
+      { error: "AI service is not available." },
+      { status: 503 }
     );
   }
 

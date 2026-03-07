@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,7 +22,7 @@ interface NeighborhoodCardProps {
   onToggle: () => void;
 }
 
-export function NeighborhoodCard({
+export const NeighborhoodCard = memo(function NeighborhoodCard({
   neighborhood: n,
   isExpanded,
   onToggle,
@@ -264,5 +265,5 @@ export function NeighborhoodCard({
       )}
     </motion.div>
   );
-}
+});
 

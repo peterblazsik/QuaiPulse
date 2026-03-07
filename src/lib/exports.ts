@@ -1,41 +1,72 @@
 import type { SavedApartment } from "@/lib/stores/apartment-store";
 import type { ScoredNeighborhood } from "@/lib/engines/scoring";
 import type { BudgetBreakdown, ExpenseItem } from "@/lib/engines/budget-calculator";
+import type { BudgetValues } from "@/lib/stores/budget-store";
 import type { KatieVisitData } from "@/lib/data/katie-visits";
+
+function csvEscape(value: string): string {
+  if (
+    value.includes(",") ||
+    value.includes('"') ||
+    value.includes("\n") ||
+    value.includes("\r")
+  ) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  // Guard against formula injection in spreadsheets
+  if (/^[=+\-@\t\r]/.test(value)) {
+    return `"'${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
+function csvRow(cells: string[]): string {
+  return cells.map(csvEscape).join(",");
+}
 
 // ---- CSV Export (Budget) ----
 
 export function exportBudgetCSV(
   breakdown: BudgetBreakdown,
   expenses: ExpenseItem[],
-  values: Record<string, number>
+  values: BudgetValues | Record<string, number>
 ) {
   const rows = [
-    ["Category", "Amount (CHF)"],
-    ["--- INCOME ---", ""],
-    ["Net Salary", "11450"],
-    ["Expense Allowance", "700"],
-    ["Total Income", String(breakdown.totalIncome)],
-    ["", ""],
-    ["--- FIXED OUTSIDE ---", ""],
-    ["Vienna Costs", String(breakdown.fixedOutside)],
-    ["", ""],
-    ["--- ZURICH EXPENSES ---", ""],
-    ...expenses.map((e) => [e.label, String(values[e.key] ?? e.value)]),
-    ["Total Zurich", String(breakdown.zurichCosts)],
-    ["", ""],
-    ["--- SUMMARY ---", ""],
-    ["Total Expenses", String(breakdown.totalExpenses)],
-    ["Monthly Surplus", String(breakdown.surplus)],
-    ["Savings Rate", `${breakdown.savingsRate.toFixed(1)}%`],
-    ["Annual Surplus", String(breakdown.annualSurplus)],
+    csvRow(["Category", "Amount (CHF)"]),
+    csvRow(["--- INCOME ---", ""]),
+    csvRow(["Net Salary", "11450"]),
+    csvRow(["Expense Allowance", "700"]),
+    csvRow(["Total Income", String(breakdown.totalIncome)]),
+    csvRow(["", ""]),
+    csvRow(["--- FIXED OUTSIDE ---", ""]),
+    csvRow(["Vienna Costs", String(breakdown.fixedOutside)]),
+    csvRow(["", ""]),
+    csvRow(["--- ZURICH EXPENSES ---", ""]),
+    ...expenses.map((e) =>
+      csvRow([e.label, String((values as Record<string, number>)[e.key] ?? e.value)])
+    ),
+    csvRow(["Total Zurich", String(breakdown.zurichCosts)]),
+    csvRow(["", ""]),
+    csvRow(["--- SUMMARY ---", ""]),
+    csvRow(["Total Expenses", String(breakdown.totalExpenses)]),
+    csvRow(["Monthly Surplus", String(breakdown.surplus)]),
+    csvRow(["Savings Rate", `${breakdown.savingsRate.toFixed(1)}%`]),
+    csvRow(["Annual Surplus", String(breakdown.annualSurplus)]),
   ];
 
-  const csv = rows.map((r) => r.join(",")).join("\n");
+  const csv = rows.join("\n");
   downloadFile(csv, "quaipulse-budget.csv", "text/csv");
 }
 
 // ---- ICS Export (Katie Visits) ----
+
+function icsEscape(value: string): string {
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\n/g, "\\n");
+}
 
 export function exportKatieICS(visits: KatieVisitData[]) {
   const events = visits.map((v) => {
@@ -55,8 +86,8 @@ export function exportKatieICS(visits: KatieVisitData[]) {
       "BEGIN:VEVENT",
       `DTSTART;VALUE=DATE:${dtStart}`,
       `DTEND;VALUE=DATE:${dtEnd}`,
-      `SUMMARY:${summary}`,
-      `DESCRIPTION:${description}`,
+      `SUMMARY:${icsEscape(summary)}`,
+      `DESCRIPTION:${icsEscape(description)}`,
       `UID:${v.id}@quaipulse`,
       "END:VEVENT",
     ].join("\r\n");
@@ -84,7 +115,7 @@ function incrementDate(dateStr: string): string {
 
 export function exportFullBackup(data: {
   apartments: SavedApartment[];
-  budgetValues: Record<string, number>;
+  budgetValues: BudgetValues | Record<string, number>;
   neighborhoods: ScoredNeighborhood[];
   completedChecklistIds: string[];
 }) {
@@ -119,25 +150,27 @@ export function exportRankingsCSV(neighborhoods: ScoredNeighborhood[]) {
     "Vibe",
   ];
 
-  const rows = neighborhoods.map((n) => [
-    String(n.rank),
-    n.name,
-    String(n.kreis),
-    n.weightedScore.toFixed(2),
-    String(n.scores.commute),
-    String(n.scores.gym),
-    String(n.scores.social),
-    String(n.scores.lake),
-    String(n.scores.airport),
-    String(n.scores.food),
-    String(n.scores.quiet),
-    String(n.scores.transit),
-    String(n.rentOneBrMin),
-    String(n.rentOneBrMax),
-    `"${n.vibe}"`,
-  ]);
+  const rows = neighborhoods.map((n) =>
+    csvRow([
+      String(n.rank),
+      n.name,
+      String(n.kreis),
+      n.weightedScore.toFixed(2),
+      String(n.scores.commute),
+      String(n.scores.gym),
+      String(n.scores.social),
+      String(n.scores.lake),
+      String(n.scores.airport),
+      String(n.scores.food),
+      String(n.scores.quiet),
+      String(n.scores.transit),
+      String(n.rentOneBrMin),
+      String(n.rentOneBrMax),
+      n.vibe,
+    ])
+  );
 
-  const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+  const csv = [csvRow(headers), ...rows].join("\n");
   downloadFile(csv, "quaipulse-neighborhoods.csv", "text/csv");
 }
 

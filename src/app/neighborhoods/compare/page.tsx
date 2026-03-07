@@ -36,7 +36,10 @@ export default function ComparePage() {
   );
 
   const compared = useMemo(
-    () => ids.map((id) => ranked.find((n) => n.id === id)).filter(Boolean),
+    () =>
+      ids
+        .map((id) => ranked.find((n) => n.id === id))
+        .filter((n): n is (typeof ranked)[number] => n !== undefined),
     [ids, ranked]
   );
 
@@ -58,7 +61,7 @@ export default function ComparePage() {
   }
 
   const winner = compared.reduce((best, n) =>
-    n!.weightedScore > best!.weightedScore ? n : best
+    n.weightedScore > best!.weightedScore ? n : best
   )!;
 
   return (
@@ -88,11 +91,11 @@ export default function ComparePage() {
       {/* Hero cards row */}
       <div className={`grid gap-4 grid-cols-${compared.length}`} style={{ gridTemplateColumns: `repeat(${compared.length}, 1fr)` }}>
         {compared.map((n, i) => {
-          const img = NEIGHBORHOOD_IMAGES[n!.id];
-          const isWinner = n!.id === winner.id;
+          const img = NEIGHBORHOOD_IMAGES[n.id];
+          const isWinner = n.id === winner.id;
           return (
             <motion.div
-              key={n!.id}
+              key={n.id}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
@@ -100,7 +103,7 @@ export default function ComparePage() {
             >
               {img && (
                 <div className="relative h-32">
-                  <Image src={img} alt={n!.name} fill className="object-cover" />
+                  <Image src={img} alt={n.name} fill className="object-cover" />
                   <div className="img-overlay-fade" />
                   {isWinner && (
                     <div className="absolute top-2 right-2 z-10 flex items-center gap-1 rounded-full bg-accent-primary/90 px-2 py-0.5 text-[10px] font-bold text-white">
@@ -116,15 +119,15 @@ export default function ComparePage() {
                   style={{ backgroundColor: COMPARE_COLORS[i] }}
                 />
                 <h3 className="font-display text-lg font-semibold text-text-primary">
-                  {n!.name}
+                  {n.name}
                 </h3>
                 <p className="text-[10px] text-text-muted uppercase tracking-wider">
-                  Kreis {n!.kreis} — Rank #{n!.rank}
+                  Kreis {n.kreis} — Rank #{n.rank}
                 </p>
                 <div className="mt-2 flex justify-center">
-                  <ScoreBadge score={n!.weightedScore} size="lg" />
+                  <ScoreBadge score={n.weightedScore} size="lg" />
                 </div>
-                <p className="text-xs text-text-tertiary italic mt-2">{n!.vibe}</p>
+                <p className="text-xs text-text-tertiary italic mt-2">{n.vibe}</p>
               </div>
             </motion.div>
           );
@@ -144,9 +147,9 @@ export default function ComparePage() {
         <div className="flex justify-center">
           <RadarChart
             datasets={compared.map((n, i) => ({
-              scores: n!.scores,
+              scores: n.scores,
               color: COMPARE_COLORS[i],
-              id: n!.id,
+              id: n.id,
             }))}
             size={320}
             showLabels={true}
@@ -155,12 +158,12 @@ export default function ComparePage() {
         {/* Legend */}
         <div className="flex justify-center gap-6 mt-4">
           {compared.map((n, i) => (
-            <div key={n!.id} className="flex items-center gap-2">
+            <div key={n.id} className="flex items-center gap-2">
               <div
                 className="h-2.5 w-2.5 rounded-full"
                 style={{ backgroundColor: COMPARE_COLORS[i] }}
               />
-              <span className="text-xs text-text-secondary">{n!.name}</span>
+              <span className="text-xs text-text-secondary">{n.name}</span>
             </div>
           ))}
         </div>
@@ -179,7 +182,7 @@ export default function ComparePage() {
         <div className="space-y-4">
           {SCORE_DIMENSIONS.map((dim) => {
             const key = dim.key as ScoreDimension;
-            const scores = compared.map((n) => n!.scores[key]);
+            const scores = compared.map((n) => n.scores[key]);
             const maxScore = Math.max(...scores);
             return (
               <div key={key}>
@@ -194,12 +197,12 @@ export default function ComparePage() {
                 </div>
                 <div className="space-y-1.5">
                   {compared.map((n, i) => {
-                    const score = n!.scores[key];
+                    const score = n.scores[key];
                     const isBest = score === maxScore;
                     return (
-                      <div key={n!.id} className="flex items-center gap-2">
+                      <div key={n.id} className="flex items-center gap-2">
                         <span className="text-[11px] text-text-muted w-24 text-right truncate">
-                          {n!.name}
+                          {n.name}
                         </span>
                         <div className="flex-1 h-2 rounded-full bg-bg-tertiary overflow-hidden">
                           <motion.div
@@ -247,11 +250,11 @@ export default function ComparePage() {
                 </th>
                 {compared.map((n, i) => (
                   <th
-                    key={n!.id}
+                    key={n.id}
                     className="text-center pb-2 px-2"
                   >
                     <span className="text-[10px] uppercase tracking-wider" style={{ color: COMPARE_COLORS[i] }}>
-                      {n!.name}
+                      {n.name}
                     </span>
                   </th>
                 ))}
@@ -261,19 +264,19 @@ export default function ComparePage() {
               <tr className="border-b border-border-subtle/50">
                 <td className="text-text-secondary py-2 pr-4">Studio</td>
                 {compared.map((n) => (
-                  <td key={n!.id} className="text-center text-text-primary py-2 px-2">
-                    {formatCHF(n!.rentStudioMin)}-{formatCHF(n!.rentStudioMax)}
+                  <td key={n.id} className="text-center text-text-primary py-2 px-2">
+                    {formatCHF(n.rentStudioMin)}-{formatCHF(n.rentStudioMax)}
                   </td>
                 ))}
               </tr>
               <tr className="border-b border-border-subtle/50 bg-accent-primary/5">
                 <td className="text-text-secondary py-2 pr-4 font-medium">1 Bedroom</td>
                 {compared.map((n) => {
-                  const cheapest = Math.min(...compared.map((x) => x!.rentOneBrMin));
-                  const isCheapest = n!.rentOneBrMin === cheapest;
+                  const cheapest = Math.min(...compared.map((x) => x.rentOneBrMin));
+                  const isCheapest = n.rentOneBrMin === cheapest;
                   return (
-                    <td key={n!.id} className={`text-center py-2 px-2 ${isCheapest ? "text-success font-semibold" : "text-text-primary"}`}>
-                      {formatCHF(n!.rentOneBrMin)}-{formatCHF(n!.rentOneBrMax)}
+                    <td key={n.id} className={`text-center py-2 px-2 ${isCheapest ? "text-success font-semibold" : "text-text-primary"}`}>
+                      {formatCHF(n.rentOneBrMin)}-{formatCHF(n.rentOneBrMax)}
                       {isCheapest && compared.length > 1 && (
                         <span className="block text-[10px] text-success">Cheapest</span>
                       )}
@@ -284,8 +287,8 @@ export default function ComparePage() {
               <tr>
                 <td className="text-text-secondary py-2 pr-4">2 Bedroom</td>
                 {compared.map((n) => (
-                  <td key={n!.id} className="text-center text-text-primary py-2 px-2">
-                    {formatCHF(n!.rentTwoBrMin)}-{formatCHF(n!.rentTwoBrMax)}
+                  <td key={n.id} className="text-center text-text-primary py-2 px-2">
+                    {formatCHF(n.rentTwoBrMin)}-{formatCHF(n.rentTwoBrMax)}
                   </td>
                 ))}
               </tr>
@@ -306,18 +309,18 @@ export default function ComparePage() {
         </h2>
         <div style={{ gridTemplateColumns: `repeat(${compared.length}, 1fr)` }} className="grid gap-4">
           {compared.map((n, i) => (
-            <div key={n!.id}>
+            <div key={n.id}>
               <h3
                 className="text-xs font-semibold uppercase tracking-wider mb-3"
                 style={{ color: COMPARE_COLORS[i] }}
               >
-                {n!.name}
+                {n.name}
               </h3>
               <div className="space-y-3">
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-success mb-1.5">Pros</p>
                   <ul className="space-y-1">
-                    {n!.pros.map((pro, j) => (
+                    {n.pros.map((pro, j) => (
                       <li key={j} className="text-xs text-text-secondary flex items-start gap-1.5">
                         <span className="text-success shrink-0 mt-0.5 font-bold">+</span>
                         {pro}
@@ -328,7 +331,7 @@ export default function ComparePage() {
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-danger mb-1.5">Cons</p>
                   <ul className="space-y-1">
-                    {n!.cons.map((con, j) => (
+                    {n.cons.map((con, j) => (
                       <li key={j} className="text-xs text-text-secondary flex items-start gap-1.5">
                         <span className="text-danger shrink-0 mt-0.5 font-bold">-</span>
                         {con}
@@ -354,14 +357,14 @@ export default function ComparePage() {
         </h2>
         <div style={{ gridTemplateColumns: `repeat(${compared.length}, 1fr)` }} className="grid gap-4">
           {compared.map((n, i) => {
-            const venues = VENUES.filter((v) => v.neighborhoodId === n!.id);
+            const venues = VENUES.filter((v) => v.neighborhoodId === n.id);
             return (
-              <div key={n!.id}>
+              <div key={n.id}>
                 <h3
                   className="text-xs font-semibold uppercase tracking-wider mb-2"
                   style={{ color: COMPARE_COLORS[i] }}
                 >
-                  {n!.name} ({venues.length})
+                  {n.name} ({venues.length})
                 </h3>
                 {venues.length === 0 ? (
                   <p className="text-xs text-text-muted italic">No venues listed</p>
@@ -385,12 +388,12 @@ export default function ComparePage() {
       <div className="flex flex-wrap gap-3 pb-8">
         {compared.map((n, i) => (
           <Link
-            key={n!.id}
-            href={`/neighborhoods/${n!.slug}`}
+            key={n.id}
+            href={`/neighborhoods/${n.slug}`}
             className="text-sm font-medium hover:underline transition-colors"
             style={{ color: COMPARE_COLORS[i] }}
           >
-            {n!.name} deep-dive →
+            {n.name} deep-dive →
           </Link>
         ))}
       </div>

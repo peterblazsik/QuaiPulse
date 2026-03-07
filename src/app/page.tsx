@@ -27,7 +27,7 @@ export default function DashboardPage() {
   );
 
   const budget = useMemo(
-    () => calculateBudget(values as unknown as Record<string, number>),
+    () => calculateBudget(values),
     [values]
   );
 

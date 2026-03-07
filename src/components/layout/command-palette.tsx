@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
 import {
@@ -35,11 +35,16 @@ const COMMANDS = [
 export function CommandPalette() {
   const router = useRouter();
   const { commandPaletteOpen, setCommandPaletteOpen } = useUIStore();
+  const triggerRef = useRef<Element | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
+        if (!commandPaletteOpen) {
+          triggerRef.current = document.activeElement;
+        }
         setCommandPaletteOpen(!commandPaletteOpen);
       }
     };
@@ -47,10 +52,42 @@ export function CommandPalette() {
     return () => document.removeEventListener("keydown", down);
   }, [commandPaletteOpen, setCommandPaletteOpen]);
 
+  // Focus trap
+  useEffect(() => {
+    if (!commandPaletteOpen || !dialogRef.current) return;
+    const dialog = dialogRef.current;
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const focusable = dialog.querySelectorAll<HTMLElement>(
+        'input, button, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    dialog.addEventListener("keydown", handleTab);
+    return () => dialog.removeEventListener("keydown", handleTab);
+  }, [commandPaletteOpen]);
+
+  // Restore focus on close
+  useEffect(() => {
+    if (!commandPaletteOpen && triggerRef.current instanceof HTMLElement) {
+      triggerRef.current.focus();
+      triggerRef.current = null;
+    }
+  }, [commandPaletteOpen]);
+
   if (!commandPaletteOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Command palette" ref={dialogRef}>
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"

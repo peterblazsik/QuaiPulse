@@ -14,7 +14,7 @@ export default function BudgetPage() {
   const values = useBudgetStore((s) => s.values);
 
   const breakdown = useMemo(
-    () => calculateBudget(values as unknown as Record<string, number>),
+    () => calculateBudget(values),
     [values]
   );
 

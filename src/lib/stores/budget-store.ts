@@ -1,8 +1,9 @@
 "use client";
 
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-interface BudgetValues {
+export interface BudgetValues {
   rent: number;
   healthInsurance: number;
   foodDining: number;
@@ -37,9 +38,14 @@ const DEFAULT_VALUES: BudgetValues = {
 export const FIXED_INCOME = 12150; // Net salary 11,450 + expense allowance 700
 export const FIXED_COSTS_OUTSIDE = 2760; // Vienna rent + child support + Vienna utils + car
 
-export const useBudgetStore = create<BudgetStore>((set) => ({
-  values: { ...DEFAULT_VALUES },
-  setValue: (key, value) =>
-    set((s) => ({ values: { ...s.values, [key]: value } })),
-  resetValues: () => set({ values: { ...DEFAULT_VALUES } }),
-}));
+export const useBudgetStore = create<BudgetStore>()(
+  persist(
+    (set) => ({
+      values: { ...DEFAULT_VALUES },
+      setValue: (key, value) =>
+        set((s) => ({ values: { ...s.values, [key]: value } })),
+      resetValues: () => set({ values: { ...DEFAULT_VALUES } }),
+    }),
+    { name: "quaipulse-budget" }
+  )
+);

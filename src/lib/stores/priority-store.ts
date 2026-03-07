@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import type { PriorityWeights } from "@/lib/types";
 
 interface PriorityStore {
@@ -20,9 +21,14 @@ const DEFAULT_WEIGHTS: PriorityWeights = {
   transit: 6,
 };
 
-export const usePriorityStore = create<PriorityStore>((set) => ({
-  weights: { ...DEFAULT_WEIGHTS },
-  setWeight: (dimension, value) =>
-    set((s) => ({ weights: { ...s.weights, [dimension]: value } })),
-  resetWeights: () => set({ weights: { ...DEFAULT_WEIGHTS } }),
-}));
+export const usePriorityStore = create<PriorityStore>()(
+  persist(
+    (set) => ({
+      weights: { ...DEFAULT_WEIGHTS },
+      setWeight: (dimension, value) =>
+        set((s) => ({ weights: { ...s.weights, [dimension]: value } })),
+      resetWeights: () => set({ weights: { ...DEFAULT_WEIGHTS } }),
+    }),
+    { name: "quaipulse-priorities" }
+  )
+);

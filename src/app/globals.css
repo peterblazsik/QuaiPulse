@@ -490,3 +490,19 @@ kbd {
   letter-spacing: 0.12em;
   color: var(--text-tertiary);
 }
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-shimmer::after,
+  .skeleton {
+    animation: none;
+  }
+
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

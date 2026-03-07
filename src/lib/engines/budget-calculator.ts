@@ -1,4 +1,4 @@
-import { FIXED_INCOME, FIXED_COSTS_OUTSIDE } from "@/lib/stores/budget-store";
+import { type BudgetValues, FIXED_INCOME, FIXED_COSTS_OUTSIDE } from "@/lib/stores/budget-store";
 
 export interface BudgetBreakdown {
   totalIncome: number;
@@ -49,7 +49,7 @@ export const INCOME_ITEMS = [
 ];
 
 export function calculateBudget(
-  zurichValues: Record<string, number>
+  zurichValues: BudgetValues | Record<string, number>
 ): BudgetBreakdown {
   const zurichCosts = Object.values(zurichValues).reduce((a, b) => a + b, 0);
   const totalExpenses = FIXED_COSTS_OUTSIDE + zurichCosts;

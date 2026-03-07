@@ -12,10 +12,12 @@ export const THEMES: { id: ThemeId; label: string; preview: [string, string, str
 
 interface UIStore {
   sidebarCollapsed: boolean;
+  mobileSidebarOpen: boolean;
   commandPaletteOpen: boolean;
   theme: ThemeId;
   toggleSidebar: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
+  setMobileSidebarOpen: (open: boolean) => void;
   setCommandPaletteOpen: (open: boolean) => void;
   setTheme: (theme: ThemeId) => void;
 }
@@ -24,10 +26,12 @@ export const useUIStore = create<UIStore>()(
   persist(
     (set) => ({
       sidebarCollapsed: false,
+      mobileSidebarOpen: false,
       commandPaletteOpen: false,
       theme: "midnight",
       toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
       setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+      setMobileSidebarOpen: (open) => set({ mobileSidebarOpen: open }),
       setCommandPaletteOpen: (open) => set({ commandPaletteOpen: open }),
       setTheme: (theme) => {
         document.documentElement.setAttribute("data-theme", theme);
