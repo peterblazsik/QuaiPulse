@@ -71,13 +71,13 @@ export const DEFAULT_SUBSCRIPTIONS: SubscriptionData[] = [
   // Software
   {
     id: "sub-claude",
-    name: "Claude Pro",
+    name: "Claude Max",
     category: "software",
-    monthlyCostEUR: 18.00,
-    monthlyCostCHF: 18.00,
+    monthlyCostEUR: 200.00,
+    monthlyCostCHF: 200.00,
     billingCycle: "monthly",
     essential: true,
-    notes: "Non-negotiable. Core work tool.",
+    notes: "Non-negotiable. Core work tool. Max tier for unlimited usage.",
   },
   {
     id: "sub-chatgpt",

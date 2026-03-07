@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   CreditCard,
   Scissors,
@@ -8,6 +8,9 @@ import {
   Check,
   TrendingDown,
   ArrowRight,
+  Plus,
+  X,
+  Trash2,
 } from "lucide-react";
 import {
   DEFAULT_SUBSCRIPTIONS,
@@ -31,7 +34,14 @@ function formatEUR(amount: number): string {
 }
 
 export default function SubscriptionsPage() {
-  const { decisions, setDecision, resetDecisions } = useSubscriptionStore();
+  const { decisions, setDecision, resetDecisions, customSubs, addCustomSub, removeCustomSub } =
+    useSubscriptionStore();
+  const [showAddForm, setShowAddForm] = useState(false);
+
+  const allSubs = useMemo(
+    () => [...DEFAULT_SUBSCRIPTIONS, ...customSubs],
+    [customSubs]
+  );
 
   const getAction = (id: string): SubAction => decisions[id] ?? "undecided";
 
@@ -41,7 +51,7 @@ export default function SubscriptionsPage() {
     let potentialSavingsCHF = 0;
     let undecidedCount = 0;
 
-    for (const sub of DEFAULT_SUBSCRIPTIONS) {
+    for (const sub of allSubs) {
       const action = getAction(sub.id);
       currentBurnEUR += sub.monthlyCostEUR;
 
@@ -60,13 +70,13 @@ export default function SubscriptionsPage() {
 
     return { currentBurnEUR, postMoveBurnCHF, potentialSavingsCHF, undecidedCount };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [decisions]);
+  }, [decisions, allSubs]);
 
   // Group by action
-  const undecided = DEFAULT_SUBSCRIPTIONS.filter((s) => getAction(s.id) === "undecided");
-  const kept = DEFAULT_SUBSCRIPTIONS.filter((s) => getAction(s.id) === "keep");
-  const cut = DEFAULT_SUBSCRIPTIONS.filter((s) => getAction(s.id) === "cut");
-  const replaced = DEFAULT_SUBSCRIPTIONS.filter((s) => getAction(s.id) === "replace");
+  const undecided = allSubs.filter((s) => getAction(s.id) === "undecided");
+  const kept = allSubs.filter((s) => getAction(s.id) === "keep");
+  const cut = allSubs.filter((s) => getAction(s.id) === "cut");
+  const replaced = allSubs.filter((s) => getAction(s.id) === "replace");
 
   // Category breakdown for donut
   const categoryBreakdown = useMemo(() => {
@@ -80,7 +90,7 @@ export default function SubscriptionsPage() {
       news: 0,
       other: 0,
     };
-    for (const sub of DEFAULT_SUBSCRIPTIONS) {
+    for (const sub of allSubs) {
       map[sub.category] += sub.monthlyCostEUR || sub.monthlyCostCHF;
     }
     return Object.entries(map)
@@ -90,15 +100,27 @@ export default function SubscriptionsPage() {
         amount,
         ...CATEGORY_CONFIG[cat as SubCategory],
       }));
-  }, []);
+  }, [allSubs]);
 
   // Subs with swiss alternatives for comparison table
-  const withAlternatives = DEFAULT_SUBSCRIPTIONS.filter((s) => s.swissAlternative);
+  const withAlternatives = allSubs.filter((s) => s.swissAlternative);
+  const customSubIds = useMemo(() => new Set(customSubs.map((s) => s.id)), [customSubs]);
 
   return (
     <div className="space-y-6 relative">
       {/* Ambient glow */}
       <div className="ambient-glow glow-pink" />
+
+      {/* Add Subscription Modal */}
+      {showAddForm && (
+        <AddSubscriptionForm
+          onAdd={(sub) => {
+            addCustomSub(sub);
+            setShowAddForm(false);
+          }}
+          onClose={() => setShowAddForm(false)}
+        />
+      )}
 
       {/* Header */}
       <div className="flex items-start justify-between">
@@ -107,15 +129,24 @@ export default function SubscriptionsPage() {
             Subscription Manager
           </h1>
           <p className="text-sm text-text-tertiary mt-1">
-            {DEFAULT_SUBSCRIPTIONS.length} subscriptions tracked. Triage each one for the move: keep, cut, or replace.
+            {allSubs.length} subscriptions tracked. Triage each one for the move: keep, cut, or replace.
           </p>
         </div>
-        <button
-          onClick={resetDecisions}
-          className="text-xs px-3 py-1.5 rounded-lg border border-border-default bg-bg-secondary text-text-muted hover:text-text-secondary transition-colors"
-        >
-          Reset All
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-accent-primary/30 bg-accent-primary/10 text-accent-primary hover:bg-accent-primary/20 transition-colors"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Add
+          </button>
+          <button
+            onClick={resetDecisions}
+            className="text-xs px-3 py-1.5 rounded-lg border border-border-default bg-bg-secondary text-text-muted hover:text-text-secondary transition-colors"
+          >
+            Reset All
+          </button>
+        </div>
       </div>
 
       {/* KPI Row */}
@@ -144,7 +175,7 @@ export default function SubscriptionsPage() {
         <KPICard
           label="Undecided"
           value={String(stats.undecidedCount)}
-          sublabel={`of ${DEFAULT_SUBSCRIPTIONS.length} subs`}
+          sublabel={`of ${allSubs.length} subs`}
           icon={<Check className="h-4 w-4" />}
           color={stats.undecidedCount === 0 ? "#22c55e" : "#f59e0b"}
         />
@@ -189,6 +220,8 @@ export default function SubscriptionsPage() {
               subs={undecided}
               getAction={getAction}
               setDecision={setDecision}
+              customSubIds={customSubIds}
+              onDeleteCustom={removeCustomSub}
             />
           )}
 
@@ -201,6 +234,8 @@ export default function SubscriptionsPage() {
               subs={kept}
               getAction={getAction}
               setDecision={setDecision}
+              customSubIds={customSubIds}
+              onDeleteCustom={removeCustomSub}
             />
             <TriageColumn
               title="Cut"
@@ -209,6 +244,8 @@ export default function SubscriptionsPage() {
               subs={cut}
               getAction={getAction}
               setDecision={setDecision}
+              customSubIds={customSubIds}
+              onDeleteCustom={removeCustomSub}
             />
             <TriageColumn
               title="Replace"
@@ -217,6 +254,8 @@ export default function SubscriptionsPage() {
               subs={replaced}
               getAction={getAction}
               setDecision={setDecision}
+              customSubIds={customSubIds}
+              onDeleteCustom={removeCustomSub}
             />
           </div>
         </div>
@@ -387,6 +426,8 @@ function TriageSection({
   subs,
   getAction,
   setDecision,
+  customSubIds,
+  onDeleteCustom,
 }: {
   title: string;
   count: number;
@@ -394,6 +435,8 @@ function TriageSection({
   subs: SubscriptionData[];
   getAction: (id: string) => SubAction;
   setDecision: (id: string, action: SubAction) => void;
+  customSubIds: Set<string>;
+  onDeleteCustom: (id: string) => void;
 }) {
   return (
     <div>
@@ -411,6 +454,7 @@ function TriageSection({
             sub={sub}
             action={getAction(sub.id)}
             setDecision={setDecision}
+            onDelete={customSubIds.has(sub.id) ? () => onDeleteCustom(sub.id) : undefined}
           />
         ))}
       </div>
@@ -426,6 +470,8 @@ function TriageColumn({
   subs,
   getAction,
   setDecision,
+  customSubIds,
+  onDeleteCustom,
 }: {
   title: string;
   icon: React.ReactNode;
@@ -433,6 +479,8 @@ function TriageColumn({
   subs: SubscriptionData[];
   getAction: (id: string) => SubAction;
   setDecision: (id: string, action: SubAction) => void;
+  customSubIds: Set<string>;
+  onDeleteCustom: (id: string) => void;
 }) {
   return (
     <div>
@@ -459,6 +507,7 @@ function TriageColumn({
               action={getAction(sub.id)}
               setDecision={setDecision}
               compact
+              onDelete={customSubIds.has(sub.id) ? () => onDeleteCustom(sub.id) : undefined}
             />
           ))
         )}
@@ -473,11 +522,13 @@ function SubCard({
   action,
   setDecision,
   compact = false,
+  onDelete,
 }: {
   sub: SubscriptionData;
   action: SubAction;
   setDecision: (id: string, action: SubAction) => void;
   compact?: boolean;
+  onDelete?: () => void;
 }) {
   const cat = CATEGORY_CONFIG[sub.category];
   const borderColor =
@@ -531,12 +582,23 @@ function SubCard({
             </span>
           </div>
         </div>
-        {!compact && sub.monthlyCostCHF > 0 && (
-          <div className="text-right shrink-0">
-            <p className="font-data text-xs text-text-primary">{formatCHF(sub.monthlyCostCHF)}</p>
-            <p className="text-[8px] text-text-muted">in CH</p>
-          </div>
-        )}
+        <div className="flex items-center gap-2 shrink-0">
+          {!compact && sub.monthlyCostCHF > 0 && (
+            <div className="text-right">
+              <p className="font-data text-xs text-text-primary">{formatCHF(sub.monthlyCostCHF)}</p>
+              <p className="text-[8px] text-text-muted">in CH</p>
+            </div>
+          )}
+          {onDelete && (
+            <button
+              onClick={onDelete}
+              className="p-1 rounded text-text-muted hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              title="Remove custom subscription"
+            >
+              <Trash2 className="h-3 w-3" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Notes */}
@@ -587,6 +649,166 @@ function SubCard({
           />
         )}
       </div>
+    </div>
+  );
+}
+
+/* ---------- Add Subscription Form ---------- */
+function AddSubscriptionForm({
+  onAdd,
+  onClose,
+}: {
+  onAdd: (sub: SubscriptionData) => void;
+  onClose: () => void;
+}) {
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState<SubCategory>("other");
+  const [costEUR, setCostEUR] = useState("");
+  const [costCHF, setCostCHF] = useState("");
+  const [essential, setEssential] = useState(false);
+  const [notes, setNotes] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    const eurVal = parseFloat(costEUR) || 0;
+    const chfVal = parseFloat(costCHF) || eurVal;
+    onAdd({
+      id: `custom-${Date.now()}`,
+      name: name.trim(),
+      category,
+      monthlyCostEUR: eurVal,
+      monthlyCostCHF: chfVal,
+      billingCycle: "monthly",
+      essential,
+      notes: notes.trim() || undefined,
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-md rounded-xl border border-border-default bg-bg-primary p-5 shadow-2xl space-y-4"
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-text-primary">Add Subscription</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 rounded text-text-muted hover:text-text-secondary hover:bg-bg-tertiary transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <label className="text-[10px] text-text-muted uppercase tracking-wider block mb-1">
+              Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Hetzner VPS"
+              className="w-full rounded-lg border border-border-default bg-bg-secondary px-3 py-2 text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-primary"
+              autoFocus
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[10px] text-text-muted uppercase tracking-wider block mb-1">
+                Category
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value as SubCategory)}
+                className="w-full rounded-lg border border-border-default bg-bg-secondary px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-accent-primary"
+              >
+                {Object.entries(CATEGORY_CONFIG).map(([key, cfg]) => (
+                  <option key={key} value={key}>
+                    {cfg.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-end pb-0.5">
+              <label className="flex items-center gap-2 text-xs text-text-secondary cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={essential}
+                  onChange={(e) => setEssential(e.target.checked)}
+                  className="rounded border-border-default"
+                />
+                Essential
+              </label>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[10px] text-text-muted uppercase tracking-wider block mb-1">
+                Monthly cost (EUR)
+              </label>
+              <input
+                type="number"
+                value={costEUR}
+                onChange={(e) => setCostEUR(e.target.value)}
+                placeholder="0"
+                min="0"
+                step="0.01"
+                className="w-full rounded-lg border border-border-default bg-bg-secondary px-3 py-2 text-xs text-text-primary font-data placeholder:text-text-muted focus:outline-none focus:border-accent-primary"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] text-text-muted uppercase tracking-wider block mb-1">
+                Monthly cost (CHF)
+              </label>
+              <input
+                type="number"
+                value={costCHF}
+                onChange={(e) => setCostCHF(e.target.value)}
+                placeholder="Same as EUR"
+                min="0"
+                step="0.01"
+                className="w-full rounded-lg border border-border-default bg-bg-secondary px-3 py-2 text-xs text-text-primary font-data placeholder:text-text-muted focus:outline-none focus:border-accent-primary"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-[10px] text-text-muted uppercase tracking-wider block mb-1">
+              Notes (optional)
+            </label>
+            <input
+              type="text"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Any notes about this subscription"
+              className="w-full rounded-lg border border-border-default bg-bg-secondary px-3 py-2 text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-primary"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-xs px-4 py-2 rounded-lg border border-border-default bg-bg-secondary text-text-muted hover:text-text-secondary transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={!name.trim()}
+            className="text-xs px-4 py-2 rounded-lg bg-accent-primary text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Add Subscription
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
