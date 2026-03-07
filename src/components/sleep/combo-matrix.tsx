@@ -10,11 +10,6 @@ interface ComboMatrixProps {
   matrix: ComboMatrixType;
 }
 
-const CELL_SIZE = 28;
-const GAP = 2;
-const LABEL_W = 90;
-const LABEL_H = 60;
-
 export function ComboMatrixChart({ matrix }: ComboMatrixProps) {
   const [hovered, setHovered] = useState<ComboCell | null>(null);
 
@@ -32,9 +27,6 @@ export function ComboMatrixChart({ matrix }: ComboMatrixProps) {
 
   const rows = matrix.supplementIds;
   const cols = matrix.interventionIds;
-
-  const svgW = LABEL_W + cols.length * (CELL_SIZE + GAP);
-  const svgH = LABEL_H + rows.length * (CELL_SIZE + GAP);
 
   function getCell(supId: string, intvId: string): ComboCell | undefined {
     return matrix.cells.find((c) => c.supplementId === supId && c.interventionId === intvId);
@@ -76,79 +68,70 @@ export function ComboMatrixChart({ matrix }: ComboMatrixProps) {
         </div>
       )}
 
+      {/* Grid-based matrix — fixed cell sizes, no SVG scaling issues */}
       <div className="overflow-x-auto -mx-4 px-4">
-        <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full h-auto" style={{ minWidth: `${Math.min(svgW, 400)}px` }}>
-          {/* Column labels (interventions) */}
-          {cols.map((intvId, ci) => {
-            const name = INTERVENTIONS.find((i) => i.id === intvId)?.name ?? intvId;
-            const truncated = name.length > 12 ? name.slice(0, 10) + "…" : name;
-            return (
-              <text key={`col-${intvId}`}
-                x={LABEL_W + ci * (CELL_SIZE + GAP) + CELL_SIZE / 2}
-                y={LABEL_H - 4}
-                textAnchor="end" dominantBaseline="central"
-                transform={`rotate(-45 ${LABEL_W + ci * (CELL_SIZE + GAP) + CELL_SIZE / 2} ${LABEL_H - 4})`}
-                className="font-data" fontSize="7" fill="#64748b">
-                {truncated}
-              </text>
-            );
-          })}
+        <table className="border-collapse" style={{ fontSize: 0 }}>
+          {/* Column header row */}
+          <thead>
+            <tr>
+              <th className="w-[80px]" />
+              {cols.map((intvId) => {
+                const name = INTERVENTIONS.find((i) => i.id === intvId)?.name ?? intvId;
+                const short = name.length > 10 ? name.slice(0, 8) + "…" : name;
+                return (
+                  <th key={`col-${intvId}`} className="pb-1 px-[1px]" style={{ width: 26 }}>
+                    <div className="font-data text-[7px] text-text-muted font-normal whitespace-nowrap origin-bottom-left"
+                      style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", height: 48, lineHeight: "26px" }}>
+                      {short}
+                    </div>
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((supId) => {
+              const sup = SUPPLEMENTS.find((s) => s.id === supId);
+              const name = sup?.name ?? supId;
+              const short = name.length > 14 ? name.slice(0, 12) + "…" : name;
 
-          {/* Row labels (supplements) + cells */}
-          {rows.map((supId, ri) => {
-            const sup = SUPPLEMENTS.find((s) => s.id === supId);
-            const name = sup?.name ?? supId;
-            const truncated = name.length > 16 ? name.slice(0, 14) + "…" : name;
-
-            return (
-              <g key={`row-${supId}`}>
-                <text x={LABEL_W - 4}
-                  y={LABEL_H + ri * (CELL_SIZE + GAP) + CELL_SIZE / 2}
-                  textAnchor="end" dominantBaseline="central"
-                  className="font-data" fontSize="7" fill="#94a3b8">
-                  {truncated}
-                </text>
-
-                {cols.map((intvId, ci) => {
-                  const cell = getCell(supId, intvId);
-                  const cx = LABEL_W + ci * (CELL_SIZE + GAP);
-                  const cy = LABEL_H + ri * (CELL_SIZE + GAP);
-
-                  if (!cell) {
+              return (
+                <tr key={`row-${supId}`}>
+                  <td className="pr-1.5 text-right align-middle">
+                    <span className="font-data text-[8px] text-slate-400 whitespace-nowrap">{short}</span>
+                  </td>
+                  {cols.map((intvId) => {
+                    const cell = getCell(supId, intvId);
                     return (
-                      <rect key={`cell-${supId}-${intvId}`}
-                        x={cx} y={cy} width={CELL_SIZE} height={CELL_SIZE} rx={3}
-                        fill="#0f172a" opacity={0.3}
-                      />
+                      <td key={`cell-${supId}-${intvId}`} className="p-[1px] align-middle">
+                        {cell ? (
+                          <div
+                            className="flex items-center justify-center rounded-[3px] font-data text-[8px] font-semibold text-white/90 transition-all hover:ring-1 hover:ring-white/40 cursor-pointer"
+                            style={{
+                              width: 26,
+                              height: 22,
+                              backgroundColor: getComboCellColor(cell.avgQuality, matrix.baseline),
+                              opacity: getComboCellOpacity(cell.count),
+                            }}
+                            onMouseEnter={() => setHovered(cell)}
+                            onMouseLeave={() => setHovered(null)}
+                          >
+                            {cell.avgQuality.toFixed(1)}
+                          </div>
+                        ) : (
+                          <div
+                            className="rounded-[3px]"
+                            style={{ width: 26, height: 22, backgroundColor: "#0f172a", opacity: 0.3 }}
+                          />
+                        )}
+                      </td>
                     );
-                  }
-
-                  const fillColor = getComboCellColor(cell.avgQuality, matrix.baseline);
-                  const opacity = getComboCellOpacity(cell.count);
-                  const isHovered = hovered?.supplementId === supId && hovered?.interventionId === intvId;
-
-                  return (
-                    <g key={`cell-${supId}-${intvId}`}
-                      onMouseEnter={() => setHovered(cell)}
-                      onMouseLeave={() => setHovered(null)}
-                      style={{ cursor: "pointer" }}>
-                      <rect x={cx} y={cy} width={CELL_SIZE} height={CELL_SIZE} rx={3}
-                        fill={fillColor} opacity={opacity}
-                        stroke={isHovered ? "#e2e8f0" : "none"} strokeWidth={isHovered ? 1.5 : 0}
-                      />
-                      <text x={cx + CELL_SIZE / 2} y={cy + CELL_SIZE / 2}
-                        textAnchor="middle" dominantBaseline="central"
-                        className="font-data" fontSize="8" fill="#e2e8f0" fontWeight="600"
-                        style={{ pointerEvents: "none" }}>
-                        {cell.avgQuality.toFixed(1)}
-                      </text>
-                    </g>
-                  );
-                })}
-              </g>
-            );
-          })}
-        </svg>
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
 
       {/* Legend */}
