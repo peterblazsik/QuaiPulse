@@ -2,7 +2,9 @@
 
 import { useMemo } from "react";
 import { useBudgetStore } from "@/lib/stores/budget-store";
-import { calculateBudget } from "@/lib/engines/budget-calculator";
+import { calculateBudget, EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
+import { exportBudgetCSV } from "@/lib/exports";
+import { Download } from "lucide-react";
 import { IncomeSection } from "@/components/budget/income-section";
 import { ExpenseSliders } from "@/components/budget/expense-sliders";
 import { SurplusDisplay } from "@/components/budget/surplus-display";
@@ -23,14 +25,23 @@ export default function BudgetPage() {
       {/* Ambient glow */}
       <div className="ambient-glow glow-green" />
       {/* Header */}
-      <div>
-        <h1 className="font-display text-2xl font-bold text-text-primary">
-          Budget Simulator
-        </h1>
-        <p className="text-sm text-text-tertiary mt-1">
-          Drag the sliders. Watch your surplus move in real time. Every CHF
-          accounted for.
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-text-primary">
+            Budget Simulator
+          </h1>
+          <p className="text-sm text-text-tertiary mt-1">
+            Drag the sliders. Watch your surplus move in real time. Every CHF
+            accounted for.
+          </p>
+        </div>
+        <button
+          onClick={() => exportBudgetCSV(breakdown, EXPENSE_CONFIG, values)}
+          className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-lg border border-border-default bg-bg-secondary text-text-muted hover:text-text-secondary hover:border-accent-primary/30 transition-colors shrink-0"
+        >
+          <Download className="h-3 w-3" />
+          Export CSV
+        </button>
       </div>
 
       {/* Main layout: 3-column on desktop */}

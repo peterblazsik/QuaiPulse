@@ -19,12 +19,14 @@ import { useCompareStore } from "@/lib/stores/compare-store";
 interface NeighborhoodCardProps {
   neighborhood: ScoredNeighborhood;
   isExpanded: boolean;
+  isFocused?: boolean;
   onToggle: () => void;
 }
 
 export const NeighborhoodCard = memo(function NeighborhoodCard({
   neighborhood: n,
   isExpanded,
+  isFocused,
   onToggle,
 }: NeighborhoodCardProps) {
   const compareSelected = useCompareStore((s) => s.selectedIds.includes(n.id));
@@ -32,12 +34,13 @@ export const NeighborhoodCard = memo(function NeighborhoodCard({
 
   return (
     <motion.div
+      id={`nb-card-${n.id}`}
       layout
       layoutId={n.id}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 500, damping: 35 }}
-      className="card group overflow-hidden relative"
+      className={`card group overflow-hidden relative${isFocused ? " ring-2 ring-accent-primary/50" : ""}`}
     >
       {/* Background image (subtle) */}
       {NEIGHBORHOOD_IMAGES[n.id] && (
@@ -46,6 +49,7 @@ export const NeighborhoodCard = memo(function NeighborhoodCard({
             src={NEIGHBORHOOD_IMAGES[n.id]}
             alt=""
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover opacity-[0.07] group-hover:opacity-[0.12] transition-opacity duration-500"
           />
         </div>
@@ -128,6 +132,7 @@ export const NeighborhoodCard = memo(function NeighborhoodCard({
                   src={NEIGHBORHOOD_IMAGES[n.id]}
                   alt={n.name}
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover"
                 />
                 <div className="img-overlay-fade" />

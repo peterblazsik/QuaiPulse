@@ -8,6 +8,8 @@ import { MOVE_DATE } from "@/lib/constants";
 import { useBudgetStore, FIXED_INCOME, FIXED_COSTS_OUTSIDE } from "@/lib/stores/budget-store";
 import { usePriorityStore } from "@/lib/stores/priority-store";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
+import { PLANNED_VISITS } from "@/lib/data/katie-visits";
+import { CHECKLIST_ITEMS } from "@/lib/data/checklist-items";
 import { rankNeighborhoods, formatScore, scoreTextClass } from "@/lib/engines/scoring";
 import { calculateBudget, EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
 import { RadarChart } from "@/components/neighborhoods/radar-chart";
@@ -42,6 +44,7 @@ export default function DashboardPage() {
           src={HERO_IMAGES.dashboard}
           alt="Zurich twilight"
           fill
+          sizes="100vw"
           className="object-cover"
           priority
         />
@@ -124,7 +127,7 @@ export default function DashboardPage() {
           {top3.map((n, i) => (
             <Link
               key={n.id}
-              href="/neighborhoods"
+              href={`/neighborhoods/${n.id}`}
               className="card card-interactive relative overflow-hidden"
             >
               <div className="card-hover-line" />
@@ -135,6 +138,7 @@ export default function DashboardPage() {
                     src={NEIGHBORHOOD_IMAGES[n.id]}
                     alt={n.name}
                     fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover opacity-30"
                   />
                   <div className="img-overlay-fade" />
@@ -172,10 +176,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Budget snapshot */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Link
           href="/budget"
-          className="card card-interactive p-4 relative overflow-hidden col-span-1 md:col-span-2"
+          className="group card card-interactive p-4 relative overflow-hidden col-span-1 md:col-span-2"
         >
           <div className="card-hover-line" />
           <p className="section-label mb-3">Budget Snapshot</p>
@@ -207,6 +211,9 @@ export default function DashboardPage() {
               Surplus {formatCHF(budget.surplus)}
             </span>
           </div>
+          <span className="mt-3 inline-block rounded-md bg-accent-primary/10 px-3 py-1.5 text-xs font-medium text-accent-primary transition-colors group-hover:bg-accent-primary/20">
+            Adjust Budget
+          </span>
         </Link>
 
         <Link href="/katie" className="card card-interactive relative overflow-hidden">
@@ -217,6 +224,7 @@ export default function DashboardPage() {
                 src={HERO_IMAGES.katie}
                 alt="Katie visits"
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover opacity-20"
               />
               <div className="img-overlay-fade" />
@@ -224,14 +232,23 @@ export default function DashboardPage() {
           )}
           <div className="relative z-10 flex flex-col items-center justify-center p-8 text-center">
             <p className="text-sm font-medium text-text-secondary">Katie Planner</p>
-            <p className="mt-1 text-xs text-text-muted">8 visits planned</p>
+            <p className="mt-1 text-xs text-text-muted">{PLANNED_VISITS.length} visits planned</p>
           </div>
         </Link>
 
         <Link href="/checklist" className="card card-interactive p-8 text-center relative overflow-hidden">
           <div className="card-hover-line" />
           <p className="text-sm font-medium text-text-secondary">Move Checklist</p>
-          <p className="mt-1 text-xs text-text-muted">30 tasks, 4 phases</p>
+          <p className="mt-1 text-xs text-text-muted">{CHECKLIST_ITEMS.length} tasks, {new Set(CHECKLIST_ITEMS.map((c) => c.phase)).size} phases</p>
+        </Link>
+
+        <Link href="/language" className="group card card-interactive p-8 text-center relative overflow-hidden">
+          <div className="card-hover-line" />
+          <p className="text-sm font-medium text-text-secondary">Language Prep</p>
+          <p className="mt-1 text-xs text-text-muted">German for daily life</p>
+          <span className="mt-3 inline-block rounded-md bg-accent-primary/10 px-3 py-1.5 text-xs font-medium text-accent-primary transition-colors group-hover:bg-accent-primary/20">
+            Study Now
+          </span>
         </Link>
       </div>
     </div>

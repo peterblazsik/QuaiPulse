@@ -13,12 +13,12 @@ export function SurplusDisplay({ breakdown }: SurplusDisplayProps) {
 
   const surplusColor =
     surplus >= 3000
-      ? "text-emerald-400"
+      ? "text-success"
       : surplus >= 1500
-        ? "text-green-400"
+        ? "text-success"
         : surplus >= 500
-          ? "text-amber-400"
-          : "text-red-400";
+          ? "text-warning"
+          : "text-danger";
 
   const ratioUsed = totalIncome > 0 ? (totalExpenses / totalIncome) * 100 : 0;
 
@@ -65,12 +65,12 @@ export function SurplusDisplay({ breakdown }: SurplusDisplayProps) {
         <MiniStat
           label="Savings Rate"
           value={`${savingsRate.toFixed(1)}%`}
-          color={savingsRate >= 20 ? "text-emerald-400" : savingsRate >= 10 ? "text-amber-400" : "text-red-400"}
+          color={savingsRate >= 20 ? "text-success" : savingsRate >= 10 ? "text-warning" : "text-danger"}
         />
         <MiniStat
           label="Burn Rate"
           value={`${ratioUsed.toFixed(1)}%`}
-          color={ratioUsed <= 70 ? "text-emerald-400" : ratioUsed <= 85 ? "text-amber-400" : "text-red-400"}
+          color={ratioUsed <= 70 ? "text-success" : ratioUsed <= 85 ? "text-warning" : "text-danger"}
         />
       </div>
     </div>

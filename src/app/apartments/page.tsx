@@ -49,6 +49,7 @@ export default function ApartmentsPage() {
           src={HERO_IMAGES.apartments}
           alt="Modern apartment interior"
           fill
+          sizes="100vw"
           className="object-cover"
           priority
         />

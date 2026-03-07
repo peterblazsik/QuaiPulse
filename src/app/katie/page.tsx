@@ -2,21 +2,50 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import { Heart, Plane, Train, Calendar } from "lucide-react";
+import { Heart, Plane, Train, Calendar, Trash2, Plus, X } from "lucide-react";
 import { CalendarGrid } from "@/components/katie/calendar-grid";
 import { formatCHF } from "@/lib/utils";
-import { PLANNED_VISITS, COST_DEFAULTS, KEY_DATES } from "@/lib/data/katie-visits";
+import { COST_DEFAULTS, KEY_DATES } from "@/lib/data/katie-visits";
 import { HERO_IMAGES } from "@/lib/data/images";
+import { useKatieStore } from "@/lib/stores/katie-store";
 
 export default function KatiePage() {
+  const { visits, addVisit, removeVisit } = useKatieStore();
   const [viewMonth, setViewMonth] = useState(6); // July 2026
   const [viewYear] = useState(2026);
   const [hasHalfFare, setHasHalfFare] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newStartDate, setNewStartDate] = useState("");
+  const [newEndDate, setNewEndDate] = useState("");
+  const [newTransport, setNewTransport] = useState<"flight" | "train">("flight");
+  const [newSpecial, setNewSpecial] = useState(false);
+  const [newSpecialLabel, setNewSpecialLabel] = useState("");
+  const [newNotes, setNewNotes] = useState("");
+
+  const handleAddVisit = () => {
+    if (!newStartDate || !newEndDate) return;
+    addVisit({
+      startDate: newStartDate,
+      endDate: newEndDate,
+      transportMode: newTransport,
+      isConfirmed: false,
+      isSpecial: newSpecial,
+      specialLabel: newSpecial ? newSpecialLabel : undefined,
+      notes: newNotes || undefined,
+    });
+    setNewStartDate("");
+    setNewEndDate("");
+    setNewTransport("flight");
+    setNewSpecial(false);
+    setNewSpecialLabel("");
+    setNewNotes("");
+    setShowAddForm(false);
+  };
 
   const visitStats = useMemo(() => {
-    const totalVisits = PLANNED_VISITS.length;
-    const flightVisits = PLANNED_VISITS.filter((v) => v.transportMode === "flight").length;
-    const trainVisits = PLANNED_VISITS.filter((v) => v.transportMode === "train").length;
+    const totalVisits = visits.length;
+    const flightVisits = visits.filter((v) => v.transportMode === "flight").length;
+    const trainVisits = visits.filter((v) => v.transportMode === "train").length;
 
     const flightCost = flightVisits * COST_DEFAULTS.flightAvg;
     const trainCostPerTrip = hasHalfFare
@@ -26,7 +55,7 @@ export default function KatiePage() {
     const halfFareCost = hasHalfFare ? COST_DEFAULTS.halfFareCardAnnual : 0;
     const totalCost = flightCost + trainCost + halfFareCost;
 
-    const totalDays = PLANNED_VISITS.reduce((sum, v) => {
+    const totalDays = visits.reduce((sum, v) => {
       const start = new Date(v.startDate);
       const end = new Date(v.endDate);
       return sum + Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
@@ -47,7 +76,7 @@ export default function KatiePage() {
       avgInterval,
       monthlyCost: Math.round(totalCost / 6),
     };
-  }, [hasHalfFare]);
+  }, [hasHalfFare, visits]);
 
   return (
     <div className="space-y-6 relative">
@@ -151,17 +180,134 @@ export default function KatiePage() {
             viewMonth={viewMonth}
             viewYear={viewYear}
             onMonthChange={setViewMonth}
-            visits={PLANNED_VISITS}
+            visits={visits}
             keyDates={KEY_DATES}
           />
         </div>
 
-        {/* Right: Visit list */}
+        {/* Right: Add form + Visit list */}
         <div className="lg:col-span-3 space-y-3">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-            Planned Visits
-          </h3>
-          {PLANNED_VISITS.map((visit) => {
+          {/* Add Visit */}
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+              Planned Visits
+            </h3>
+            <button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
+              aria-label={showAddForm ? "Close add visit form" : "Add a new visit"}
+            >
+              {showAddForm ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+              {showAddForm ? "Cancel" : "Add Visit"}
+            </button>
+          </div>
+
+          {showAddForm && (
+            <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-3 space-y-3">
+              <h4 className="text-[11px] font-semibold text-blue-400 uppercase tracking-wider">
+                New Visit
+              </h4>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] text-text-muted block mb-1">Start date</label>
+                  <input
+                    type="date"
+                    value={newStartDate}
+                    onChange={(e) => setNewStartDate(e.target.value)}
+                    className="w-full rounded-md border border-border-default bg-bg-primary px-2 py-1.5 text-xs text-text-primary focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-text-muted block mb-1">End date</label>
+                  <input
+                    type="date"
+                    value={newEndDate}
+                    onChange={(e) => setNewEndDate(e.target.value)}
+                    className="w-full rounded-md border border-border-default bg-bg-primary px-2 py-1.5 text-xs text-text-primary focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Transport mode */}
+              <div>
+                <label className="text-[10px] text-text-muted block mb-1">Transport</label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setNewTransport("flight")}
+                    className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs transition-colors ${
+                      newTransport === "flight"
+                        ? "border-purple-500/40 bg-purple-500/10 text-purple-400"
+                        : "border-border-default bg-bg-primary/50 text-text-muted"
+                    }`}
+                  >
+                    <Plane className="h-3 w-3" />
+                    Flight
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewTransport("train")}
+                    className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs transition-colors ${
+                      newTransport === "train"
+                        ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400"
+                        : "border-border-default bg-bg-primary/50 text-text-muted"
+                    }`}
+                  >
+                    <Train className="h-3 w-3" />
+                    Train
+                  </button>
+                </div>
+              </div>
+
+              {/* Special occasion */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setNewSpecial(!newSpecial)}
+                  className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs transition-colors ${
+                    newSpecial
+                      ? "border-pink-500/40 bg-pink-500/10 text-pink-400"
+                      : "border-border-default bg-bg-primary/50 text-text-muted"
+                  }`}
+                >
+                  <Heart className="h-3 w-3" />
+                  Special occasion
+                </button>
+              </div>
+              {newSpecial && (
+                <input
+                  type="text"
+                  placeholder="e.g. Birthday, Holiday..."
+                  value={newSpecialLabel}
+                  onChange={(e) => setNewSpecialLabel(e.target.value)}
+                  className="w-full rounded-md border border-border-default bg-bg-primary px-2 py-1.5 text-xs text-text-primary placeholder:text-text-muted/50 focus:border-pink-500 focus:outline-none"
+                />
+              )}
+
+              {/* Notes */}
+              <div>
+                <label className="text-[10px] text-text-muted block mb-1">Notes</label>
+                <textarea
+                  value={newNotes}
+                  onChange={(e) => setNewNotes(e.target.value)}
+                  rows={2}
+                  placeholder="Optional notes..."
+                  className="w-full rounded-md border border-border-default bg-bg-primary px-2 py-1.5 text-xs text-text-primary placeholder:text-text-muted/50 focus:border-blue-500 focus:outline-none resize-none"
+                />
+              </div>
+
+              <button
+                onClick={handleAddVisit}
+                disabled={!newStartDate || !newEndDate}
+                className="w-full rounded-lg bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/30 disabled:cursor-not-allowed py-2 text-xs font-medium text-white transition-colors"
+              >
+                Add Visit
+              </button>
+            </div>
+          )}
+
+          {/* Visit cards */}
+          {visits.map((visit) => {
             const start = new Date(visit.startDate);
             const end = new Date(visit.endDate);
             const days = Math.ceil(
@@ -177,13 +323,20 @@ export default function KatiePage() {
             return (
               <div
                 key={visit.id}
-                className={`rounded-lg border p-3 ${
+                className={`relative group rounded-lg border p-3 ${
                   visit.isSpecial
                     ? "border-pink-500/30 bg-pink-500/5"
                     : "border-border-default bg-bg-secondary"
                 }`}
               >
-                <div className="flex items-center justify-between">
+                <button
+                  onClick={() => removeVisit(visit.id)}
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-red-500/20"
+                  aria-label={`Delete visit ${start.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`}
+                >
+                  <Trash2 className="h-3 w-3 text-red-400" />
+                </button>
+                <div className="flex items-center justify-between pr-5">
                   <div className="flex items-center gap-2">
                     {visit.transportMode === "flight" ? (
                       <Plane className="h-3 w-3 text-purple-400" />

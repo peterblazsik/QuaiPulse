@@ -2,145 +2,113 @@
 
 **Date:** 2026-03-06
 **Branch:** main
-**Last Commit:** 2b448a2 - Initial commit from Create Next App
+**Last Commit:** 2bf5ea0 Add 4 features: apartment form, exports, live currency & weather
 
 ---
 
 ## What Was Done
 
-### Planning & Research (Session 1)
-- Read Peter's full project brief from `zurich-life-navigator-prompt (1).md`
-- Created comprehensive architecture plan `QUAIPULSE-PLAN.md` (~1,078 lines covering tech stack, schema, 13 features, 10 phases, design system, APIs)
-- Saved persistent memory to `~/.claude/projects/-Users-peterblazsik-DevApps-QuaiPulse/memory/MEMORY.md`
-- Generated visual architecture blueprint at `~/.agent/diagrams/quaipulse-architecture.html`
+### P1 Audit Fixes (commit 1c8cffb)
+- Installed **Vitest** with jsdom — 43 unit tests across 3 files (scoring, budget-calculator, utils)
+- Extracted **shared RentCard** component (`src/components/shared/rent-card.tsx`) — was duplicated in `neighborhood-card.tsx` and `[slug]/page.tsx`
+- Centralized **venue type config** (`src/lib/data/venue-config.ts`) — labels, colors, short labels, text colors were duplicated in `[slug]/page.tsx`, `social/page.tsx`, `venue-map.tsx`
+- Updated `[slug]/page.tsx` to use `PORTALS` from `portal-urls.ts` with kreis-aware filtering instead of hardcoded links
+- Used `OFFICE_COORDS` from constants in `venue-map.tsx` (was duplicated)
+- Extended **RadarChart** to support `datasets` prop for overlay mode — removed 130-line `OverlaidRadar` from compare page
 
-### Phase 0 Foundation (Session 2 — this session)
-- Installed all core dependencies via pnpm (tRPC v11, Drizzle ORM, Zustand 5, Framer Motion 12, Recharts 3, cmdk, Zod v4, date-fns, SuperJSON, Lucide React, etc.)
-- Installed drizzle-kit as dev dependency
-- Created full design token system in `globals.css` (dark-mode-first, all CSS custom properties from plan)
-- Rewrote `layout.tsx` with Playfair Display, JetBrains Mono, Inter fonts via next/font/google
-- Built complete app shell: `app-shell.tsx`, `sidebar.tsx`, `header.tsx`, `status-bar.tsx`
-- Built command palette with cmdk (`command-palette.tsx`) — Cmd+K triggers
-- Set up tRPC infrastructure: server init, client, root router, fetch adapter API route
-- Set up Drizzle ORM with all 10 schema tables matching the plan exactly
-- Created 3 Zustand stores: `ui-store.ts`, `priority-store.ts`, `budget-store.ts`
-- Created tRPC routers: `neighborhoods.ts`, `budget.ts`
-- Created utility files: `utils.ts` (cn, formatCHF, formatNumber, daysUntil), `constants.ts`, `types.ts`
-- Built live dashboard page with KPI cards (countdown, surplus, savings rate)
-- Created 10 stub pages for all routes (neighborhoods, budget, apartments, katie, social, checklist, ai, currency, weather, settings)
-- Created `loading.tsx` (skeleton shimmer) and `not-found.tsx` (styled 404)
-- Created `providers.tsx` (tRPC + React Query wrapper)
-- Created `.env.example` and `.env.local`
-- Created `drizzle.config.ts`
-- Updated visual architecture blueprint HTML with all 7 sections
-- Verified build passes cleanly (`pnpm build` — all 14 routes compile, 0 errors)
+### Feature Development (commit 2bf5ea0)
+- **Apartment form wired up**: Zustand store with persist (`apartment-store.ts`), add/delete/status change, status filter tabs, form validation
+- **Export suite**: Budget CSV, neighborhood rankings CSV, Katie visits .ics, full JSON backup — all wired to settings page buttons (`src/lib/exports.ts`)
+- **Live currency rates**: `/api/currency` route using Frankfurter API (free, no key), real 30-day sparklines, 1-hour cache
+- **Live weather**: `/api/weather` route using Open-Meteo API (free, no key), Zurich + Vienna current + 7-day forecast, 30-min cache
+- Settings page updated with API status indicators and functional export buttons
 
 ## What Worked and What Didn't
 
 ### Successes
-- Next.js 16 + React 19 scaffold was clean, build works perfectly
-- tRPC v11 with fetch adapter works with Next.js 16 App Router
-- Zod v4 has the `zod/v4` subpath import that tRPC needs
-- All fonts load correctly via `next/font/google`
-- Command palette (cmdk) integrates cleanly
-- Full build passes with zero TypeScript errors
+- All 4 features built cleanly — zero type errors, build passes, 43 tests green
+- Frankfurter API and Open-Meteo API both work perfectly with no API keys needed
+- RadarChart refactor was clean — backward-compatible `scores` prop still works, `datasets` adds overlay
 
 ### Issues Encountered
-- **Port 3000 was occupied** — dev server auto-switched to port 3001
-- **Previous session had scaffolding issues**: `create-next-app` created files in a subdirectory, had to flatten. Also `shopt` (bash-only) failed in zsh — used `cp -a` instead.
-- **`.gitignore` blocks `.env*`** — the `.env.example` file won't be committed unless `.gitignore` is updated. Need to add `!.env.example` exception.
-- **No git commit yet** for Phase 0 work — all changes are uncommitted.
+- `scoring.test.ts`: `7.55.toFixed(1)` returns "7.5" not "7.6" due to IEEE 754 banker's rounding — fixed test to use 7.56 instead
+- No other issues this session
 
 ## Key Decisions
 
-1. **Next.js 16 instead of 15** — Plan said 15, but `create-next-app@latest` installed 16.1.6. Kept it as latest stable.
-2. **Zod v4 instead of v3** — `pnpm add zod` installed v4.3.6. Using `zod/v4` import path. tRPC v11 works with it.
-3. **Dark mode only (no light toggle)** — Set `<html className="dark">` permanently. The Bloomberg aesthetic demands dark mode.
-4. **Local SQLite for dev** — Using `file:./local.db` via libSQL client. Turso cloud sync is optional for later.
-5. **No shadcn/ui init yet** — Dependencies are installed (Radix via cmdk, CVA, clsx, tailwind-merge) but didn't run `npx shadcn@latest init`. Can add components individually as needed.
-6. **Tailwind CSS 4 with `@theme inline`** — Using the new Tailwind 4 CSS-first config approach instead of `tailwind.config.ts`.
+- **Frankfurter API over exchangerate.host** — Frankfurter is free with no signup, supports historical ranges for sparklines, and provides CHF base currency natively
+- **Open-Meteo over OpenWeatherMap** — completely free, no API key, covers both Zurich and Vienna, includes precipitation probability
+- **Server-side API routes with caching** — currency (1hr) and weather (30min) cached via Cache-Control headers to avoid hammering external APIs
+- **Graceful fallback** — both currency and weather pages render with mock/fallback data if API calls fail, with visual indicator
+- **RentCard shared component uses `highlight` prop** — the `[slug]` page version had highlight (accent border + "Target range" label), the card version didn't. Unified with optional `highlight` prop defaulting to false
 
 ## Lessons Learned & Gotchas
 
-- **Tailwind 4** uses `@theme inline` block for custom theme values, not the old `theme.extend` in config
-- **tRPC v11** uses `fetchRequestHandler` from `@trpc/server/adapters/fetch` for Next.js App Router
-- **Zod v4** must be imported as `import { z } from "zod/v4"` (not just `"zod"`) for the v4 API
-- **cmdk v1** works without additional Radix dialog — it handles its own rendering
-- **Zustand v5** API is unchanged from v4 for `create<T>()` usage
-- **`pnpm` is the package manager** — don't use npm or yarn
+- `vitest.config.ts` needs explicit `@/` path alias resolution — doesn't inherit from `tsconfig.json`
+- Frankfurter API returns no data on weekends — the `getYesterday()` function skips Saturday/Sunday
+- Open-Meteo doesn't provide visibility data in free tier — hardcoded to 15km
+- `budgetValues` needs `as unknown as Record<string, number>` cast due to typed BudgetValues interface — this is a known audit item (Q2 in AUDIT-REPORT.md)
 
 ## Current State
 
-- **Tests:** No test suite configured yet (Vitest/Playwright not installed)
-- **App runs:** Yes — `pnpm dev` starts at localhost:3001 (port 3000 was occupied)
-- **Build passes:** Yes — `pnpm build` succeeds with 0 errors
-- **Uncommitted changes:** All Phase 0 files (~40 files) are uncommitted
-- **Known bugs:** None. `.gitignore` blocks `.env.example` (needs `!.env.example` exception)
+- **Tests:** 43 passing, 0 failing (3 test files: scoring, budget-calculator, utils)
+- **App runs:** Yes — `pnpm dev` on port 3000
+- **Build:** Passes cleanly — 18 routes (12 static, 6 dynamic)
+- **Uncommitted changes:** Clean tree (only stale HANDOVER.md and IMAGE-GENERATION-STRATEGY.md untracked)
+- **Known bugs:** None critical. Audit open items documented in `AUDIT-REPORT.md`
 
 ## File Map
 
 | File | Purpose |
 |------|---------|
-| `QUAIPULSE-PLAN.md` | Complete architecture doc (tech stack, schema, 13 features, 10 phases, design system) |
-| `src/app/layout.tsx` | Root layout with fonts (Playfair, JetBrains, Inter), providers, app shell |
-| `src/app/globals.css` | Full design token system (colors, typography, score gradient, chart colors, skeleton anim) |
-| `src/app/page.tsx` | Dashboard with live KPI cards (countdown, surplus, savings rate) |
-| `src/app/providers.tsx` | tRPC + React Query client wrapper |
-| `src/components/layout/app-shell.tsx` | Main layout: sidebar + header + content + status bar |
-| `src/components/layout/sidebar.tsx` | Navigation sidebar with 11 routes, keyboard hints, collapse toggle |
-| `src/components/layout/header.tsx` | Top bar: page title, search trigger (Cmd+K), countdown badge |
-| `src/components/layout/status-bar.tsx` | Bottom bar: days to Zurich, surplus display, version |
-| `src/components/layout/command-palette.tsx` | cmdk-powered Cmd+K palette with navigation commands |
-| `src/lib/db/schema.ts` | Drizzle ORM schema — 10 tables (neighborhoods, venues, apartments, etc.) |
-| `src/lib/db/index.ts` | Database connection (libSQL client, Drizzle wrapper) |
-| `src/lib/trpc/server.ts` | tRPC init with context (db instance) |
-| `src/lib/trpc/client.ts` | tRPC React client |
-| `src/lib/trpc/router.ts` | Root router combining all sub-routers |
-| `src/lib/routers/neighborhoods.ts` | tRPC router: list, getBySlug |
-| `src/lib/routers/budget.ts` | tRPC router: listScenarios, getScenario |
-| `src/lib/stores/ui-store.ts` | Zustand: sidebar state, command palette state |
-| `src/lib/stores/priority-store.ts` | Zustand: 8 neighborhood scoring weights |
-| `src/lib/stores/budget-store.ts` | Zustand: budget slider values, income/cost constants |
-| `src/lib/utils.ts` | cn(), formatCHF(), formatNumber(), daysUntil() |
-| `src/lib/constants.ts` | MOVE_DATE, OFFICE_COORDS, NAVIGATION, SCORE_DIMENSIONS |
-| `src/lib/types.ts` | Shared TypeScript types (ScoreDimension, PriorityWeights, etc.) |
-| `src/app/api/trpc/[trpc]/route.ts` | tRPC HTTP handler for Next.js App Router |
-| `drizzle.config.ts` | Drizzle Kit config for migrations |
-| `.env.example` | Template for environment variables |
-| `.env.local` | Local dev env (DATABASE_URL=file:./local.db) |
+| `src/lib/stores/apartment-store.ts` | NEW — Zustand persist store for saved apartment listings |
+| `src/lib/exports.ts` | NEW — Budget CSV, rankings CSV, Katie .ics, JSON backup exports |
+| `src/app/api/currency/route.ts` | NEW — Frankfurter API proxy for CHF/EUR/HUF rates + sparklines |
+| `src/app/api/weather/route.ts` | NEW — Open-Meteo API proxy for Zurich + Vienna weather |
+| `src/app/apartments/page.tsx` | REWRITTEN — Functional form, status pipeline, Zustand-backed |
+| `src/app/currency/page.tsx` | REWRITTEN — Live rates, refresh button, fallback handling |
+| `src/app/weather/page.tsx` | REWRITTEN — Live weather, refresh button, fallback handling |
+| `src/app/settings/page.tsx` | UPDATED — Wired export buttons, API status indicators |
+| `src/components/shared/rent-card.tsx` | NEW — Shared RentCard with optional highlight |
+| `src/lib/data/venue-config.ts` | NEW — Centralized venue type labels/colors |
+| `src/components/neighborhoods/radar-chart.tsx` | UPDATED — Added `datasets` prop for overlay mode |
+| `vitest.config.ts` | NEW — Vitest config with @ alias |
+| `src/lib/engines/scoring.test.ts` | NEW — 17 tests for scoring engine |
+| `src/lib/engines/budget-calculator.test.ts` | NEW — 12 tests for budget calculator |
+| `src/lib/utils.test.ts` | NEW — 14 tests for utils |
+| `AUDIT-REPORT.md` | Full audit report with grade B- (74/100) |
 
 ## Next Steps
 
-1. **Commit Phase 0** — Fix `.gitignore` to allow `.env.example`, then commit all Phase 0 work
-2. **Phase 1: Neighborhoods** — The core feature:
-   - Create `src/lib/data/neighborhoods.ts` with hardcoded data for 10 Zurich neighborhoods (Enge, Wiedikon, Seefeld, etc.) with realistic scores across 8 dimensions
-   - Create `src/lib/data/venues.ts` with all venue data (gyms, chess clubs, AI meetups, etc.)
-   - Build `src/lib/engines/scoring.ts` — weighted scoring algorithm
-   - Build priority sliders component (`src/components/neighborhoods/priority-sliders.tsx`)
-   - Build neighborhood ranking cards with Framer Motion animated re-ranking
-   - Build radar chart component (Recharts or D3)
-   - Wire up neighborhoods page with live scoring
-3. **Phase 2: Budget Simulator** — Interactive expense sliders, surplus display, Recharts stacked bar
-4. **DB Seeding** — Run `drizzle-kit push` to create tables, then seed with neighborhood/venue data
+1. **Command palette (cmdk)** — cmdk is already a dependency. Wire up global Cmd+K with navigation, quick actions, and search across neighborhoods/apartments
+2. **Rate limiting** on `/api/chat` — P0 security item from audit. Consider `@upstash/ratelimit` or in-memory token bucket
+3. **Security headers** in `next.config.ts` — CSP, X-Frame-Options, X-Content-Type-Options (P0 from audit)
+4. **Dossier tracker** — Document vault for move paperwork (permit, insurance, bank). Planned in architecture but not built
+5. **Split large page components** — compare (390 lines), [slug] (440 lines), katie (365 lines), apartments (310 lines) are all >300 lines
+6. **PWA manifest** — `manifest.json`, service worker for offline support
+7. **Fix type casts** — `as unknown as Record<string, number>` in budget page/dashboard (3 files). Make `calculateBudget` accept `BudgetValues` directly
 
 ## Continuation Prompt
 
 ```
-I'm continuing work on QuaiPulse — a personal Zurich Life Navigator app at /Users/peterblazsik/DevApps/QuaiPulse.
+Please read HANDOVER.md and continue development on QuaiPulse.
 
-Phase 0 Foundation is COMPLETE: Next.js 16, React 19, Tailwind 4, tRPC v11, Drizzle ORM (10 tables), Zustand stores, app shell with sidebar/header/status-bar/command-palette, dark mode design system, and 11 route pages. Build passes clean.
+Project: /Users/peterblazsik/DevApps/QuaiPulse
+Stack: Next.js 16, React 19, TypeScript strict, Tailwind 4, Zustand, Framer Motion
+Branch: main (deployed to Vercel)
 
-Key files: QUAIPULSE-PLAN.md (full architecture), src/lib/db/schema.ts (Drizzle schema), src/lib/stores/ (Zustand), src/components/layout/ (app shell).
+Current state: Build passes, 43 Vitest tests green, all features working including live currency/weather APIs and functional apartment pipeline.
 
-IMPORTANT: All Phase 0 work is UNCOMMITTED (~40 files). First: fix .gitignore to allow .env.example, then commit Phase 0.
+Key files to know:
+- AUDIT-REPORT.md — full code quality audit with open items
+- src/lib/exports.ts — export functions (CSV, ICS, JSON)
+- src/lib/stores/ — Zustand stores (apartment, budget, checklist, compare, priority, ui)
+- src/app/api/ — API routes (chat via Gemini, currency via Frankfurter, weather via Open-Meteo)
 
-Then start Phase 1 — Neighborhoods (the core feature):
-1. Seed 10 neighborhoods with realistic Zurich data and scores across 8 dimensions
-2. Build weighted scoring engine (src/lib/engines/scoring.ts)
-3. Build priority sliders component with real-time re-ranking
-4. Build radar chart visualization
-5. Build neighborhood cards with Framer Motion layout animations
-6. Wire up the /neighborhoods page
-
-The user LOVES overengineering. Bloomberg Terminal aesthetic. Data-dense, dark mode, keyboard-first. Package manager is pnpm. Dev server runs on port 3001.
+Priority next steps:
+1. Command palette (cmdk already installed, wire up Cmd+K)
+2. Rate limiting on /api/chat (security P0)
+3. Security headers in next.config.ts
+4. Dossier tracker page
+5. Split large page components (>300 lines each)
 ```

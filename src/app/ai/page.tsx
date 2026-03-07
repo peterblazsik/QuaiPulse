@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Bot, Send, Sparkles, User, AlertCircle, Square } from "lucide-react";
+import { Bot, Send, Sparkles, User, AlertCircle, Square, Copy, Check, Trash2 } from "lucide-react";
+import { useChatStore, type ChatMessage } from "@/lib/stores/chat-store";
 import dynamic from "next/dynamic";
 
 const Markdown = dynamic(() => import("react-markdown"), { ssr: false });
@@ -37,6 +38,7 @@ const WELCOME_MESSAGE = `I'm Pulse, your Zurich relocation AI assistant. I have 
 Ask me anything about your move to Zurich. I know your constraints (knee, Katie visits, budget) and preferences (gym, chess, AI meetups) intimately.`;
 
 export default function AIPage() {
+  const chatStore = useChatStore();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -48,8 +50,30 @@ export default function AIPage() {
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const hydratedRef = useRef(false);
+
+  // Hydrate from persisted store on mount
+  useEffect(() => {
+    if (hydratedRef.current) return;
+    hydratedRef.current = true;
+    const stored = useChatStore.getState().messages;
+    if (stored.length > 0) {
+      const welcome: Message = {
+        id: "welcome",
+        role: "assistant",
+        content: WELCOME_MESSAGE,
+        timestamp: new Date(),
+      };
+      const restored: Message[] = stored.map((m) => ({
+        ...m,
+        timestamp: new Date(m.timestamp),
+      }));
+      setMessages([welcome, ...restored]);
+    }
+  }, []);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -158,27 +182,71 @@ export default function AIPage() {
       } finally {
         setIsStreaming(false);
         abortRef.current = null;
+        // Persist non-welcome messages to store
+        setMessages((prev) => {
+          const toStore: ChatMessage[] = prev
+            .filter((m) => m.id !== "welcome" && m.content.length > 0)
+            .map((m) => ({
+              id: m.id,
+              role: m.role,
+              content: m.content,
+              timestamp: m.timestamp.toISOString(),
+            }));
+          useChatStore.setState({ messages: toStore });
+          return prev;
+        });
       }
     },
     [input, isStreaming, messages]
   );
 
+  const handleClear = useCallback(() => {
+    chatStore.clearMessages();
+    setMessages([
+      {
+        id: "welcome",
+        role: "assistant",
+        content: WELCOME_MESSAGE,
+        timestamp: new Date(),
+      },
+    ]);
+    setError(null);
+  }, [chatStore]);
+
+  const handleCopy = useCallback(async (msgId: string, content: string) => {
+    await navigator.clipboard.writeText(content);
+    setCopiedId(msgId);
+    setTimeout(() => setCopiedId(null), 2000);
+  }, []);
+
   return (
     <div className="flex flex-col h-[calc(100vh-var(--header-height)-var(--status-bar-height)-48px)]">
       {/* Header */}
       <div className="shrink-0 mb-4">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-accent-primary/20 flex items-center justify-center">
-            <Bot className="h-4 w-4 text-accent-primary" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-accent-primary/20 flex items-center justify-center">
+              <Bot className="h-4 w-4 text-accent-primary" />
+            </div>
+            <div>
+              <h1 className="font-display text-lg font-bold text-text-primary">
+                Pulse AI
+              </h1>
+              <p className="text-[10px] text-text-muted">
+                Context-aware assistant for your Zurich move — powered by Gemini
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-display text-lg font-bold text-text-primary">
-              Pulse AI
-            </h1>
-            <p className="text-[10px] text-text-muted">
-              Context-aware assistant for your Zurich move — powered by Gemini
-            </p>
-          </div>
+          {messages.length > 1 && (
+            <button
+              onClick={handleClear}
+              className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-lg border border-border-default bg-bg-secondary text-text-muted hover:border-danger/40 hover:text-danger transition-colors"
+              title="Clear conversation"
+            >
+              <Trash2 className="h-3 w-3" />
+              Clear
+            </button>
+          )}
         </div>
       </div>
 
@@ -229,12 +297,27 @@ export default function AIPage() {
                   <span className="inline-block h-3 w-1.5 bg-accent-primary animate-pulse rounded-sm" />
                 )}
               </div>
-              <p className="text-[10px] text-text-muted mt-2">
-                {msg.timestamp.toLocaleTimeString("en-GB", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-[10px] text-text-muted">
+                  {msg.timestamp.toLocaleTimeString("en-GB", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+                {msg.role === "assistant" && msg.content.length > 0 && (
+                  <button
+                    onClick={() => handleCopy(msg.id, msg.content)}
+                    className="text-text-muted hover:text-text-secondary transition-colors p-0.5"
+                    title="Copy message"
+                  >
+                    {copiedId === msg.id ? (
+                      <Check className="h-3 w-3 text-emerald-400" />
+                    ) : (
+                      <Copy className="h-3 w-3" />
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ))}

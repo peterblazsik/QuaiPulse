@@ -3,18 +3,17 @@
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowLeft, Trophy, TrendingDown } from "lucide-react";
+import { ArrowLeft, Trophy } from "lucide-react";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
-import { NEIGHBORHOOD_IMAGES } from "@/lib/data/images";
 import { VENUES } from "@/lib/data/venues";
 import { usePriorityStore } from "@/lib/stores/priority-store";
-import { rankNeighborhoods, formatScore, scoreTextClass, scoreColor } from "@/lib/engines/scoring";
+import { rankNeighborhoods, formatScore, scoreTextClass } from "@/lib/engines/scoring";
 import { RadarChart } from "@/components/neighborhoods/radar-chart";
-import { ScoreBadge } from "@/components/neighborhoods/score-badge";
 import { SCORE_DIMENSIONS } from "@/lib/constants";
-import { formatCHF } from "@/lib/utils";
+import { CompareHeroCards } from "@/components/neighborhoods/compare-hero-cards";
+import { RentComparisonTable } from "@/components/neighborhoods/rent-comparison-table";
+import { ProsConsMatrix } from "@/components/neighborhoods/pros-cons-matrix";
 import type { ScoreDimension } from "@/lib/types";
 
 const COMPARE_COLORS = [
@@ -61,8 +60,8 @@ export default function ComparePage() {
   }
 
   const winner = compared.reduce((best, n) =>
-    n.weightedScore > best!.weightedScore ? n : best
-  )!;
+    n.weightedScore > best.weightedScore ? n : best
+  );
 
   return (
     <div className="space-y-6 relative">
@@ -88,51 +87,8 @@ export default function ComparePage() {
         </p>
       </div>
 
-      {/* Hero cards row */}
-      <div className={`grid gap-4 grid-cols-${compared.length}`} style={{ gridTemplateColumns: `repeat(${compared.length}, 1fr)` }}>
-        {compared.map((n, i) => {
-          const img = NEIGHBORHOOD_IMAGES[n.id];
-          const isWinner = n.id === winner.id;
-          return (
-            <motion.div
-              key={n.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className={`card overflow-hidden relative ${isWinner ? "ring-2 ring-accent-primary/50" : ""}`}
-            >
-              {img && (
-                <div className="relative h-32">
-                  <Image src={img} alt={n.name} fill className="object-cover" />
-                  <div className="img-overlay-fade" />
-                  {isWinner && (
-                    <div className="absolute top-2 right-2 z-10 flex items-center gap-1 rounded-full bg-accent-primary/90 px-2 py-0.5 text-[10px] font-bold text-white">
-                      <Trophy className="h-3 w-3" />
-                      Best
-                    </div>
-                  )}
-                </div>
-              )}
-              <div className="p-4 text-center">
-                <div
-                  className="h-1 w-8 rounded-full mx-auto mb-2"
-                  style={{ backgroundColor: COMPARE_COLORS[i] }}
-                />
-                <h3 className="font-display text-lg font-semibold text-text-primary">
-                  {n.name}
-                </h3>
-                <p className="text-[10px] text-text-muted uppercase tracking-wider">
-                  Kreis {n.kreis} — Rank #{n.rank}
-                </p>
-                <div className="mt-2 flex justify-center">
-                  <ScoreBadge score={n.weightedScore} size="lg" />
-                </div>
-                <p className="text-xs text-text-tertiary italic mt-2">{n.vibe}</p>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
+      {/* Hero cards */}
+      <CompareHeroCards compared={compared} winnerId={winner.id} colors={COMPARE_COLORS} />
 
       {/* Overlaid Radar Chart */}
       <motion.div
@@ -232,118 +188,10 @@ export default function ComparePage() {
       </motion.div>
 
       {/* Rent Comparison */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25 }}
-        className="card p-5"
-      >
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-4">
-          Rent Comparison (monthly)
-        </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border-subtle">
-                <th className="text-left text-[10px] uppercase tracking-wider text-text-muted pb-2 pr-4">
-                  Type
-                </th>
-                {compared.map((n, i) => (
-                  <th
-                    key={n.id}
-                    className="text-center pb-2 px-2"
-                  >
-                    <span className="text-[10px] uppercase tracking-wider" style={{ color: COMPARE_COLORS[i] }}>
-                      {n.name}
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="font-data">
-              <tr className="border-b border-border-subtle/50">
-                <td className="text-text-secondary py-2 pr-4">Studio</td>
-                {compared.map((n) => (
-                  <td key={n.id} className="text-center text-text-primary py-2 px-2">
-                    {formatCHF(n.rentStudioMin)}-{formatCHF(n.rentStudioMax)}
-                  </td>
-                ))}
-              </tr>
-              <tr className="border-b border-border-subtle/50 bg-accent-primary/5">
-                <td className="text-text-secondary py-2 pr-4 font-medium">1 Bedroom</td>
-                {compared.map((n) => {
-                  const cheapest = Math.min(...compared.map((x) => x.rentOneBrMin));
-                  const isCheapest = n.rentOneBrMin === cheapest;
-                  return (
-                    <td key={n.id} className={`text-center py-2 px-2 ${isCheapest ? "text-success font-semibold" : "text-text-primary"}`}>
-                      {formatCHF(n.rentOneBrMin)}-{formatCHF(n.rentOneBrMax)}
-                      {isCheapest && compared.length > 1 && (
-                        <span className="block text-[10px] text-success">Cheapest</span>
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-              <tr>
-                <td className="text-text-secondary py-2 pr-4">2 Bedroom</td>
-                {compared.map((n) => (
-                  <td key={n.id} className="text-center text-text-primary py-2 px-2">
-                    {formatCHF(n.rentTwoBrMin)}-{formatCHF(n.rentTwoBrMax)}
-                  </td>
-                ))}
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </motion.div>
+      <RentComparisonTable compared={compared} colors={COMPARE_COLORS} />
 
       {/* Pros & Cons Matrix */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="card p-5"
-      >
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-4">
-          Pros & Cons Matrix
-        </h2>
-        <div style={{ gridTemplateColumns: `repeat(${compared.length}, 1fr)` }} className="grid gap-4">
-          {compared.map((n, i) => (
-            <div key={n.id}>
-              <h3
-                className="text-xs font-semibold uppercase tracking-wider mb-3"
-                style={{ color: COMPARE_COLORS[i] }}
-              >
-                {n.name}
-              </h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-success mb-1.5">Pros</p>
-                  <ul className="space-y-1">
-                    {n.pros.map((pro, j) => (
-                      <li key={j} className="text-xs text-text-secondary flex items-start gap-1.5">
-                        <span className="text-success shrink-0 mt-0.5 font-bold">+</span>
-                        {pro}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-danger mb-1.5">Cons</p>
-                  <ul className="space-y-1">
-                    {n.cons.map((con, j) => (
-                      <li key={j} className="text-xs text-text-secondary flex items-start gap-1.5">
-                        <span className="text-danger shrink-0 mt-0.5 font-bold">-</span>
-                        {con}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </motion.div>
+      <ProsConsMatrix compared={compared} colors={COMPARE_COLORS} />
 
       {/* Venue count comparison */}
       <motion.div
@@ -400,4 +248,3 @@ export default function ComparePage() {
     </div>
   );
 }
-

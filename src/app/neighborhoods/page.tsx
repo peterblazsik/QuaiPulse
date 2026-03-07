@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { MapPin, BarChart3, TrendingUp, GitCompareArrows, X } from "lucide-react";
@@ -15,12 +15,45 @@ import { formatCHF } from "@/lib/utils";
 export default function NeighborhoodsPage() {
   const weights = usePriorityStore((s) => s.weights);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
   const { selectedIds, clear: clearCompare } = useCompareStore();
 
   const ranked = useMemo(
     () => rankNeighborhoods(NEIGHBORHOODS, weights),
     [weights]
   );
+
+  // J/K keyboard navigation
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      const el = document.activeElement;
+      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT")) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (e.key === "j") {
+        e.preventDefault();
+        setFocusedIndex((prev) => Math.min(prev + 1, ranked.length - 1));
+      } else if (e.key === "k") {
+        e.preventDefault();
+        setFocusedIndex((prev) => Math.max(prev - 1, 0));
+      } else if (e.key === "Enter" && focusedIndex >= 0) {
+        e.preventDefault();
+        const n = ranked[focusedIndex];
+        if (n) setExpandedId((prev) => (prev === n.id ? null : n.id));
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [ranked, focusedIndex]);
+
+  // Scroll focused card into view
+  useEffect(() => {
+    if (focusedIndex >= 0) {
+      const el = document.getElementById(`nb-card-${ranked[focusedIndex]?.id}`);
+      el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [focusedIndex, ranked]);
 
   const top = ranked[0];
   const avgScore =
@@ -78,7 +111,7 @@ export default function NeighborhoodsPage() {
             </p>
           </div>
           <div className="hidden md:flex items-center gap-2 text-xs text-text-muted">
-            <kbd>J</kbd><kbd>K</kbd> navigate
+            <kbd>J</kbd><kbd>K</kbd> navigate · <kbd>Enter</kbd> expand
           </div>
         </div>
 
@@ -91,11 +124,12 @@ export default function NeighborhoodsPage() {
         <LayoutGroup>
           <AnimatePresence mode="popLayout">
             <div className="space-y-3">
-              {ranked.map((n) => (
+              {ranked.map((n, i) => (
                 <NeighborhoodCard
                   key={n.id}
                   neighborhood={n}
                   isExpanded={expandedId === n.id}
+                  isFocused={i === focusedIndex}
                   onToggle={() =>
                     setExpandedId((prev) => (prev === n.id ? null : n.id))
                   }

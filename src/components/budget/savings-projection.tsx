@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { formatCHF } from "@/lib/utils";
 import type { BudgetBreakdown } from "@/lib/engines/budget-calculator";
 
@@ -13,6 +14,7 @@ const MONTHS = [
 ];
 
 export function SavingsProjection({ breakdown }: SavingsProjectionProps) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const { annualSavingsProjection, surplus } = breakdown;
   const maxVal = Math.max(...annualSavingsProjection.map(Math.abs), 1);
   const isPositive = surplus >= 0;
@@ -106,8 +108,47 @@ export function SavingsProjection({ breakdown }: SavingsProjectionProps) {
 
         {/* Data points */}
         {points.map((p, i) => (
-          <g key={i}>
-            <circle cx={p.x} cy={p.y} r={3} fill={lineColor} />
+          <g
+            key={i}
+            onMouseEnter={() => setHoveredIndex(i)}
+            onMouseLeave={() => setHoveredIndex(null)}
+            className="cursor-pointer"
+          >
+            {/* Invisible larger hit area */}
+            <circle cx={p.x} cy={p.y} r={12} fill="transparent" />
+            <circle
+              cx={p.x}
+              cy={p.y}
+              r={hoveredIndex === i ? 5 : 3}
+              fill={lineColor}
+              className="transition-all duration-150"
+            />
+            {/* Tooltip */}
+            {hoveredIndex === i && (
+              <g>
+                <rect
+                  x={p.x - 40}
+                  y={p.y - 30}
+                  width={80}
+                  height={20}
+                  rx={4}
+                  fill="var(--bg-secondary)"
+                  stroke="var(--border-default)"
+                  strokeWidth={1}
+                />
+                <text
+                  x={p.x}
+                  y={p.y - 17}
+                  textAnchor="middle"
+                  fill="var(--text-primary)"
+                  fontSize={10}
+                  fontFamily="var(--font-jetbrains), monospace"
+                  fontWeight="bold"
+                >
+                  {formatCHF(p.val)}
+                </text>
+              </g>
+            )}
             {/* Month labels */}
             <text
               x={p.x}

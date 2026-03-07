@@ -48,12 +48,12 @@ export function WhatIfCards() {
                 </div>
                 <div className="shrink-0 flex items-center gap-1">
                   {isPositive ? (
-                    <TrendingUp className="h-3 w-3 text-emerald-400" />
+                    <TrendingUp className="h-3 w-3 text-success" />
                   ) : (
-                    <TrendingDown className="h-3 w-3 text-red-400" />
+                    <TrendingDown className="h-3 w-3 text-danger" />
                   )}
                   <span
-                    className={`font-data text-xs font-bold ${isPositive ? "text-emerald-400" : "text-red-400"}`}
+                    className={`font-data text-xs font-bold ${isPositive ? "text-success" : "text-danger"}`}
                   >
                     {isPositive ? "+" : ""}
                     {formatCHF(impact)}

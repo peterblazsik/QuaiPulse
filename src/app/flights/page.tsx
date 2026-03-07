@@ -8,6 +8,7 @@ import {
   Clock,
   ExternalLink,
   Sparkles,
+  Heart,
 } from "lucide-react";
 import {
   AIRLINES,
@@ -17,6 +18,7 @@ import {
   type AirlineRoute,
 } from "@/lib/data/flights";
 import { getRecommendation } from "@/lib/engines/flight-recommender";
+import { PLANNED_VISITS } from "@/lib/data/katie-visits";
 
 const DEMAND_COLORS: Record<string, string> = {
   low: "#22c55e",
@@ -35,8 +37,19 @@ export default function FlightsPage() {
     "ZRH-VIE",
   );
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
 
   const rec = useMemo(() => getRecommendation(), []);
+
+  const katieVisitMonths = useMemo(() => {
+    const months = new Set<string>();
+    const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    PLANNED_VISITS.forEach(v => {
+      const d = new Date(v.startDate);
+      months.add(MONTH_NAMES[d.getMonth()]);
+    });
+    return months;
+  }, []);
 
   const filteredAirlines = useMemo(
     () => AIRLINES.filter((a) => a.route === routeFilter),
@@ -154,11 +167,19 @@ export default function FlightsPage() {
             {MONTH_PRICING.map((m) => (
               <div
                 key={m.month}
-                className="rounded-lg border border-border-subtle p-2 text-center transition-colors hover:border-accent-primary/30"
+                className={`relative rounded-lg border p-2 text-center transition-colors hover:border-accent-primary/30 cursor-pointer ${
+                  selectedMonth === m.month ? "ring-2 ring-accent-primary border-accent-primary/50" : "border-border-subtle"
+                }`}
                 style={{
                   backgroundColor: `color-mix(in srgb, ${DEMAND_COLORS[m.demand]} 10%, transparent)`,
                 }}
+                onClick={() => setSelectedMonth(selectedMonth === m.month ? null : m.month)}
               >
+                {katieVisitMonths.has(m.month) && (
+                  <span className="absolute top-1 right-1 text-pink-400" title="Katie visit this month">
+                    <Heart className="h-2.5 w-2.5 fill-pink-400" />
+                  </span>
+                )}
                 <span className="text-[10px] font-semibold text-text-muted uppercase block">
                   {m.month}
                 </span>
@@ -177,6 +198,19 @@ export default function FlightsPage() {
               </div>
             ))}
           </div>
+          {selectedMonth && (
+            <div className="mt-3 rounded-lg border border-accent-primary/20 bg-accent-primary/5 p-3">
+              <p className="text-xs text-text-secondary">
+                <span className="font-semibold text-accent-primary">{selectedMonth}</span> —
+                Book {BOOKING_WINDOWS[1]?.label ?? "3-4 weeks"} ahead for best prices.
+                {MONTH_PRICING.find(m => m.month === selectedMonth)?.demand === "high"
+                  ? " High demand — book earlier for this month."
+                  : MONTH_PRICING.find(m => m.month === selectedMonth)?.demand === "low"
+                    ? " Low demand — more flexibility on timing."
+                    : " Moderate demand — standard booking window works."}
+              </p>
+            </div>
+          )}
           <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border-subtle">
             <div className="flex items-center gap-1.5">
               <div

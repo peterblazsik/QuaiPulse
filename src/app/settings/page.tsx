@@ -10,11 +10,16 @@ import {
   MapPin,
   Wallet,
   Heart,
+  Keyboard,
+  Moon,
+  Palette,
 } from "lucide-react";
 import { usePriorityStore } from "@/lib/stores/priority-store";
 import { useBudgetStore } from "@/lib/stores/budget-store";
 import { useChecklistStore } from "@/lib/stores/checklist-store";
 import { useApartmentStore } from "@/lib/stores/apartment-store";
+import { useSleepStore } from "@/lib/stores/sleep-store";
+import { ThemeSelector } from "@/components/layout/theme-selector";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
 import { rankNeighborhoods } from "@/lib/engines/scoring";
 import { calculateBudget, EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
@@ -33,6 +38,21 @@ export default function SettingsPage() {
   const budgetValues = useBudgetStore((s) => s.values);
   const completedIds = useChecklistStore((s) => s.completedIds);
   const apartments = useApartmentStore((s) => s.apartments);
+  const sleepEntries = useSleepStore((s) => s.entries);
+  const removeSleepEntry = useSleepStore((s) => s.removeEntry);
+
+  const handleResetSleep = () => {
+    if (
+      window.confirm(
+        `Clear all ${sleepEntries.length} sleep entries? This cannot be undone.`
+      )
+    ) {
+      // Remove all entries one by one (store has no bulk reset)
+      for (const entry of sleepEntries) {
+        removeSleepEntry(entry.id);
+      }
+    }
+  };
 
   const ranked = useMemo(
     () => rankNeighborhoods(NEIGHBORHOODS, weights),
@@ -92,6 +112,14 @@ export default function SettingsPage() {
           <ProfileField label="Net Income" value="CHF 12,150/mo" />
           <ProfileField label="Health" value="Bilateral meniscus + torn ACL (left)" />
         </div>
+      </SettingsSection>
+
+      {/* Appearance */}
+      <SettingsSection
+        icon={<Palette className="h-4 w-4" />}
+        title="Appearance"
+      >
+        <ThemeSelector collapsed={false} />
       </SettingsSection>
 
       {/* API Configuration */}
@@ -162,6 +190,21 @@ export default function SettingsPage() {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
+              <Moon className="h-3.5 w-3.5 text-text-muted" />
+              <span className="text-xs text-text-secondary">
+                Sleep tracking data ({sleepEntries.length} entries)
+              </span>
+            </div>
+            <button
+              onClick={handleResetSleep}
+              className="text-[10px] text-text-muted hover:text-warning transition-colors"
+            >
+              Clear all entries
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
               <Heart className="h-3.5 w-3.5 text-text-muted" />
               <span className="text-xs text-text-secondary">
                 Checklist progress
@@ -172,6 +215,48 @@ export default function SettingsPage() {
             </span>
           </div>
         </div>
+      </SettingsSection>
+
+      {/* Keyboard Shortcuts */}
+      <SettingsSection
+        icon={<Keyboard className="h-4 w-4" />}
+        title="Keyboard Shortcuts"
+      >
+        <p className="text-[10px] text-text-muted mb-3">
+          Press <kbd className="bg-bg-tertiary px-1.5 py-0.5 rounded text-accent-primary font-mono">G</kbd> then a letter to navigate (chord shortcuts).
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {[
+            { key: "D", label: "Dashboard", path: "/" },
+            { key: "N", label: "Neighborhoods", path: "/neighborhoods" },
+            { key: "B", label: "Budget", path: "/budget" },
+            { key: "A", label: "Apartments", path: "/apartments" },
+            { key: "K", label: "Katie", path: "/katie" },
+            { key: "S", label: "Social", path: "/social" },
+            { key: "C", label: "Checklist", path: "/checklist" },
+            { key: "I", label: "AI Chat", path: "/ai" },
+            { key: "F", label: "Gym Finder", path: "/gym-finder" },
+            { key: "Z", label: "Sleep", path: "/sleep" },
+            { key: "L", label: "Flights", path: "/flights" },
+            { key: "P", label: "Language", path: "/language" },
+            { key: "U", label: "Subscriptions", path: "/subscriptions" },
+          ].map((s) => (
+            <div
+              key={s.key}
+              className="flex items-center gap-2 rounded-lg bg-bg-primary/50 border border-border-subtle px-2.5 py-1.5"
+            >
+              <kbd className="bg-bg-tertiary px-1.5 py-0.5 rounded text-[10px] font-mono text-accent-primary font-semibold min-w-[20px] text-center">
+                {s.key}
+              </kbd>
+              <span className="text-[11px] text-text-secondary truncate">
+                {s.label}
+              </span>
+            </div>
+          ))}
+        </div>
+        <p className="text-[10px] text-text-muted mt-3">
+          Also: <kbd className="bg-bg-tertiary px-1 py-0.5 rounded text-accent-primary font-mono">Cmd+K</kbd> command palette
+        </p>
       </SettingsSection>
 
       {/* Export */}
@@ -196,7 +281,7 @@ export default function SettingsPage() {
           v0.1.0 — Personal Zurich Life Navigator
         </p>
         <p className="text-[10px] text-text-muted mt-1">
-          Built with Next.js 16, React 19, Tailwind 4, Zustand, Framer Motion
+          Built with Next.js 15, React 19, Tailwind 4, Zustand, Framer Motion
         </p>
       </div>
     </div>

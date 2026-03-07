@@ -73,6 +73,7 @@ export default function GymFinderPage() {
     selectedEquipment,
     toggleEquipment,
     priceRange,
+    setPriceRange,
     kneeSafeOnly,
     setKneeSafeOnly,
     compareIds,
@@ -123,9 +124,45 @@ export default function GymFinderPage() {
             Equipment Filter
           </h3>
           <div className="flex items-center gap-3">
-            <span className="font-data text-[10px] text-text-muted">
-              {formatCHF(priceRange[0])} - {formatCHF(priceRange[1])}/mo
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="font-data text-[10px] text-text-muted whitespace-nowrap">
+                {formatCHF(priceRange[0])} - {formatCHF(priceRange[1])}/mo
+              </span>
+              <div className="relative w-32 h-5 flex items-center">
+                <div className="absolute h-1 w-full rounded-full bg-bg-tertiary" />
+                <div
+                  className="absolute h-1 rounded-full bg-accent-primary"
+                  style={{
+                    left: `${(priceRange[0] / 200) * 100}%`,
+                    right: `${100 - (priceRange[1] / 200) * 100}%`,
+                  }}
+                />
+                <input
+                  type="range"
+                  min={0}
+                  max={200}
+                  step={5}
+                  value={priceRange[0]}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    if (val <= priceRange[1] - 10) setPriceRange([val, priceRange[1]]);
+                  }}
+                  className="absolute w-full appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent-primary [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-bg-primary [&::-webkit-slider-thumb]:cursor-pointer"
+                />
+                <input
+                  type="range"
+                  min={0}
+                  max={200}
+                  step={5}
+                  value={priceRange[1]}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    if (val >= priceRange[0] + 10) setPriceRange([priceRange[0], val]);
+                  }}
+                  className="absolute w-full appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent-primary [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-bg-primary [&::-webkit-slider-thumb]:cursor-pointer"
+                />
+              </div>
+            </div>
             <button
               onClick={() => setKneeSafeOnly(!kneeSafeOnly)}
               className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-colors ${

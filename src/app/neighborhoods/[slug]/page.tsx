@@ -27,7 +27,8 @@ import type { VenueType } from "@/lib/types";
 
 export default function NeighborhoodDetailPage() {
   const params = useParams();
-  const slug = params.slug as string;
+  const rawSlug = params.slug;
+  const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug ?? "";
   const weights = usePriorityStore((s) => s.weights);
 
   const neighborhood = NEIGHBORHOODS.find((n) => n.slug === slug);
@@ -96,6 +97,7 @@ export default function NeighborhoodDetailPage() {
             src={heroImage}
             alt={n.name}
             fill
+            sizes="(max-width: 1024px) 100vw, 1024px"
             className="object-cover"
             priority
           />

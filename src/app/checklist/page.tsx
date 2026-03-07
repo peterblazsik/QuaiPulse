@@ -12,6 +12,7 @@ import {
   Lock,
   ArrowRight,
   Calendar,
+  ExternalLink,
 } from "lucide-react";
 import { CHECKLIST_ITEMS, type ChecklistItemData } from "@/lib/data/checklist-items";
 import { useChecklistStore } from "@/lib/stores/checklist-store";
@@ -275,8 +276,6 @@ function ChecklistRow({
 }) {
   const deadlineDays = item.hardDeadline ? getDaysUntilDeadline(item.hardDeadline) : null;
   const depInfo = depGraph.get(item.id);
-  const unmetDeps = depInfo?.blockedBy.filter((b) => isBlocked) || [];
-
   return (
     <motion.button
       layout
@@ -317,6 +316,12 @@ function ChecklistRow({
           >
             {item.title}
           </p>
+          {item.url && (
+            <a href={item.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-0.5 text-[10px] text-accent-primary hover:underline">
+              <ExternalLink className="h-2.5 w-2.5" />
+              Link
+            </a>
+          )}
           {isCritical && !isDone && (
             <span className="inline-flex items-center rounded px-1 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-orange-500/15 text-orange-400">
               Critical
@@ -331,9 +336,6 @@ function ChecklistRow({
         {/* Blocked-by badge */}
         {isBlocked && !isDone && depInfo && (
           <div className="mt-1 flex flex-wrap gap-1">
-            {depInfo.blockedBy
-              .filter((dep) => !dep) // We want to show the actual unmet deps
-              .length === 0 && null}
             {depInfo.blockedBy.map((dep) => (
               <span
                 key={dep.id}
