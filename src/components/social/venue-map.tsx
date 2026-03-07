@@ -68,12 +68,38 @@ export function VenueMap({ venues, activeFilter, className = "" }: VenueMapProps
 
     // Add office marker
     const officeEl = document.createElement("div");
-    officeEl.innerHTML = `<div style="width:28px;height:28px;border-radius:50%;background:#3b82f6;border:3px solid #1e3a5f;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(59,130,246,0.5);">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    </div>`;
+    const officeInner = document.createElement("div");
+    officeInner.style.cssText = "width:28px;height:28px;border-radius:50%;background:#3b82f6;border:3px solid #1e3a5f;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(59,130,246,0.5);";
+    const officeSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    officeSvg.setAttribute("width", "14");
+    officeSvg.setAttribute("height", "14");
+    officeSvg.setAttribute("viewBox", "0 0 24 24");
+    officeSvg.setAttribute("fill", "none");
+    officeSvg.setAttribute("stroke", "white");
+    officeSvg.setAttribute("stroke-width", "2.5");
+    officeSvg.setAttribute("stroke-linecap", "round");
+    officeSvg.setAttribute("stroke-linejoin", "round");
+    const svgPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    svgPath.setAttribute("d", "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z");
+    const svgPolyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+    svgPolyline.setAttribute("points", "9 22 9 12 15 12 15 22");
+    officeSvg.appendChild(svgPath);
+    officeSvg.appendChild(svgPolyline);
+    officeInner.appendChild(officeSvg);
+    officeEl.appendChild(officeInner);
+
+    const officePopupContent = document.createElement("div");
+    const officeTitle = document.createElement("div");
+    officeTitle.style.cssText = "font-size:11px;font-weight:600;color:#3b82f6;";
+    officeTitle.textContent = "Quai Zurich Campus";
+    const officeSubtitle = document.createElement("div");
+    officeSubtitle.style.cssText = "font-size:10px;color:#94a3b8;";
+    officeSubtitle.textContent = "Mythenquai — Your office";
+    officePopupContent.appendChild(officeTitle);
+    officePopupContent.appendChild(officeSubtitle);
 
     const officePopup = new maplibregl.Popup({ offset: 18, closeButton: false })
-      .setHTML(`<div style="font-size:11px;font-weight:600;color:#3b82f6;">Quai Zurich Campus</div><div style="font-size:10px;color:#94a3b8;">Mythenquai — Your office</div>`);
+      .setDOMContent(officePopupContent);
 
     new maplibregl.Marker({ element: officeEl })
       .setLngLat([OFFICE_COORDS.lng, OFFICE_COORDS.lat])
@@ -104,24 +130,58 @@ export function VenueMap({ venues, activeFilter, className = "" }: VenueMapProps
       });
 
       const neighborhoodName = NEIGHBORHOODS.find((n) => n.id === venue.neighborhoodId)?.name ?? "";
-      const priceHtml = venue.monthlyPrice ? `<div style="font-size:10px;color:#94a3b8;margin-top:2px;">${formatCHF(venue.monthlyPrice)}/mo</div>` : "";
-      const ratingHtml = venue.rating ? `<span style="color:#fbbf24;font-size:10px;margin-left:6px;">★ ${venue.rating}</span>` : "";
-      const noteHtml = venue.personalNote ? `<div style="font-size:10px;color:#8094a8;margin-top:4px;font-style:italic;max-width:200px;">${venue.personalNote}</div>` : "";
+
+      // Build popup DOM safely (no innerHTML / setHTML)
+      const popupRoot = document.createElement("div");
+      popupRoot.style.cssText = "font-family:system-ui;padding:2px;";
+
+      const headerRow = document.createElement("div");
+      headerRow.style.cssText = "display:flex;align-items:center;gap:4px;";
+
+      const colorDot = document.createElement("div");
+      colorDot.style.cssText = `width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;`;
+      headerRow.appendChild(colorDot);
+
+      const typeLabel = document.createElement("span");
+      typeLabel.style.cssText = `font-size:10px;color:${color};font-weight:600;text-transform:uppercase;letter-spacing:0.5px;`;
+      typeLabel.textContent = VENUE_TYPE_SHORT_LABELS[venue.type];
+      headerRow.appendChild(typeLabel);
+
+      if (venue.rating) {
+        const ratingSpan = document.createElement("span");
+        ratingSpan.style.cssText = "color:#fbbf24;font-size:10px;margin-left:6px;";
+        ratingSpan.textContent = `★ ${venue.rating}`;
+        headerRow.appendChild(ratingSpan);
+      }
+
+      popupRoot.appendChild(headerRow);
+
+      const nameDiv = document.createElement("div");
+      nameDiv.style.cssText = "font-size:12px;font-weight:600;color:#e2e8f0;margin-top:4px;";
+      nameDiv.textContent = venue.name;
+      popupRoot.appendChild(nameDiv);
+
+      const addressDiv = document.createElement("div");
+      addressDiv.style.cssText = "font-size:10px;color:#64748b;margin-top:1px;";
+      addressDiv.textContent = `${neighborhoodName} — ${venue.address}`;
+      popupRoot.appendChild(addressDiv);
+
+      if (venue.monthlyPrice) {
+        const priceDiv = document.createElement("div");
+        priceDiv.style.cssText = "font-size:10px;color:#94a3b8;margin-top:2px;";
+        priceDiv.textContent = `${formatCHF(venue.monthlyPrice)}/mo`;
+        popupRoot.appendChild(priceDiv);
+      }
+
+      if (venue.personalNote) {
+        const noteDiv = document.createElement("div");
+        noteDiv.style.cssText = "font-size:10px;color:#8094a8;margin-top:4px;font-style:italic;max-width:200px;";
+        noteDiv.textContent = venue.personalNote;
+        popupRoot.appendChild(noteDiv);
+      }
 
       const popup = new maplibregl.Popup({ offset: 12, closeButton: false, maxWidth: "240px" })
-        .setHTML(`
-          <div style="font-family:system-ui;padding:2px;">
-            <div style="display:flex;align-items:center;gap:4px;">
-              <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;"></div>
-              <span style="font-size:10px;color:${color};font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">${VENUE_TYPE_SHORT_LABELS[venue.type]}</span>
-              ${ratingHtml}
-            </div>
-            <div style="font-size:12px;font-weight:600;color:#e2e8f0;margin-top:4px;">${venue.name}</div>
-            <div style="font-size:10px;color:#64748b;margin-top:1px;">${neighborhoodName} — ${venue.address}</div>
-            ${priceHtml}
-            ${noteHtml}
-          </div>
-        `);
+        .setDOMContent(popupRoot);
 
       const marker = new maplibregl.Marker({ element: el })
         .setLngLat([venue.lng, venue.lat])

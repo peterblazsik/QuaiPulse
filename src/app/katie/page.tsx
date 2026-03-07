@@ -2,24 +2,11 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import { Heart, Plane, Train, Calendar, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, Plane, Train, Calendar } from "lucide-react";
+import { CalendarGrid } from "@/components/katie/calendar-grid";
 import { formatCHF } from "@/lib/utils";
 import { PLANNED_VISITS, COST_DEFAULTS, KEY_DATES } from "@/lib/data/katie-visits";
 import { HERO_IMAGES } from "@/lib/data/images";
-
-const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
-function getDaysInMonth(year: number, month: number) {
-  return new Date(year, month + 1, 0).getDate();
-}
-
-function getFirstDayOfWeek(year: number, month: number) {
-  const day = new Date(year, month, 1).getDay();
-  return day === 0 ? 6 : day - 1; // Monday = 0
-}
 
 export default function KatiePage() {
   const [viewMonth, setViewMonth] = useState(6); // July 2026
@@ -62,21 +49,6 @@ export default function KatiePage() {
     };
   }, [hasHalfFare]);
 
-  // Calendar rendering
-  const daysInMonth = getDaysInMonth(viewYear, viewMonth);
-  const firstDay = getFirstDayOfWeek(viewYear, viewMonth);
-
-  // Check if a date falls within a visit
-  const getVisitForDate = (day: number) => {
-    const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    return PLANNED_VISITS.find((v) => dateStr >= v.startDate && dateStr <= v.endDate);
-  };
-
-  const getKeyDate = (day: number) => {
-    const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    return KEY_DATES.find((k) => k.date === dateStr);
-  };
-
   return (
     <div className="space-y-6 relative">
       {/* Ambient glow */}
@@ -88,6 +60,7 @@ export default function KatiePage() {
           src={HERO_IMAGES.katie}
           alt="Father and daughter at train station"
           fill
+          sizes="100vw"
           className="object-cover"
           priority
         />
@@ -174,104 +147,13 @@ export default function KatiePage() {
 
         {/* Center: Calendar */}
         <div className="lg:col-span-6">
-          <div className="rounded-xl border border-border-default bg-bg-secondary p-5">
-            {/* Month navigation */}
-            <div className="flex items-center justify-between mb-4">
-              <button
-                onClick={() => setViewMonth((m) => Math.max(0, m - 1))}
-                className="p-1 rounded hover:bg-bg-tertiary text-text-muted"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <h3 className="font-display text-lg font-semibold text-text-primary">
-                {MONTHS[viewMonth]} {viewYear}
-              </h3>
-              <button
-                onClick={() => setViewMonth((m) => Math.min(11, m + 1))}
-                className="p-1 rounded hover:bg-bg-tertiary text-text-muted"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Day headers */}
-            <div className="grid grid-cols-7 gap-1 mb-1">
-              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
-                <div
-                  key={d}
-                  className="text-center text-[10px] font-semibold uppercase tracking-wider text-text-muted py-1"
-                >
-                  {d}
-                </div>
-              ))}
-            </div>
-
-            {/* Calendar grid */}
-            <div className="grid grid-cols-7 gap-1">
-              {/* Empty cells for offset */}
-              {Array.from({ length: firstDay }).map((_, i) => (
-                <div key={`empty-${i}`} className="h-14" />
-              ))}
-
-              {/* Day cells */}
-              {Array.from({ length: daysInMonth }).map((_, i) => {
-                const day = i + 1;
-                const visit = getVisitForDate(day);
-                const keyDate = getKeyDate(day);
-                const isVisitStart = visit?.startDate.endsWith(`-${String(day).padStart(2, "0")}`) &&
-                  visit.startDate.startsWith(`${viewYear}-${String(viewMonth + 1).padStart(2, "0")}`);
-
-                return (
-                  <div
-                    key={day}
-                    className={`h-14 rounded-lg text-center relative flex flex-col items-center justify-center transition-colors ${
-                      visit
-                        ? visit.isSpecial
-                          ? "bg-pink-500/20 border border-pink-500/30"
-                          : "bg-purple-500/15 border border-purple-500/25"
-                        : keyDate
-                          ? "bg-amber-500/10 border border-amber-500/20"
-                          : "bg-bg-primary/30 border border-transparent hover:border-border-default"
-                    }`}
-                  >
-                    <span
-                      className={`font-data text-sm ${
-                        visit ? "text-text-primary font-semibold" : "text-text-secondary"
-                      }`}
-                    >
-                      {day}
-                    </span>
-                    {isVisitStart && visit && (
-                      <span className="text-[8px] text-purple-300 mt-0.5">
-                        {visit.transportMode === "flight" ? "fly" : "train"}
-                      </span>
-                    )}
-                    {visit?.isSpecial && isVisitStart && (
-                      <Star className="absolute top-0.5 right-0.5 h-2.5 w-2.5 text-pink-400" />
-                    )}
-                    {keyDate && !visit && (
-                      <span className="text-[7px] text-amber-400 mt-0.5 leading-tight">
-                        {keyDate.label.split(" ")[0]}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Legend */}
-            <div className="flex gap-4 mt-4 text-[10px] text-text-muted">
-              <span className="flex items-center gap-1">
-                <div className="h-2.5 w-2.5 rounded bg-purple-500/30" /> Visit
-              </span>
-              <span className="flex items-center gap-1">
-                <div className="h-2.5 w-2.5 rounded bg-pink-500/30" /> Special
-              </span>
-              <span className="flex items-center gap-1">
-                <div className="h-2.5 w-2.5 rounded bg-amber-500/20" /> Key date
-              </span>
-            </div>
-          </div>
+          <CalendarGrid
+            viewMonth={viewMonth}
+            viewYear={viewYear}
+            onMonthChange={setViewMonth}
+            visits={PLANNED_VISITS}
+            keyDates={KEY_DATES}
+          />
         </div>
 
         {/* Right: Visit list */}
@@ -325,7 +207,7 @@ export default function KatiePage() {
                   </span>
                 </div>
                 {visit.isSpecial && (
-                  <span className="inline-block text-[9px] mt-1 px-1.5 py-0.5 rounded bg-pink-500/20 text-pink-300">
+                  <span className="inline-block text-[10px] mt-1 px-1.5 py-0.5 rounded bg-pink-500/20 text-pink-300">
                     {visit.specialLabel}
                   </span>
                 )}

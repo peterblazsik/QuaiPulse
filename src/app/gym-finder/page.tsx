@@ -357,7 +357,7 @@ function GymCard({
         {gym.amenities.map((amenity) => (
           <span
             key={amenity}
-            className="text-[8px] px-1.5 py-0.5 rounded bg-bg-tertiary text-text-muted"
+            className="text-[10px] px-1.5 py-0.5 rounded bg-bg-tertiary text-text-muted"
           >
             {amenity}
           </span>
@@ -368,7 +368,7 @@ function GymCard({
       <div className="flex items-center justify-between mt-2 pt-2 border-t border-border-subtle">
         <div className="flex items-center gap-2">
           {gym.trialAvailable && (
-            <span className="text-[8px] px-1.5 py-0.5 rounded bg-green-500/12 text-green-400 font-medium">
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-500/12 text-green-400 font-medium">
               Free trial
             </span>
           )}
@@ -376,7 +376,7 @@ function GymCard({
             {gym.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className="text-[8px] px-1.5 py-0.5 rounded bg-bg-tertiary text-text-muted"
+                className="text-[10px] px-1.5 py-0.5 rounded bg-bg-tertiary text-text-muted"
               >
                 {tag}
               </span>
@@ -406,7 +406,7 @@ function EquipmentItem({ equipment }: { equipment: GymEquipment }) {
         {EQUIPMENT_LABELS[equipment.type]}
       </span>
       {equipment.notes && (
-        <span className="text-[8px] text-text-muted truncate">
+        <span className="text-[10px] text-text-muted truncate">
           ({equipment.notes})
         </span>
       )}

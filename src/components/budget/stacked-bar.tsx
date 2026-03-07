@@ -49,7 +49,7 @@ export function StackedBar() {
               title={`${seg.label}: ${formatCHF(seg.value)}`}
             >
               {pct > 6 && (
-                <span className="absolute inset-0 flex items-center justify-center text-[9px] font-data text-white/90 font-medium">
+                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-data text-white/90 font-medium">
                   {formatCHF(seg.value)}
                 </span>
               )}

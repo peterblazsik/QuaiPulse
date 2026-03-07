@@ -71,10 +71,11 @@ export function ExpenseSliders() {
                 step={item.step}
                 value={val}
                 onChange={(e) => setValue(key, Number(e.target.value))}
+                aria-label={item.label}
                 className="w-full h-1.5 appearance-none rounded-full bg-bg-tertiary cursor-pointer
-                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3
+                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:w-6
                   [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-bg-primary
-                  [&::-webkit-slider-thumb]:cursor-pointer"
+                  [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:-mt-[9px]"
                 style={{
                   // @ts-expect-error CSS custom property
                   "--thumb-color": item.color,
@@ -90,7 +91,7 @@ export function ExpenseSliders() {
             )}
 
             {item.note && (
-              <p className="text-[9px] text-text-muted mt-0.5">{item.note}</p>
+              <p className="text-[10px] text-text-muted mt-0.5">{item.note}</p>
             )}
           </div>
         );

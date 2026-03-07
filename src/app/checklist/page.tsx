@@ -318,7 +318,7 @@ function ChecklistRow({
             {item.title}
           </p>
           {isCritical && !isDone && (
-            <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-orange-500/15 text-orange-400">
+            <span className="inline-flex items-center rounded px-1 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-orange-500/15 text-orange-400">
               Critical
             </span>
           )}
@@ -337,7 +337,7 @@ function ChecklistRow({
             {depInfo.blockedBy.map((dep) => (
               <span
                 key={dep.id}
-                className="inline-flex items-center gap-0.5 rounded bg-amber-500/10 px-1.5 py-0.5 text-[9px] text-amber-400"
+                className="inline-flex items-center gap-0.5 rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-400"
               >
                 <Lock className="h-2 w-2" />
                 Blocked by: {dep.title}
@@ -373,7 +373,7 @@ function ChecklistRow({
         )}
         {/* Estimated days */}
         {item.estimatedDays && !isDone && (
-          <span className="text-[9px] text-text-muted">
+          <span className="text-[10px] text-text-muted">
             ~{item.estimatedDays}d
           </span>
         )}
@@ -473,7 +473,7 @@ function TimelineView({
                         }
                       >
                         <span
-                          className={`text-[9px] font-data whitespace-nowrap ${
+                          className={`text-[10px] font-data whitespace-nowrap ${
                             isDone
                               ? "text-text-muted"
                               : isCritical
@@ -512,7 +512,7 @@ function TimelineView({
                           />
                           {!isDone && deadlineDays !== null && (
                             <span
-                              className={`text-[9px] font-data ${
+                              className={`text-[10px] font-data ${
                                 deadlineDays < 14
                                   ? "text-red-400"
                                   : deadlineDays < 30

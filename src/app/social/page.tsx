@@ -112,6 +112,7 @@ export default function SocialPage() {
             src={SOCIAL_IMAGES[activeFilter]}
             alt={activeFilter}
             fill
+            sizes="100vw"
             className="object-cover"
           />
           <div className="img-overlay-full" />
@@ -214,6 +215,7 @@ function FilterTab({
   return (
     <button
       onClick={onClick}
+      aria-pressed={active}
       className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
         active
           ? "text-text-primary"
@@ -280,7 +282,7 @@ function VenueCard({ venue }: { venue: VenueData }) {
             {venue.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className="text-[8px] px-1.5 py-0.5 rounded bg-bg-tertiary text-text-muted"
+                className="text-[10px] px-1.5 py-0.5 rounded bg-bg-tertiary text-text-muted"
               >
                 {tag}
               </span>

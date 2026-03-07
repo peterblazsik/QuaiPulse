@@ -2,7 +2,9 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Bot, Send, Sparkles, User, AlertCircle, Square } from "lucide-react";
-import Markdown from "react-markdown";
+import dynamic from "next/dynamic";
+
+const Markdown = dynamic(() => import("react-markdown"), { ssr: false });
 
 interface Message {
   id: string;
@@ -227,7 +229,7 @@ export default function AIPage() {
                   <span className="inline-block h-3 w-1.5 bg-accent-primary animate-pulse rounded-sm" />
                 )}
               </div>
-              <p className="text-[9px] text-text-muted mt-2">
+              <p className="text-[10px] text-text-muted mt-2">
                 {msg.timestamp.toLocaleTimeString("en-GB", {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -258,13 +260,22 @@ export default function AIPage() {
 
       {/* Input */}
       <div className="shrink-0 flex gap-2">
-        <input
-          type="text"
+        <textarea
+          rows={1}
           value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+          onChange={(e) => {
+            setInput(e.target.value);
+            e.target.style.height = "auto";
+            e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSend();
+            }
+          }}
           placeholder="Ask Pulse anything about your Zurich move..."
-          className="flex-1 rounded-xl border border-border-default bg-bg-secondary px-4 py-3 text-xs text-text-primary placeholder:text-text-muted focus:border-accent-primary focus:outline-none transition-colors"
+          className="flex-1 rounded-xl border border-border-default bg-bg-secondary px-4 py-3 text-xs text-text-primary placeholder:text-text-muted focus:border-accent-primary focus:outline-none transition-colors resize-none overflow-hidden"
           disabled={isStreaming}
         />
         {isStreaming ? (

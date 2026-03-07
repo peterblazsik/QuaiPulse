@@ -169,7 +169,7 @@ export default function FlightsPage() {
                   {m.avgPrice}
                 </span>
                 <span
-                  className="text-[8px] uppercase tracking-wider block mt-0.5"
+                  className="text-[10px] uppercase tracking-wider block mt-0.5"
                   style={{ color: DEMAND_COLORS[m.demand] }}
                 >
                   {m.demand}
@@ -483,7 +483,7 @@ function AirlineRow({ airline }: { airline: AirlineRoute }) {
               {airline.airline}
             </span>
             {isCheapest && (
-              <span className="text-[8px] uppercase tracking-wider text-emerald-400 font-bold">
+              <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
                 Best Value
               </span>
             )}

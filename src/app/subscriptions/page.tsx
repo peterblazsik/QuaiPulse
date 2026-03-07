@@ -265,16 +265,16 @@ export default function SubscriptionsPage() {
       {withAlternatives.length > 0 && (
         <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
           <h2 className="text-xs font-semibold text-text-primary mb-4">
-            Move Comparison: NL vs Switzerland
+            Move Comparison: Austria vs Switzerland
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-border-default">
                   <th className="text-left py-2 pr-4 text-text-muted font-medium">Service</th>
-                  <th className="text-left py-2 pr-4 text-text-muted font-medium">Current (NL)</th>
+                  <th className="text-left py-2 pr-4 text-text-muted font-medium">Current (AT)</th>
                   <th className="text-left py-2 pr-4 text-text-muted font-medium">Swiss Alternative</th>
-                  <th className="text-right py-2 pr-4 text-text-muted font-medium">NL Cost</th>
+                  <th className="text-right py-2 pr-4 text-text-muted font-medium">AT Cost</th>
                   <th className="text-right py-2 pr-4 text-text-muted font-medium">CH Cost</th>
                   <th className="text-right py-2 text-text-muted font-medium">Delta</th>
                 </tr>
@@ -561,14 +561,14 @@ function SubCard({
               {sub.name}
             </h4>
             {sub.essential && (
-              <span className="text-[8px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium shrink-0">
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium shrink-0">
                 Essential
               </span>
             )}
           </div>
           <div className="flex items-center gap-2 mt-0.5">
             <span
-              className="text-[8px] px-1.5 py-0.5 rounded font-medium"
+              className="text-[10px] px-1.5 py-0.5 rounded font-medium"
               style={{
                 backgroundColor: `color-mix(in srgb, ${cat.color} 12%, transparent)`,
                 color: cat.color,
@@ -586,7 +586,7 @@ function SubCard({
           {!compact && sub.monthlyCostCHF > 0 && (
             <div className="text-right">
               <p className="font-data text-xs text-text-primary">{formatCHF(sub.monthlyCostCHF)}</p>
-              <p className="text-[8px] text-text-muted">in CH</p>
+              <p className="text-[10px] text-text-muted">in CH</p>
             </div>
           )}
           {onDelete && (
@@ -830,6 +830,7 @@ function ActionButton({
   return (
     <button
       onClick={onClick}
+      aria-pressed={active}
       className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded-md border transition-all duration-150 ${
         active
           ? "font-medium"

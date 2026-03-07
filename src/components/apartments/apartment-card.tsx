@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { ExternalLink, Trash2, ChevronDown } from "lucide-react";
 import { formatCHF } from "@/lib/utils";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
@@ -25,9 +25,26 @@ interface ApartmentCardProps {
 
 export function ApartmentCard({ apt, onStatusChange, onRemove }: ApartmentCardProps) {
   const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const statusConf = STATUS_CONFIG.find((s) => s.key === apt.status)!;
   const neighborhood = NEIGHBORHOODS.find((n) => n.kreis === apt.kreis);
+
+  const currentIndex = STATUS_CONFIG.findIndex((s) => s.key === apt.status);
+
+  const openMenu = useCallback(() => {
+    setShowStatusMenu(true);
+    setFocusedIndex(currentIndex);
+  }, [currentIndex]);
+
+  const selectItem = useCallback(
+    (index: number) => {
+      onStatusChange(STATUS_CONFIG[index].key);
+      setShowStatusMenu(false);
+    },
+    [onStatusChange]
+  );
 
   useEffect(() => {
     if (!showStatusMenu) return;
@@ -36,16 +53,47 @@ export function ApartmentCard({ apt, onStatusChange, onRemove }: ApartmentCardPr
         setShowStatusMenu(false);
       }
     };
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setShowStatusMenu(false);
-    };
     document.addEventListener("mousedown", handleClick);
-    document.addEventListener("keydown", handleKey);
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-      document.removeEventListener("keydown", handleKey);
-    };
+    return () => document.removeEventListener("mousedown", handleClick);
   }, [showStatusMenu]);
+
+  useEffect(() => {
+    if (!showStatusMenu || !menuRef.current) return;
+    const buttons = menuRef.current.querySelectorAll<HTMLButtonElement>("[role='option']");
+    buttons[focusedIndex]?.focus();
+  }, [focusedIndex, showStatusMenu]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showStatusMenu) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setFocusedIndex((i) => (i + 1) % STATUS_CONFIG.length);
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setFocusedIndex((i) => (i - 1 + STATUS_CONFIG.length) % STATUS_CONFIG.length);
+        break;
+      case "Home":
+        e.preventDefault();
+        setFocusedIndex(0);
+        break;
+      case "End":
+        e.preventDefault();
+        setFocusedIndex(STATUS_CONFIG.length - 1);
+        break;
+      case "Enter":
+      case " ":
+        e.preventDefault();
+        if (focusedIndex >= 0) selectItem(focusedIndex);
+        break;
+      case "Escape":
+        e.preventDefault();
+        setShowStatusMenu(false);
+        break;
+    }
+  };
 
   return (
     <div className="rounded-xl border border-border-default bg-bg-secondary p-4 hover:border-accent-primary/30 transition-colors">
@@ -55,12 +103,12 @@ export function ApartmentCard({ apt, onStatusChange, onRemove }: ApartmentCardPr
             <h3 className="text-sm font-semibold text-text-primary truncate">
               {apt.title}
             </h3>
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative" ref={dropdownRef} onKeyDown={handleKeyDown}>
               <button
-                onClick={() => setShowStatusMenu(!showStatusMenu)}
+                onClick={() => (showStatusMenu ? setShowStatusMenu(false) : openMenu())}
                 aria-expanded={showStatusMenu}
                 aria-haspopup="listbox"
-                className="shrink-0 flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded font-medium transition-colors hover:opacity-80"
+                className="shrink-0 flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded font-medium transition-colors hover:opacity-80"
                 style={{
                   color: statusConf.color,
                   backgroundColor: `color-mix(in srgb, ${statusConf.color} 15%, transparent)`,
@@ -70,17 +118,23 @@ export function ApartmentCard({ apt, onStatusChange, onRemove }: ApartmentCardPr
                 <ChevronDown className="h-2.5 w-2.5" />
               </button>
               {showStatusMenu && (
-                <div className="absolute top-full left-0 mt-1 z-20 rounded-lg border border-border-default bg-bg-secondary shadow-lg py-1 min-w-[120px]">
-                  {STATUS_CONFIG.map((s) => (
+                <div
+                  ref={menuRef}
+                  role="listbox"
+                  aria-label="Status"
+                  className="absolute top-full left-0 mt-1 z-20 rounded-lg border border-border-default bg-bg-secondary shadow-lg py-1 min-w-[120px]"
+                >
+                  {STATUS_CONFIG.map((s, i) => (
                     <button
                       key={s.key}
-                      onClick={() => {
-                        onStatusChange(s.key);
-                        setShowStatusMenu(false);
-                      }}
-                      className={`w-full text-left flex items-center gap-2 px-3 py-1.5 text-[10px] hover:bg-bg-tertiary transition-colors ${
+                      role="option"
+                      aria-selected={apt.status === s.key}
+                      tabIndex={focusedIndex === i ? 0 : -1}
+                      onClick={() => selectItem(i)}
+                      onMouseEnter={() => setFocusedIndex(i)}
+                      className={`w-full text-left flex items-center gap-2 px-3 py-1.5 text-[10px] transition-colors ${
                         apt.status === s.key ? "font-semibold" : ""
-                      }`}
+                      } ${focusedIndex === i ? "bg-bg-tertiary" : "hover:bg-bg-tertiary"}`}
                     >
                       <div
                         className="h-2 w-2 rounded-full shrink-0"

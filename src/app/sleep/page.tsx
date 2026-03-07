@@ -305,6 +305,7 @@ export default function SleepPage() {
                     key={q}
                     type="button"
                     onClick={() => setFormQuality(q)}
+                    aria-label={`Rate quality ${q} - ${QUALITY_LABELS[q].label}`}
                     className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all"
                     style={{
                       backgroundColor:

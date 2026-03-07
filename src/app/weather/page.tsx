@@ -239,7 +239,7 @@ export default function WeatherPage() {
                 {day.precip > 0 && (
                   <div className="flex items-center justify-center gap-0.5 mt-1">
                     <Droplets className="h-2 w-2 text-cyan-400" />
-                    <span className="font-data text-[9px] text-cyan-400">
+                    <span className="font-data text-[10px] text-cyan-400">
                       {day.precip}%
                     </span>
                   </div>
@@ -290,7 +290,7 @@ function WeatherStat({
     <div className="flex items-center gap-2 rounded-lg bg-bg-primary/50 p-2">
       <span className="text-text-muted">{icon}</span>
       <div>
-        <p className="text-[9px] text-text-muted">{label}</p>
+        <p className="text-[10px] text-text-muted">{label}</p>
         <p className="font-data text-xs text-text-primary">{value}</p>
       </div>
     </div>
