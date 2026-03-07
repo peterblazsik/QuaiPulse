@@ -4,12 +4,13 @@ import { memo } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, ChevronRight, ExternalLink, GitCompareArrows } from "lucide-react";
+import { MapPin, ChevronRight, ExternalLink, GitCompareArrows, Clock } from "lucide-react";
 import type { ScoredNeighborhood } from "@/lib/engines/scoring";
 import { formatScore, scoreTextClass } from "@/lib/engines/scoring";
 import { formatCHF } from "@/lib/utils";
 import { RadarChart } from "./radar-chart";
 import { ScoreBadge } from "./score-badge";
+import { VibeBadges, LocationTypeBadge } from "./vibe-badges";
 import { RentCard } from "@/components/shared/rent-card";
 import { SCORE_DIMENSIONS } from "@/lib/constants";
 import type { ScoreDimension } from "@/lib/types";
@@ -77,9 +78,7 @@ export const NeighborhoodCard = memo(function NeighborhoodCard({
             <h3 className="font-display text-lg font-semibold text-text-primary truncate">
               {n.name}
             </h3>
-            <span className="text-xs text-text-muted shrink-0">
-              Kreis {n.kreis}
-            </span>
+            <LocationTypeBadge locationType={n.locationType} kreis={n.kreis} region={n.region} />
           </div>
           <p className="text-xs text-text-tertiary mt-0.5 italic">
             {n.vibe}
@@ -89,7 +88,18 @@ export const NeighborhoodCard = memo(function NeighborhoodCard({
               <MapPin className="h-3 w-3" />
               1BR {formatCHF(n.rentOneBrMin)}-{formatCHF(n.rentOneBrMax)}
             </span>
+            {n.commuteMinutes && (
+              <span className="text-[10px] uppercase tracking-wider text-text-muted flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                {n.commuteMinutes} min
+              </span>
+            )}
           </div>
+          {n.hoodmapVibes && n.hoodmapVibes.length > 0 && (
+            <div className="mt-1.5">
+              <VibeBadges vibes={n.hoodmapVibes} size="sm" />
+            </div>
+          )}
         </div>
 
         {/* Compare + Score */}

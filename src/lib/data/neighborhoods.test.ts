@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { NEIGHBORHOODS } from "./neighborhoods";
+import { NEIGHBORHOODS, LAKE_TOWNS, ALL_LOCATIONS } from "./neighborhoods";
 import type { ScoreDimension } from "@/lib/types";
 
 const SCORE_DIMENSIONS: ScoreDimension[] = [
@@ -120,6 +120,13 @@ describe("NEIGHBORHOODS data integrity", () => {
     );
 
     it.each(NEIGHBORHOODS.map((n) => [n.name, n]))(
+      "%s should have locationType zurich_kreis",
+      (_name, neighborhood) => {
+        expect(neighborhood.locationType).toBe("zurich_kreis");
+      }
+    );
+
+    it.each(NEIGHBORHOODS.map((n) => [n.name, n]))(
       "%s should have a non-empty name",
       (_name, neighborhood) => {
         expect(neighborhood.name.trim().length).toBeGreaterThan(0);
@@ -136,11 +143,18 @@ describe("NEIGHBORHOODS data integrity", () => {
     it.each(NEIGHBORHOODS.map((n) => [n.name, n]))(
       "%s should have valid coordinates",
       (_name, neighborhood) => {
-        // Zurich is roughly at lat 47.3-47.5, lng 8.4-8.6
         expect(neighborhood.lat).toBeGreaterThan(47);
         expect(neighborhood.lat).toBeLessThan(48);
         expect(neighborhood.lng).toBeGreaterThan(8);
         expect(neighborhood.lng).toBeLessThan(9);
+      }
+    );
+
+    it.each(NEIGHBORHOODS.map((n) => [n.name, n]))(
+      "%s should have hoodmapVibes array",
+      (_name, neighborhood) => {
+        expect(Array.isArray(neighborhood.hoodmapVibes)).toBe(true);
+        expect(neighborhood.hoodmapVibes.length).toBeGreaterThan(0);
       }
     );
   });
@@ -155,5 +169,116 @@ describe("NEIGHBORHOODS data integrity", () => {
         }
       }
     );
+  });
+});
+
+describe("LAKE_TOWNS data integrity", () => {
+  it("should contain at least one lake town", () => {
+    expect(LAKE_TOWNS.length).toBeGreaterThan(0);
+  });
+
+  describe("score dimensions", () => {
+    it.each(LAKE_TOWNS.map((n) => [n.name, n]))(
+      "%s should have all 12 score dimensions",
+      (_name, town) => {
+        for (const dim of SCORE_DIMENSIONS) {
+          expect(town.scores).toHaveProperty(dim);
+        }
+        expect(Object.keys(town.scores)).toHaveLength(12);
+      }
+    );
+  });
+
+  describe("score ranges", () => {
+    it.each(LAKE_TOWNS.map((n) => [n.name, n]))(
+      "%s should have all scores between 0 and 10",
+      (_name, town) => {
+        for (const dim of SCORE_DIMENSIONS) {
+          const score = town.scores[dim];
+          expect(score).toBeGreaterThanOrEqual(0);
+          expect(score).toBeLessThanOrEqual(10);
+        }
+      }
+    );
+  });
+
+  describe("rent ranges", () => {
+    it.each(LAKE_TOWNS.map((n) => [n.name, n]))(
+      "%s should have all rent min < max",
+      (_name, town) => {
+        expect(town.rentStudioMin).toBeLessThan(town.rentStudioMax);
+        expect(town.rentOneBrMin).toBeLessThan(town.rentOneBrMax);
+        expect(town.rentTwoBrMin).toBeLessThan(town.rentTwoBrMax);
+      }
+    );
+  });
+
+  describe("lake town specific fields", () => {
+    it.each(LAKE_TOWNS.map((n) => [n.name, n]))(
+      "%s should have locationType lake_town",
+      (_name, town) => {
+        expect(town.locationType).toBe("lake_town");
+      }
+    );
+
+    it.each(LAKE_TOWNS.map((n) => [n.name, n]))(
+      "%s should have a region",
+      (_name, town) => {
+        expect(town.region).toBeDefined();
+        expect(town.region!.trim().length).toBeGreaterThan(0);
+      }
+    );
+
+    it.each(LAKE_TOWNS.map((n) => [n.name, n]))(
+      "%s should have commuteMinutes",
+      (_name, town) => {
+        expect(town.commuteMinutes).toBeDefined();
+        expect(town.commuteMinutes).toBeGreaterThan(0);
+      }
+    );
+
+    it.each(LAKE_TOWNS.map((n) => [n.name, n]))(
+      "%s should have valid coordinates in Zurich region",
+      (_name, town) => {
+        expect(town.lat).toBeGreaterThan(47);
+        expect(town.lat).toBeLessThan(48);
+        expect(town.lng).toBeGreaterThan(8);
+        expect(town.lng).toBeLessThan(9);
+      }
+    );
+
+    it.each(LAKE_TOWNS.map((n) => [n.name, n]))(
+      "%s should have notes for all 12 dimensions",
+      (_name, town) => {
+        for (const dim of SCORE_DIMENSIONS) {
+          expect(town.notes).toHaveProperty(dim);
+          expect(town.notes[dim].trim().length).toBeGreaterThan(0);
+        }
+      }
+    );
+  });
+});
+
+describe("ALL_LOCATIONS combined integrity", () => {
+  it("should have unique ids across ALL locations", () => {
+    const ids = ALL_LOCATIONS.map((n) => n.id);
+    const uniqueIds = new Set(ids);
+    expect(uniqueIds.size).toBe(ids.length);
+  });
+
+  it("should have unique slugs across ALL locations", () => {
+    const slugs = ALL_LOCATIONS.map((n) => n.slug);
+    const uniqueSlugs = new Set(slugs);
+    expect(uniqueSlugs.size).toBe(slugs.length);
+  });
+
+  it("should contain both neighborhoods and lake towns", () => {
+    const types = new Set(ALL_LOCATIONS.map((n) => n.locationType));
+    expect(types.has("zurich_kreis")).toBe(true);
+    expect(types.has("lake_town")).toBe(true);
+  });
+
+  it("should equal NEIGHBORHOODS + LAKE_TOWNS", () => {
+    expect(ALL_LOCATIONS.length).toBe(NEIGHBORHOODS.length + LAKE_TOWNS.length);
   });
 });

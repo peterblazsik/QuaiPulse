@@ -3,24 +3,33 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
-import { MapPin, BarChart3, TrendingUp, GitCompareArrows, X } from "lucide-react";
+import { MapPin, BarChart3, TrendingUp, GitCompareArrows, X, Building2, Waves } from "lucide-react";
 import { usePriorityStore } from "@/lib/stores/priority-store";
 import { useCompareStore } from "@/lib/stores/compare-store";
-import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
+import { NEIGHBORHOODS, LAKE_TOWNS, ALL_LOCATIONS } from "@/lib/data/neighborhoods";
 import { rankNeighborhoods, formatScore } from "@/lib/engines/scoring";
 import { PrioritySliders } from "@/components/neighborhoods/priority-sliders";
 import { NeighborhoodCard } from "@/components/neighborhoods/neighborhood-card";
 import { formatCHF } from "@/lib/utils";
 
+type LocationFilter = "all" | "zurich" | "lake";
+
 export default function NeighborhoodsPage() {
   const weights = usePriorityStore((s) => s.weights);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
+  const [locationFilter, setLocationFilter] = useState<LocationFilter>("all");
   const { selectedIds, clear: clearCompare } = useCompareStore();
 
+  const sourceData = useMemo(() => {
+    if (locationFilter === "zurich") return NEIGHBORHOODS;
+    if (locationFilter === "lake") return LAKE_TOWNS;
+    return ALL_LOCATIONS;
+  }, [locationFilter]);
+
   const ranked = useMemo(
-    () => rankNeighborhoods(NEIGHBORHOODS, weights),
-    [weights]
+    () => rankNeighborhoods(sourceData, weights),
+    [sourceData, weights]
   );
 
   // J/K keyboard navigation
@@ -61,6 +70,12 @@ export default function NeighborhoodsPage() {
   const cheapest = [...ranked].sort(
     (a, b) => a.rentOneBrMin - b.rentOneBrMin
   )[0];
+
+  const filterTabs: { key: LocationFilter; label: string; icon: React.ReactNode; count: number }[] = [
+    { key: "all", label: "All", icon: <MapPin className="h-3.5 w-3.5" />, count: ALL_LOCATIONS.length },
+    { key: "zurich", label: "Zurich", icon: <Building2 className="h-3.5 w-3.5" />, count: NEIGHBORHOODS.length },
+    { key: "lake", label: "Lake Towns", icon: <Waves className="h-3.5 w-3.5" />, count: LAKE_TOWNS.length },
+  ];
 
   return (
     <div className="flex gap-6 h-full relative">
@@ -106,13 +121,36 @@ export default function NeighborhoodsPage() {
               Neighborhood Intelligence
             </h1>
             <p className="text-sm text-text-tertiary mt-1">
-              {ranked.length} neighborhoods ranked by your priorities.
+              {ranked.length} locations ranked by your priorities.
               Adjust weights to re-rank in real time.
             </p>
           </div>
           <div className="hidden md:flex items-center gap-2 text-xs text-text-muted">
             <kbd>J</kbd><kbd>K</kbd> navigate · <kbd>Enter</kbd> expand
           </div>
+        </div>
+
+        {/* Location filter tabs */}
+        <div className="flex items-center gap-1 p-1 rounded-lg bg-bg-secondary/50 border border-border-subtle w-fit">
+          {filterTabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => {
+                setLocationFilter(tab.key);
+                setExpandedId(null);
+                setFocusedIndex(-1);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                locationFilter === tab.key
+                  ? "bg-accent-primary/15 text-accent-primary"
+                  : "text-text-muted hover:text-text-secondary hover:bg-bg-tertiary"
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+              <span className="text-[10px] opacity-60">{tab.count}</span>
+            </button>
+          ))}
         </div>
 
         {/* Mobile sliders toggle */}
@@ -154,7 +192,7 @@ export default function NeighborhoodsPage() {
               </span>
               <div className="flex items-center gap-1.5">
                 {selectedIds.map((id) => {
-                  const nb = NEIGHBORHOODS.find((x) => x.id === id);
+                  const nb = ALL_LOCATIONS.find((x) => x.id === id);
                   return nb ? (
                     <span
                       key={id}

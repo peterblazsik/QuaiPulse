@@ -10,7 +10,7 @@ import {
   ExternalLink,
   ChevronRight,
 } from "lucide-react";
-import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
+import { ALL_LOCATIONS } from "@/lib/data/neighborhoods";
 import { VENUES } from "@/lib/data/venues";
 import { NEIGHBORHOOD_IMAGES } from "@/lib/data/images";
 import { usePriorityStore } from "@/lib/stores/priority-store";
@@ -18,6 +18,7 @@ import { rankNeighborhoods } from "@/lib/engines/scoring";
 import { RadarChart } from "@/components/neighborhoods/radar-chart";
 import { ScoreBadge } from "@/components/neighborhoods/score-badge";
 import { ScoreBreakdown } from "@/components/neighborhoods/score-breakdown";
+import { VibeBadges, CrowdTags, LocationTypeBadge } from "@/components/neighborhoods/vibe-badges";
 import { VenueCard } from "@/components/neighborhoods/venue-card";
 import { RentCard } from "@/components/shared/rent-card";
 import { formatCHF } from "@/lib/utils";
@@ -31,10 +32,10 @@ export default function NeighborhoodDetailPage() {
   const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug ?? "";
   const weights = usePriorityStore((s) => s.weights);
 
-  const neighborhood = NEIGHBORHOODS.find((n) => n.slug === slug);
+  const neighborhood = ALL_LOCATIONS.find((n) => n.slug === slug);
 
   const ranked = useMemo(
-    () => rankNeighborhoods(NEIGHBORHOODS, weights),
+    () => rankNeighborhoods(ALL_LOCATIONS, weights),
     [weights]
   );
 
@@ -106,12 +107,17 @@ export default function NeighborhoodDetailPage() {
             <div className="flex items-end justify-between">
               <div>
                 <p className="text-[10px] uppercase tracking-widest text-text-muted mb-1">
-                  Kreis {n.kreis}
+                  {n.locationType === "zurich_kreis" ? `Kreis ${n.kreis}` : n.region || "Lake Zurich"}
                 </p>
                 <h1 className="font-display text-3xl font-bold text-white drop-shadow-lg">
                   {n.name}
                 </h1>
                 <p className="text-sm text-white/70 italic mt-1">{n.vibe}</p>
+                {n.hoodmapVibes && n.hoodmapVibes.length > 0 && (
+                  <div className="mt-2">
+                    <VibeBadges vibes={n.hoodmapVibes} size="md" />
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-3">
                 <div className="text-right">
@@ -135,12 +141,17 @@ export default function NeighborhoodDetailPage() {
           <div className="flex items-end justify-between">
             <div>
               <p className="text-[10px] uppercase tracking-widest text-text-muted mb-1">
-                Kreis {n.kreis}
+                {n.locationType === "zurich_kreis" ? `Kreis ${n.kreis}` : n.region || "Lake Zurich"}
               </p>
               <h1 className="font-display text-3xl font-bold text-text-primary">
                 {n.name}
               </h1>
               <p className="text-sm text-text-tertiary italic mt-1">{n.vibe}</p>
+              {n.hoodmapVibes && n.hoodmapVibes.length > 0 && (
+                <div className="mt-2">
+                  <VibeBadges vibes={n.hoodmapVibes} size="md" />
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-3">
               <div className="text-right">
@@ -158,11 +169,19 @@ export default function NeighborhoodDetailPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="card p-5"
+        className="card p-5 space-y-3"
       >
         <p className="text-sm text-text-secondary leading-relaxed">
           {n.description}
         </p>
+        {n.crowdTags && n.crowdTags.length > 0 && (
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-text-muted mb-1.5">
+              Hoodmaps crowd tags
+            </p>
+            <CrowdTags tags={n.crowdTags} size="md" />
+          </div>
+        )}
       </motion.div>
 
       {/* Score Analysis — Radar + Breakdown */}
@@ -290,7 +309,7 @@ export default function NeighborhoodDetailPage() {
           {PORTALS.map((portal) => (
             <a
               key={portal.id}
-              href={portal.kreisFilters[n.kreis] ? `${portal.baseUrl}${portal.kreisFilters[n.kreis]}` : portal.baseUrl}
+              href={n.kreis && portal.kreisFilters[n.kreis] ? `${portal.baseUrl}${portal.kreisFilters[n.kreis]}` : portal.baseUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-lg border border-border-subtle bg-bg-secondary/50 p-3 hover:border-accent-primary/50 hover:bg-accent-primary/5 transition-colors group text-center"

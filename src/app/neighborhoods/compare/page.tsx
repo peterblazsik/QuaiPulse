@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, Trophy } from "lucide-react";
-import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
+import { ALL_LOCATIONS } from "@/lib/data/neighborhoods";
 import { VENUES } from "@/lib/data/venues";
 import { usePriorityStore } from "@/lib/stores/priority-store";
 import { rankNeighborhoods, formatScore, scoreTextClass } from "@/lib/engines/scoring";
@@ -30,7 +30,7 @@ export default function ComparePage() {
   const weights = usePriorityStore((s) => s.weights);
 
   const ranked = useMemo(
-    () => rankNeighborhoods(NEIGHBORHOODS, weights),
+    () => rankNeighborhoods(ALL_LOCATIONS, weights),
     [weights]
   );
 

@@ -32,6 +32,8 @@ function makeNeighborhood(id: string, scores: Record<ScoreDimension, number>): N
     lng: 8.54,
     description: "",
     vibe: "",
+    locationType: "zurich_kreis",
+    hoodmapVibes: [],
     scores,
     notes: {} as Record<ScoreDimension, string>,
     rentStudioMin: 1000,

@@ -1,3 +1,14 @@
+export type LocationType = "zurich_kreis" | "lake_town";
+
+export type HoodmapVibe =
+  | "suits"
+  | "rich"
+  | "cool"
+  | "tourists"
+  | "uni"
+  | "normies"
+  | "crime";
+
 export type ScoreDimension =
   | "commute"
   | "gym"
