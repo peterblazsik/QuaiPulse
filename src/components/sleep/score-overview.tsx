@@ -24,25 +24,25 @@ export function ScoreOverview({ breakdown, scoreDelta, avgHours, avgQuality, avg
   const barW = sparklineW / Math.max(last7.length, 1) - 1;
 
   return (
-    <div className="card elevation-1 p-4 flex flex-col">
+    <div className="card elevation-1 p-5 flex flex-col">
       {/* Score ring + label */}
       <div className="flex items-center gap-3 mb-3">
         <div className="w-20 h-20 flex-shrink-0">
           <ScoreRing breakdown={breakdown} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-semibold" style={{ color: getScoreColor(breakdown.total) }}>
+          <p className="text-sm font-semibold" style={{ color: getScoreColor(breakdown.total) }}>
             {getScoreLabel(breakdown.total)}
           </p>
           {scoreDelta !== null && (
             <DeltaBadge value={scoreDelta} suffix="pts" invertColor={false} />
           )}
-          <p className="text-[8px] text-text-muted mt-0.5">14-day composite</p>
+          <p className="text-[11px] text-text-muted mt-0.5">14-day composite</p>
         </div>
       </div>
 
       {/* Micro KPIs */}
-      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mb-3">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-2 mb-3">
         <MicroKpi label="Hours" value={avgHours.toFixed(1)} color={avgHours >= 7 ? "#22c55e" : "#f59e0b"} />
         <MicroKpi label="Quality" value={avgQuality.toFixed(1)} color={avgQuality >= 4 ? "#22c55e" : avgQuality >= 3 ? "#f59e0b" : "#ef4444"} />
         <MicroKpi label="Latency" value={avgLatency != null ? `${Math.round(avgLatency)}m` : "—"} color={avgLatency != null && avgLatency <= 15 ? "#22c55e" : "#f59e0b"} />
@@ -53,7 +53,7 @@ export function ScoreOverview({ breakdown, scoreDelta, avgHours, avgQuality, avg
       {last7.length > 0 && (
         <div className="pt-2 border-t border-border-default/30">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-[8px] text-text-muted uppercase tracking-wider">Last 7 nights</span>
+            <span className="text-[11px] text-text-muted uppercase tracking-wider">Last 7 nights</span>
           </div>
           <svg viewBox={`0 0 ${sparklineW} ${sparklineH}`} className="w-full h-6">
             {last7.slice(-7).map((e, i) => {
@@ -74,8 +74,8 @@ export function ScoreOverview({ breakdown, scoreDelta, avgHours, avgQuality, avg
 function MicroKpi({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div className="flex items-baseline justify-between">
-      <span className="text-[9px] text-text-muted">{label}</span>
-      <span className="font-data text-xs font-semibold" style={{ color }}>{value}</span>
+      <span className="text-xs text-text-muted">{label}</span>
+      <span className="font-data text-sm font-semibold" style={{ color }}>{value}</span>
     </div>
   );
 }

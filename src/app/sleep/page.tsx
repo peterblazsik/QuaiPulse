@@ -72,7 +72,7 @@ export default function SleepPage() {
           className="flex items-center gap-2 text-xs px-4 py-2 rounded-lg bg-accent-primary text-white hover:bg-accent-hover transition-colors font-semibold">
           <Plus className="h-3.5 w-3.5" />
           Log Night
-          <kbd className="text-[8px] opacity-60 ml-1 px-1 py-0.5 rounded bg-white/10">N</kbd>
+          <kbd className="text-[10px] opacity-60 ml-1 px-1 py-0.5 rounded bg-white/10">N</kbd>
         </button>
       </div>
 
@@ -149,10 +149,10 @@ export default function SleepPage() {
       <button onClick={() => setTrackingOpen(!trackingOpen)}
         className="w-full flex items-center gap-3 py-2 group">
         <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border-default/50 to-transparent" />
-        <div className="flex items-center gap-2 text-[10px] text-text-muted uppercase tracking-widest font-semibold hover:text-text-secondary transition-colors">
-          {trackingOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+        <div className="flex items-center gap-2 text-xs text-text-muted uppercase tracking-widest font-semibold hover:text-text-secondary transition-colors">
+          {trackingOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           Tracking &amp; History
-          <kbd className="text-[7px] opacity-50 px-1 py-0.5 rounded bg-surface-2">T</kbd>
+          <kbd className="text-[10px] opacity-50 px-1.5 py-0.5 rounded bg-surface-2">T</kbd>
         </div>
         <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border-default/50 to-transparent" />
       </button>
@@ -168,7 +168,7 @@ export default function SleepPage() {
                 <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
                   Sleep Trend (30d)
                 </h2>
-                <span className="text-[9px] text-text-muted ml-auto">hours + quality sparkline</span>
+                <span className="text-xs text-text-muted ml-auto">hours + quality sparkline</span>
               </div>
               <GradientTrendChart entries={analytics.last30} />
             </div>
@@ -177,7 +177,7 @@ export default function SleepPage() {
               <div className="card elevation-1 p-3">
                 <div className="flex items-center gap-2 mb-1">
                   <Star className="h-3 w-3 text-text-muted" />
-                  <h2 className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
                     Quality Heatmap
                   </h2>
                 </div>
@@ -187,7 +187,7 @@ export default function SleepPage() {
               <div className="card elevation-1 p-3">
                 <div className="flex items-center gap-2 mb-1">
                   <Clock className="h-3 w-3 text-text-muted" />
-                  <h2 className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
                     Sleep Window
                   </h2>
                 </div>
@@ -231,12 +231,12 @@ function MicroKpiCard({
   return (
     <div className="card elevation-1 p-3 relative overflow-hidden">
       <div className="card-hover-line" />
-      <p className="text-[9px] font-semibold uppercase tracking-wider text-text-muted">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">{label}</p>
       <div className="flex items-end gap-1.5 mt-1">
         <span className="font-data text-xl font-bold" style={{ color }}>{value}</span>
         {delta != null && <DeltaBadge value={delta} suffix={deltaSuffix ?? ""} invertColor={invertDelta ?? false} />}
       </div>
-      {subtitle && <p className="text-[8px] text-text-tertiary mt-0.5">{subtitle}</p>}
+      {subtitle && <p className="text-[11px] text-text-tertiary mt-0.5">{subtitle}</p>}
     </div>
   );
 }

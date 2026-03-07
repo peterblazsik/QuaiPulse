@@ -55,23 +55,23 @@ export function ProtocolScreener({ stats }: ProtocolScreenerProps) {
   }
 
   function SortIcon({ field }: { field: SortField }) {
-    if (sortField !== field) return <ArrowUpDown className="h-2.5 w-2.5 text-text-muted/40" />;
+    if (sortField !== field) return <ArrowUpDown className="h-3 w-3 text-text-muted/40" />;
     return sortDir === "asc"
-      ? <ArrowUp className="h-2.5 w-2.5 text-accent-primary" />
-      : <ArrowDown className="h-2.5 w-2.5 text-accent-primary" />;
+      ? <ArrowUp className="h-3 w-3 text-accent-primary" />
+      : <ArrowDown className="h-3 w-3 text-accent-primary" />;
   }
 
   return (
-    <div className="card elevation-1 p-4">
+    <div className="card elevation-1 p-5">
       <div className="flex items-center gap-2 mb-3">
-        <Filter className="h-3.5 w-3.5 text-text-muted" />
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+        <Filter className="h-4 w-4 text-text-muted" />
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
           Supplement Screener
         </h2>
-        <div className="flex items-center gap-1 ml-auto">
+        <div className="flex items-center gap-1.5 ml-auto">
           {[null, 1, 2, 3].map((tier) => (
             <button key={tier ?? "all"} onClick={() => setTierFilter(tier)}
-              className="text-[8px] px-1.5 py-0.5 rounded transition-colors"
+              className="text-[11px] px-2 py-0.5 rounded transition-colors"
               style={{
                 backgroundColor: tierFilter === tier ? "rgba(59, 130, 246, 0.2)" : "transparent",
                 color: tierFilter === tier ? "#60a5fa" : "#64748b",
@@ -84,23 +84,23 @@ export function ProtocolScreener({ stats }: ProtocolScreenerProps) {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto -mx-4 px-4">
-        <table className="w-full text-[10px]">
+      <div className="overflow-x-auto -mx-5 px-5">
+        <table className="w-full text-xs">
           <thead>
             <tr className="border-b border-border-default/30">
               {([
                 { field: "name" as SortField, label: "Supplement", align: "left" as const, width: "flex-1" },
-                { field: "tier" as SortField, label: "T", align: "center" as const, width: "w-6" },
-                { field: "avgWith" as SortField, label: "Avg Q", align: "right" as const, width: "w-10" },
-                { field: "delta" as SortField, label: "Δ", align: "right" as const, width: "w-10" },
-                { field: "hitRate" as SortField, label: "Hit%", align: "right" as const, width: "w-10" },
-                { field: "latencyDelta" as SortField, label: "Lat Δ", align: "right" as const, width: "w-12" },
-                { field: "countWith" as SortField, label: "n", align: "right" as const, width: "w-6" },
+                { field: "tier" as SortField, label: "T", align: "center" as const, width: "w-8" },
+                { field: "avgWith" as SortField, label: "Avg Q", align: "right" as const, width: "w-12" },
+                { field: "delta" as SortField, label: "Δ", align: "right" as const, width: "w-12" },
+                { field: "hitRate" as SortField, label: "Hit%", align: "right" as const, width: "w-14" },
+                { field: "latencyDelta" as SortField, label: "Lat Δ", align: "right" as const, width: "w-14" },
+                { field: "countWith" as SortField, label: "n", align: "right" as const, width: "w-8" },
               ]).map((col) => (
                 <th key={col.field}
-                  className={`pb-1.5 font-semibold text-text-muted uppercase tracking-wider cursor-pointer select-none hover:text-text-secondary transition-colors ${col.width} text-${col.align}`}
+                  className={`pb-2 font-semibold text-text-muted uppercase tracking-wider cursor-pointer select-none hover:text-text-secondary transition-colors ${col.width} text-${col.align}`}
                   onClick={() => toggleSort(col.field)}>
-                  <span className="inline-flex items-center gap-0.5">
+                  <span className="inline-flex items-center gap-1">
                     {col.label}
                     <SortIcon field={col.field} />
                   </span>
@@ -110,31 +110,30 @@ export function ProtocolScreener({ stats }: ProtocolScreenerProps) {
           </thead>
           <tbody>
             {sorted.map((s) => {
-              const supData = SUPPLEMENTS.find((sup) => sup.id === s.id);
               return (
                 <tr key={s.id} className="border-b border-border-default/10 hover:bg-surface-2/50 transition-colors group">
-                  <td className="py-1.5 text-left">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
+                  <td className="py-2 text-left">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
                       <span className="text-text-secondary font-medium truncate">{s.name}</span>
                     </div>
                   </td>
-                  <td className="py-1.5 text-center">
-                    <span className="text-[8px] font-data" style={{ color: s.tier === 1 ? "#22c55e" : s.tier === 2 ? "#f59e0b" : "#64748b" }}>
+                  <td className="py-2 text-center">
+                    <span className="text-[11px] font-data" style={{ color: s.tier === 1 ? "#22c55e" : s.tier === 2 ? "#f59e0b" : "#64748b" }}>
                       T{s.tier}
                     </span>
                   </td>
-                  <td className="py-1.5 text-right font-data"
+                  <td className="py-2 text-right font-data"
                     style={{ color: s.avgWith >= 4 ? "#22c55e" : s.avgWith >= 3 ? "#f59e0b" : "#ef4444" }}>
                     {s.avgWith.toFixed(1)}
                   </td>
-                  <td className="py-1.5 text-right font-data font-semibold"
+                  <td className="py-2 text-right font-data font-semibold"
                     style={{ color: s.delta >= 0.5 ? "#22c55e" : s.delta >= 0.2 ? "#3b82f6" : s.delta < 0 ? "#ef4444" : "#64748b" }}>
                     {s.delta > 0 ? "+" : ""}{s.delta.toFixed(2)}
                   </td>
-                  <td className="py-1.5 text-right">
-                    <div className="inline-flex items-center gap-1">
-                      <div className="w-8 h-[3px] bg-surface-2 rounded-full overflow-hidden">
+                  <td className="py-2 text-right">
+                    <div className="inline-flex items-center gap-1.5">
+                      <div className="w-10 h-[4px] bg-surface-2 rounded-full overflow-hidden">
                         <div className="h-full rounded-full" style={{
                           width: `${s.hitRate * 100}%`,
                           backgroundColor: s.hitRate >= 0.7 ? "#22c55e" : s.hitRate >= 0.5 ? "#f59e0b" : "#ef4444",
@@ -143,11 +142,11 @@ export function ProtocolScreener({ stats }: ProtocolScreenerProps) {
                       <span className="font-data text-text-muted">{Math.round(s.hitRate * 100)}</span>
                     </div>
                   </td>
-                  <td className="py-1.5 text-right font-data"
+                  <td className="py-2 text-right font-data"
                     style={{ color: s.latencyDelta != null ? (s.latencyDelta < -3 ? "#22c55e" : s.latencyDelta > 3 ? "#ef4444" : "#64748b") : "#334155" }}>
                     {s.latencyDelta != null ? `${s.latencyDelta > 0 ? "+" : ""}${Math.round(s.latencyDelta)}m` : "—"}
                   </td>
-                  <td className="py-1.5 text-right font-data text-text-muted">
+                  <td className="py-2 text-right font-data text-text-muted">
                     {s.countWith}
                   </td>
                 </tr>
@@ -158,7 +157,7 @@ export function ProtocolScreener({ stats }: ProtocolScreenerProps) {
       </div>
 
       {sorted.length === 0 && (
-        <p className="text-[10px] text-text-muted text-center py-4">No supplement data yet. Log entries with supplements.</p>
+        <p className="text-xs text-text-muted text-center py-4">No supplement data yet. Log entries with supplements.</p>
       )}
     </div>
   );
