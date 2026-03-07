@@ -5,13 +5,13 @@ import type { SleepEntry } from "@/lib/stores/sleep-store";
 import { QUALITY_LABELS } from "@/lib/data/sleep-defaults";
 import type { SleepQuality } from "@/lib/data/sleep-defaults";
 
-const CELL_SIZE = 14;
+const CELL_SIZE = 10;
 const CELL_GAP = 2;
-const CELL_RADIUS = 3;
-const LEFT_LABEL_WIDTH = 16;
-const TOP_LABEL_HEIGHT = 12;
-const LEGEND_HEIGHT = 24;
-const BOTTOM_MARGIN = 4;
+const CELL_RADIUS = 2;
+const LEFT_LABEL_WIDTH = 14;
+const TOP_LABEL_HEIGHT = 10;
+const LEGEND_HEIGHT = 18;
+const BOTTOM_MARGIN = 2;
 
 const QUALITY_COLORS: Record<SleepQuality, string> = {
   1: "#ef4444",
@@ -74,7 +74,7 @@ export function CalendarHeatmap({ entries }: { entries: SleepEntry[] }) {
       if (!earliestEntry || d < earliestEntry) earliestEntry = d;
     }
 
-    let numWeeks = 6;
+    let numWeeks = 16;
     if (earliestEntry) {
       const diffMs = today.getTime() - earliestEntry.getTime();
       const diffWeeks = Math.ceil(diffMs / (7 * 86400000)) + 1;
@@ -169,14 +169,15 @@ export function CalendarHeatmap({ entries }: { entries: SleepEntry[] }) {
         </div>
       )}
 
-      <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-auto"
+      <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+        className="w-full h-auto max-h-[120px]"
         role="img" aria-label="Sleep quality calendar heatmap">
 
         {/* Month labels */}
         {monthLabels.map((ml, i) => (
           <text key={`month-${i}`}
             x={LEFT_LABEL_WIDTH + ml.col * (CELL_SIZE + CELL_GAP)}
-            y={TOP_LABEL_HEIGHT - 3} className="font-data" fontSize="7" fill="#64748b">
+            y={TOP_LABEL_HEIGHT - 2} className="font-data" fontSize="6" fill="#64748b">
             {ml.label}
           </text>
         ))}
@@ -185,7 +186,7 @@ export function CalendarHeatmap({ entries }: { entries: SleepEntry[] }) {
         {DAY_LABELS.map((dl) => (
           <text key={`day-${dl.index}`} x={0}
             y={TOP_LABEL_HEIGHT + dl.index * (CELL_SIZE + CELL_GAP) + CELL_SIZE / 2 + 2}
-            className="font-data" fontSize="7" fill="#64748b">
+            className="font-data" fontSize="6" fill="#64748b">
             {dl.label}
           </text>
         ))}
@@ -240,20 +241,20 @@ export function CalendarHeatmap({ entries }: { entries: SleepEntry[] }) {
         {/* Compact legend */}
         {(() => {
           const legendY = TOP_LABEL_HEIGHT + 7 * (CELL_SIZE + CELL_GAP) - CELL_GAP + BOTTOM_MARGIN + 2;
-          const squareW = 12;
-          const squareH = 8;
+          const squareW = 8;
+          const squareH = 6;
           const legendGap = 2;
           const startX = LEFT_LABEL_WIDTH;
 
           return (
             <g>
-              <text x={startX} y={legendY + squareH} fontSize="7" fill="#64748b">Worse</text>
+              <text x={startX} y={legendY + squareH} fontSize="6" fill="#64748b">Worse</text>
               {([1, 2, 3, 4, 5] as SleepQuality[]).map((q, i) => (
-                <rect key={q} x={startX + 26 + i * (squareW + legendGap)} y={legendY}
+                <rect key={q} x={startX + 20 + i * (squareW + legendGap)} y={legendY}
                   width={squareW} height={squareH} rx={1.5} fill={QUALITY_COLORS[q]} />
               ))}
-              <text x={startX + 26 + 5 * (squareW + legendGap) + 4} y={legendY + squareH}
-                fontSize="7" fill="#64748b">Better</text>
+              <text x={startX + 20 + 5 * (squareW + legendGap) + 3} y={legendY + squareH}
+                fontSize="6" fill="#64748b">Better</text>
             </g>
           );
         })()}

@@ -72,26 +72,26 @@ export default function SleepPage() {
         </div>
       </div>
 
-      {/* Row 2: Sleep Window + Heatmap + Entry Form */}
+      {/* Row 2: Heatmap + Sleep Window + Entry Form */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div className="lg:col-span-3 card elevation-1 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Clock className="h-3.5 w-3.5 text-text-muted" />
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Sleep Window
-            </h2>
-          </div>
-          <SleepWindowChart entries={analytics.last14} />
-        </div>
-
-        <div className="lg:col-span-5 card elevation-1 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Star className="h-3.5 w-3.5 text-text-muted" />
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+        <div className="lg:col-span-5 card elevation-1 p-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Star className="h-3 w-3 text-text-muted" />
+            <h2 className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
               Quality Heatmap
             </h2>
           </div>
           <CalendarHeatmap entries={entries} />
+        </div>
+
+        <div className="lg:col-span-3 card elevation-1 p-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Clock className="h-3 w-3 text-text-muted" />
+            <h2 className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+              Sleep Window
+            </h2>
+          </div>
+          <SleepWindowChart entries={analytics.last14} />
         </div>
 
         <div className="lg:col-span-4">
