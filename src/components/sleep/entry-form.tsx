@@ -33,12 +33,12 @@ export function EntryForm({ form, onSubmit }: EntryFormProps) {
       <div className="space-y-2.5">
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-[9px] uppercase tracking-wider text-text-muted block mb-0.5">Date</label>
+            <label className="text-xs uppercase tracking-wider text-text-muted block mb-0.5">Date</label>
             <input type="date" value={form.formDate} onChange={(e) => form.setFormDate(e.target.value)}
               className="w-full rounded-lg border border-border-default bg-bg-tertiary px-2.5 py-1.5 text-xs text-text-primary focus:border-accent-primary focus:outline-none" />
           </div>
           <div>
-            <label className="text-[9px] uppercase tracking-wider text-text-muted block mb-0.5">Hours</label>
+            <label className="text-xs uppercase tracking-wider text-text-muted block mb-0.5">Hours</label>
             <input type="number" value={form.formHours} onChange={(e) => form.setFormHours(Number(e.target.value))}
               min={0} max={16} step={0.5}
               className="w-full rounded-lg border border-border-default bg-bg-tertiary px-2.5 py-1.5 text-xs text-text-primary font-data focus:border-accent-primary focus:outline-none" />
@@ -46,12 +46,12 @@ export function EntryForm({ form, onSubmit }: EntryFormProps) {
         </div>
 
         <div>
-          <label className="text-[9px] uppercase tracking-wider text-text-muted block mb-0.5">Quality</label>
+          <label className="text-xs uppercase tracking-wider text-text-muted block mb-0.5">Quality</label>
           <div className="flex gap-1.5">
             {([1, 2, 3, 4, 5] as SleepQuality[]).map((q) => (
               <button key={q} type="button" onClick={() => form.setFormQuality(q)}
                 aria-label={`Rate quality ${q} - ${QUALITY_LABELS[q].label}`}
-                className="flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold transition-all"
+                className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold transition-all"
                 style={{
                   backgroundColor: form.formQuality === q ? QUALITY_LABELS[q].color : "var(--bg-tertiary)",
                   color: form.formQuality === q ? "#fff" : "var(--text-muted)",
@@ -60,12 +60,12 @@ export function EntryForm({ form, onSubmit }: EntryFormProps) {
                 title={QUALITY_LABELS[q].label}
               >{q}</button>
             ))}
-            <span className="text-[9px] text-text-muted self-center ml-1">{QUALITY_LABELS[form.formQuality].label}</span>
+            <span className="text-xs text-text-muted self-center ml-1">{QUALITY_LABELS[form.formQuality].label}</span>
           </div>
         </div>
 
         <div>
-          <label className="text-[9px] uppercase tracking-wider text-text-muted block mb-0.5">Location</label>
+          <label className="text-xs uppercase tracking-wider text-text-muted block mb-0.5">Location</label>
           <select value={form.formLocation} onChange={(e) => form.setFormLocation(e.target.value as typeof form.formLocation)}
             className="w-full rounded-lg border border-border-default bg-bg-tertiary px-2.5 py-1.5 text-xs text-text-primary focus:border-accent-primary focus:outline-none">
             {LOCATIONS.map((loc) => <option key={loc.value} value={loc.value}>{loc.label}</option>)}
@@ -73,13 +73,13 @@ export function EntryForm({ form, onSubmit }: EntryFormProps) {
         </div>
 
         <div>
-          <label className="text-[9px] uppercase tracking-wider text-text-muted block mb-0.5">Supplements</label>
+          <label className="text-xs uppercase tracking-wider text-text-muted block mb-0.5">Supplements</label>
           <div className="flex flex-wrap gap-1">
             {SUPPLEMENTS.map((sup) => {
               const active = form.formSupplements.includes(sup.id);
               return (
                 <button key={sup.id} type="button" onClick={() => form.toggleSupplement(sup.id)}
-                  className="text-[8px] px-1.5 py-0.5 rounded-full transition-all font-medium"
+                  className="text-[11px] px-1.5 py-0.5 rounded-full transition-all font-medium"
                   style={{
                     backgroundColor: active ? `color-mix(in srgb, ${sup.color} 20%, transparent)` : "var(--bg-tertiary)",
                     color: active ? sup.color : "var(--text-muted)",
@@ -91,13 +91,13 @@ export function EntryForm({ form, onSubmit }: EntryFormProps) {
         </div>
 
         <div>
-          <label className="text-[9px] uppercase tracking-wider text-text-muted block mb-0.5">Interventions</label>
+          <label className="text-xs uppercase tracking-wider text-text-muted block mb-0.5">Interventions</label>
           <div className="flex flex-wrap gap-1">
             {INTERVENTIONS.map((intv) => {
               const active = form.formInterventions.includes(intv.id);
               return (
                 <button key={intv.id} type="button" onClick={() => form.toggleIntervention(intv.id)}
-                  className="text-[8px] px-1.5 py-0.5 rounded-full transition-all font-medium"
+                  className="text-[11px] px-1.5 py-0.5 rounded-full transition-all font-medium"
                   style={{
                     backgroundColor: active ? "rgba(59, 130, 246, 0.15)" : "var(--bg-tertiary)",
                     color: active ? "#60a5fa" : "var(--text-muted)",
@@ -110,12 +110,12 @@ export function EntryForm({ form, onSubmit }: EntryFormProps) {
 
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-[9px] uppercase tracking-wider text-text-muted block mb-0.5">Bedtime</label>
+            <label className="text-xs uppercase tracking-wider text-text-muted block mb-0.5">Bedtime</label>
             <input type="time" value={form.formBedtime} onChange={(e) => form.setFormBedtime(e.target.value)}
               className="w-full rounded-lg border border-border-default bg-bg-tertiary px-2.5 py-1.5 text-xs text-text-primary font-data focus:border-accent-primary focus:outline-none" />
           </div>
           <div>
-            <label className="text-[9px] uppercase tracking-wider text-text-muted block mb-0.5">Wake time</label>
+            <label className="text-xs uppercase tracking-wider text-text-muted block mb-0.5">Wake time</label>
             <input type="time" value={form.formWaketime} onChange={(e) => form.setFormWaketime(e.target.value)}
               className="w-full rounded-lg border border-border-default bg-bg-tertiary px-2.5 py-1.5 text-xs text-text-primary font-data focus:border-accent-primary focus:outline-none" />
           </div>
@@ -123,13 +123,13 @@ export function EntryForm({ form, onSubmit }: EntryFormProps) {
 
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-[9px] uppercase tracking-wider text-text-muted block mb-0.5">Latency (min)</label>
+            <label className="text-xs uppercase tracking-wider text-text-muted block mb-0.5">Latency (min)</label>
             <input type="number" value={form.formLatency} onChange={(e) => form.setFormLatency(e.target.value === "" ? "" : Number(e.target.value))}
               min={0} max={180} placeholder="\u2014"
               className="w-full rounded-lg border border-border-default bg-bg-tertiary px-2.5 py-1.5 text-xs text-text-primary font-data placeholder:text-text-muted/50 focus:border-accent-primary focus:outline-none" />
           </div>
           <div>
-            <label className="text-[9px] uppercase tracking-wider text-text-muted block mb-0.5">Awakenings</label>
+            <label className="text-xs uppercase tracking-wider text-text-muted block mb-0.5">Awakenings</label>
             <input type="number" value={form.formAwakenings} onChange={(e) => form.setFormAwakenings(e.target.value === "" ? "" : Number(e.target.value))}
               min={0} max={20} placeholder="\u2014"
               className="w-full rounded-lg border border-border-default bg-bg-tertiary px-2.5 py-1.5 text-xs text-text-primary font-data placeholder:text-text-muted/50 focus:border-accent-primary focus:outline-none" />
@@ -137,7 +137,7 @@ export function EntryForm({ form, onSubmit }: EntryFormProps) {
         </div>
 
         <div>
-          <label className="text-[9px] uppercase tracking-wider text-text-muted block mb-0.5">Notes</label>
+          <label className="text-xs uppercase tracking-wider text-text-muted block mb-0.5">Notes</label>
           <textarea value={form.formNotes} onChange={(e) => form.setFormNotes(e.target.value)} rows={2} placeholder="Optional notes..."
             className="w-full rounded-lg border border-border-default bg-bg-tertiary px-2.5 py-1.5 text-xs text-text-primary placeholder:text-text-muted/50 focus:border-accent-primary focus:outline-none resize-none" />
         </div>

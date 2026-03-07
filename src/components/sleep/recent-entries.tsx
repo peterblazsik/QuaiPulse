@@ -39,7 +39,7 @@ export function RecentEntries({ entries, onEdit, onRemove }: RecentEntriesProps)
             {entry.awakenings != null && entry.awakenings > 0 && (
               <span className="font-data text-[10px] text-amber-400/70">{entry.awakenings}w</span>
             )}
-            <span className="text-[9px] text-text-muted truncate flex-1">
+            <span className="text-xs text-text-muted truncate flex-1">
               {LOCATIONS.find(l => l.value === entry.location)?.label}
               {entry.interventions && entry.interventions.length > 0 ? ` +${entry.interventions.length} int.` : ""}
               {entry.notes ? ` \u2014 ${entry.notes}` : ""}

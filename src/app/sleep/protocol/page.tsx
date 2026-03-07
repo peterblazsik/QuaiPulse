@@ -331,7 +331,7 @@ export default function SleepProtocolPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span
-                        className="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded"
+                        className="text-xs font-bold uppercase tracking-widest px-1.5 py-0.5 rounded"
                         style={{
                           backgroundColor: tierCfg.bg,
                           color: tierCfg.color,
@@ -340,11 +340,11 @@ export default function SleepProtocolPage() {
                       >
                         {tierCfg.label}
                       </span>
-                      <span className="text-[9px] uppercase tracking-wider text-text-muted">
+                      <span className="text-xs uppercase tracking-wider text-text-muted">
                         {CATEGORY_LABELS[sup.category] ?? sup.category}
                       </span>
                       {sup.cycleRequired && (
-                        <span className="text-[9px] uppercase tracking-wider text-amber-400/80 flex items-center gap-0.5">
+                        <span className="text-xs uppercase tracking-wider text-amber-400/80 flex items-center gap-0.5">
                           <Timer className="h-2.5 w-2.5" />
                           Cycle
                         </span>
@@ -360,19 +360,19 @@ export default function SleepProtocolPage() {
                 {/* Key info row */}
                 <div className="flex items-center gap-3 mt-2.5">
                   <div>
-                    <p className="text-[9px] uppercase tracking-wider text-text-muted">Dose</p>
+                    <p className="text-xs uppercase tracking-wider text-text-muted">Dose</p>
                     <p className="font-data text-xs text-text-primary">
                       {sup.doseLow}{sup.doseLow !== sup.doseHigh ? ` - ${sup.doseHigh}` : ""}
                     </p>
                   </div>
                   <div className="w-px h-6 bg-border-default" />
                   <div>
-                    <p className="text-[9px] uppercase tracking-wider text-text-muted">Form</p>
+                    <p className="text-xs uppercase tracking-wider text-text-muted">Form</p>
                     <p className="text-xs text-text-secondary truncate max-w-[120px]">{sup.form}</p>
                   </div>
                   <div className="w-px h-6 bg-border-default" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-[9px] uppercase tracking-wider text-text-muted">Timing</p>
+                    <p className="text-xs uppercase tracking-wider text-text-muted">Timing</p>
                     <p className="text-xs text-text-secondary truncate">{sup.timing}</p>
                   </div>
                 </div>
@@ -381,20 +381,20 @@ export default function SleepProtocolPage() {
                 {expanded && (
                   <div className="mt-4 pt-3 border-t border-border-default space-y-3">
                     <div>
-                      <p className="text-[9px] uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
+                      <p className="text-xs uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
                         <Brain className="h-2.5 w-2.5" /> Mechanism
                       </p>
                       <p className="text-xs text-text-secondary leading-relaxed">{sup.mechanism}</p>
                     </div>
                     <div>
-                      <p className="text-[9px] uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
+                      <p className="text-xs uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
                         <BookOpen className="h-2.5 w-2.5" /> Evidence
                       </p>
                       <p className="text-xs text-text-secondary leading-relaxed italic">{sup.evidence}</p>
                     </div>
                     {sup.interactions.length > 0 && (
                       <div>
-                        <p className="text-[9px] uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
+                        <p className="text-xs uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
                           <Shield className="h-2.5 w-2.5" /> Interactions
                         </p>
                         <div className="flex flex-wrap gap-1">
@@ -411,7 +411,7 @@ export default function SleepProtocolPage() {
                     )}
                     {sup.cycleRequired && sup.cyclePattern && (
                       <div>
-                        <p className="text-[9px] uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
+                        <p className="text-xs uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
                           <Timer className="h-2.5 w-2.5" /> Cycle Pattern
                         </p>
                         <p className="text-xs text-amber-400">{sup.cyclePattern}</p>
@@ -454,7 +454,7 @@ export default function SleepProtocolPage() {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <span
-                        className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded"
+                        className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded"
                         style={{
                           backgroundColor: cfg.bg,
                           color: cfg.color,
@@ -468,7 +468,7 @@ export default function SleepProtocolPage() {
                   </div>
                   {stack.monthlyCostCHF > 0 && (
                     <div className="text-right shrink-0">
-                      <p className="text-[9px] uppercase tracking-wider text-text-muted">Monthly</p>
+                      <p className="text-xs uppercase tracking-wider text-text-muted">Monthly</p>
                       <p className="font-data text-lg font-bold text-text-primary">
                         CHF {stack.monthlyCostCHF}
                       </p>
@@ -476,7 +476,7 @@ export default function SleepProtocolPage() {
                   )}
                   {stack.monthlyCostCHF === 0 && (
                     <div className="text-right shrink-0">
-                      <p className="text-[9px] uppercase tracking-wider text-text-muted">Cost</p>
+                      <p className="text-xs uppercase tracking-wider text-text-muted">Cost</p>
                       <p className="font-data text-xs text-text-tertiary">As needed</p>
                     </div>
                   )}
@@ -600,9 +600,9 @@ export default function SleepProtocolPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5">
                       <IconComponent className="h-3.5 w-3.5 text-text-muted shrink-0" />
-                      <span className="text-[9px] uppercase tracking-wider text-text-muted">{catLabel}</span>
+                      <span className="text-xs uppercase tracking-wider text-text-muted">{catLabel}</span>
                       <span
-                        className="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded"
+                        className="text-xs font-bold uppercase tracking-widest px-1.5 py-0.5 rounded"
                         style={{
                           backgroundColor: evCfg.bg,
                           color: evCfg.color,
@@ -621,12 +621,12 @@ export default function SleepProtocolPage() {
                 {/* Brief info */}
                 <div className="flex items-center gap-3 mt-2">
                   <div>
-                    <p className="text-[9px] uppercase tracking-wider text-text-muted">Timing</p>
+                    <p className="text-xs uppercase tracking-wider text-text-muted">Timing</p>
                     <p className="text-xs text-text-secondary">{int.timing}</p>
                   </div>
                   <div className="w-px h-5 bg-border-default" />
                   <div>
-                    <p className="text-[9px] uppercase tracking-wider text-text-muted">Duration</p>
+                    <p className="text-xs uppercase tracking-wider text-text-muted">Duration</p>
                     <p className="text-xs text-text-secondary">{int.duration}</p>
                   </div>
                 </div>
@@ -639,13 +639,13 @@ export default function SleepProtocolPage() {
                 {expanded && (
                   <div className="mt-3 pt-3 border-t border-border-default space-y-3">
                     <div>
-                      <p className="text-[9px] uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
+                      <p className="text-xs uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
                         <Activity className="h-2.5 w-2.5" /> Protocol
                       </p>
                       <p className="text-xs text-text-secondary leading-relaxed">{int.protocol}</p>
                     </div>
                     <div>
-                      <p className="text-[9px] uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
+                      <p className="text-xs uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
                         <BookOpen className="h-2.5 w-2.5" /> Key Study
                       </p>
                       <p className="text-xs text-text-secondary leading-relaxed italic">{int.keyStudy}</p>

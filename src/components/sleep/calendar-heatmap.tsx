@@ -177,7 +177,7 @@ export function CalendarHeatmap({ entries }: { entries: SleepEntry[] }) {
         {monthLabels.map((ml, i) => (
           <text key={`month-${i}`}
             x={LEFT_LABEL_WIDTH + ml.col * (CELL_SIZE + CELL_GAP)}
-            y={TOP_LABEL_HEIGHT - 2} className="font-data" fontSize="6" fill="#64748b">
+            y={TOP_LABEL_HEIGHT - 2} className="font-data" fontSize="8" fill="#64748b">
             {ml.label}
           </text>
         ))}
@@ -186,7 +186,7 @@ export function CalendarHeatmap({ entries }: { entries: SleepEntry[] }) {
         {DAY_LABELS.map((dl) => (
           <text key={`day-${dl.index}`} x={0}
             y={TOP_LABEL_HEIGHT + dl.index * (CELL_SIZE + CELL_GAP) + CELL_SIZE / 2 + 2}
-            className="font-data" fontSize="6" fill="#64748b">
+            className="font-data" fontSize="8" fill="#64748b">
             {dl.label}
           </text>
         ))}
@@ -229,7 +229,7 @@ export function CalendarHeatmap({ entries }: { entries: SleepEntry[] }) {
                 rx={5} fill="#0f172a" stroke="#334155" strokeWidth={1} />
               {lines.map((line, i) => (
                 <text key={i} x={tx + tooltipPadding} y={ty + tooltipPadding + (i + 1) * tooltipLineHeight - 2}
-                  className="font-data" fontSize="9"
+                  className="font-data" fontSize="11"
                   fill={i === 0 ? "#e2e8f0" : "#94a3b8"}>
                   {line}
                 </text>
@@ -248,13 +248,13 @@ export function CalendarHeatmap({ entries }: { entries: SleepEntry[] }) {
 
           return (
             <g>
-              <text x={startX} y={legendY + squareH} fontSize="6" fill="#64748b">Worse</text>
+              <text x={startX} y={legendY + squareH} fontSize="8" fill="#64748b">Worse</text>
               {([1, 2, 3, 4, 5] as SleepQuality[]).map((q, i) => (
                 <rect key={q} x={startX + 20 + i * (squareW + legendGap)} y={legendY}
                   width={squareW} height={squareH} rx={1.5} fill={QUALITY_COLORS[q]} />
               ))}
               <text x={startX + 20 + 5 * (squareW + legendGap) + 3} y={legendY + squareH}
-                fontSize="6" fill="#64748b">Better</text>
+                fontSize="8" fill="#64748b">Better</text>
             </g>
           );
         })()}

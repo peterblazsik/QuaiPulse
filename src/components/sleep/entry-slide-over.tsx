@@ -144,7 +144,7 @@ export function EntrySlideOver({ open, onClose, form, onSubmit }: EntrySlideOver
                   const active = form.formSupplements.includes(sup.id);
                   return (
                     <button key={sup.id} type="button" onClick={() => form.toggleSupplement(sup.id)}
-                      className="text-[9px] px-2 py-1 rounded-full transition-all font-medium"
+                      className="text-xs px-2 py-1 rounded-full transition-all font-medium"
                       style={{
                         backgroundColor: active ? `color-mix(in srgb, ${sup.color} 20%, transparent)` : "var(--bg-tertiary)",
                         color: active ? sup.color : "var(--text-muted)",
@@ -164,7 +164,7 @@ export function EntrySlideOver({ open, onClose, form, onSubmit }: EntrySlideOver
                   const active = form.formInterventions.includes(intv.id);
                   return (
                     <button key={intv.id} type="button" onClick={() => form.toggleIntervention(intv.id)}
-                      className="text-[9px] px-2 py-1 rounded-full transition-all font-medium"
+                      className="text-xs px-2 py-1 rounded-full transition-all font-medium"
                       style={{
                         backgroundColor: active ? "rgba(59, 130, 246, 0.15)" : "var(--bg-tertiary)",
                         color: active ? "#60a5fa" : "var(--text-muted)",
@@ -192,7 +192,7 @@ export function EntrySlideOver({ open, onClose, form, onSubmit }: EntrySlideOver
             </button>
 
             {/* Keyboard hint */}
-            <p className="text-[8px] text-text-muted text-center">
+            <p className="text-[11px] text-text-muted text-center">
               Press <kbd className="px-1 py-0.5 rounded bg-surface-2 text-text-secondary">Esc</kbd> to close
             </p>
           </div>

@@ -20,13 +20,13 @@ export function KpiCard({ icon: Icon, label, value, valueColor, delta, deltaSuff
       <div className="card-hover-line" />
       <div className="flex items-center gap-1.5">
         <Icon className="h-3 w-3 text-text-muted" />
-        <p className="text-[9px] font-semibold uppercase tracking-wider text-text-muted">{label}</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">{label}</p>
       </div>
       <div className="flex items-end gap-1.5 mt-1.5">
         <p className={`font-data text-2xl font-bold ${valueColor ?? "text-accent-primary"}`}>{value}</p>
         {delta != null && <DeltaBadge value={delta} suffix={deltaSuffix ?? ""} invertColor={invertDelta ?? false} />}
       </div>
-      <p className="mt-0.5 text-[9px] text-text-tertiary">{subtitle}</p>
+      <p className="mt-0.5 text-xs text-text-tertiary">{subtitle}</p>
     </div>
   );
 }

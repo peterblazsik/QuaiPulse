@@ -122,7 +122,7 @@ export function CalendarGrid({
                 <Star className="absolute top-0.5 right-0.5 h-2.5 w-2.5 text-pink-400" />
               )}
               {keyDate && !visit && (
-                <span className="text-[7px] text-amber-400 mt-0.5 leading-tight">
+                <span className="text-[10px] text-amber-400 mt-0.5 leading-tight">
                   {keyDate.label.split(" ")[0]}
                 </span>
               )}

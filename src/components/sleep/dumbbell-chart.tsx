@@ -41,7 +41,7 @@ export function DumbbellChart({ data }: { data: DumbbellChartData[] }) {
           <line x1={xOf(t)} y1={padTop} x2={xOf(t)} y2={svgH - padBottom}
             stroke="#1e293b" strokeWidth="1" />
           <text x={xOf(t)} y={svgH - padBottom + 12} textAnchor="middle"
-            className="font-data" fontSize="8" fill="#64748b">{t}</text>
+            className="font-data" fontSize="10" fill="#64748b">{t}</text>
         </g>
       ))}
 
@@ -72,7 +72,7 @@ export function DumbbellChart({ data }: { data: DumbbellChartData[] }) {
             )}
 
             <text x={padLeft - 6} y={y} textAnchor="end" dominantBaseline="central"
-              fontSize="9" fill="#94a3b8">
+              fontSize="11" fill="#94a3b8">
               {d.name.length > 14 ? `${d.name.slice(0, 13)}...` : d.name}
             </text>
 
@@ -83,7 +83,7 @@ export function DumbbellChart({ data }: { data: DumbbellChartData[] }) {
             <circle cx={xWith} cy={y} r={isHovered ? 5 : 4} fill={d.color} />
 
             <text x={svgW - padRight + 6} y={y} dominantBaseline="central"
-              className="font-data" fontSize="9" fill={isPositive ? "#22c55e" : "#f59e0b"}>
+              className="font-data" fontSize="11" fill={isPositive ? "#22c55e" : "#f59e0b"}>
               {deltaStr}
             </text>
 
@@ -92,7 +92,7 @@ export function DumbbellChart({ data }: { data: DumbbellChartData[] }) {
                 <rect x={xWith + 8} y={y - 9} width={28} height={16} rx="3"
                   fill="#0f172a" stroke="#334155" strokeWidth="1" />
                 <text x={xWith + 22} y={y} textAnchor="middle" dominantBaseline="central"
-                  className="font-data" fontSize="8" fill="#e2e8f0">
+                  className="font-data" fontSize="10" fill="#e2e8f0">
                   n={d.countWith}
                 </text>
               </g>

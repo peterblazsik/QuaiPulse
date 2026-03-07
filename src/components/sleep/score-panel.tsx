@@ -59,7 +59,7 @@ export function ScorePanel({ breakdown, scoreDelta }: ScorePanelProps) {
             </div>
           );
         })}
-        <p className="text-[8px] text-text-muted mt-1 text-right">14-day composite · hover rings for detail</p>
+        <p className="text-[11px] text-text-muted mt-1 text-right">14-day composite · hover rings for detail</p>
       </div>
     </div>
   );

@@ -55,12 +55,12 @@ export function SleepWindowChart({ entries }: SleepWindowChartProps) {
       <line x1={xScale(ref2230)} y1={padTop} x2={xScale(ref2230)} y2={chartHeight - padBottom}
         stroke="#475569" strokeWidth="1" strokeDasharray="3,3" />
       <text x={xScale(ref2230)} y={padTop - 1} textAnchor="middle"
-        className="font-data" fontSize="7" fill="#475569">target</text>
+        className="font-data" fontSize="9" fill="#475569">target</text>
 
       <line x1={xScale(ref0600)} y1={padTop} x2={xScale(ref0600)} y2={chartHeight - padBottom}
         stroke="#475569" strokeWidth="1" strokeDasharray="3,3" />
       <text x={xScale(ref0600)} y={padTop - 1} textAnchor="middle"
-        className="font-data" fontSize="7" fill="#475569">target</text>
+        className="font-data" fontSize="9" fill="#475569">target</text>
 
       {/* Rows */}
       {validEntries.map((entry, i) => {
@@ -96,7 +96,7 @@ export function SleepWindowChart({ entries }: SleepWindowChartProps) {
 
             {/* Date label */}
             <text x={padLeft - 3} y={y + rowHeight / 2} textAnchor="end"
-              dominantBaseline="central" className="font-data" fontSize="8"
+              dominantBaseline="central" className="font-data" fontSize="10"
               fill={isWeekend ? "#8b5cf6" : "#64748b"}>
               {formatDateLabel(entry.date)}
             </text>
@@ -133,7 +133,7 @@ export function SleepWindowChart({ entries }: SleepWindowChartProps) {
               fill="#0f172a" stroke="#334155" strokeWidth="1" rx="5" />
             {lines.map((line, li) => (
               <text key={li} x={tx + 6} y={ty + 10 + li * lineH}
-                className="font-data" fontSize="9"
+                className="font-data" fontSize="11"
                 fill={li === 0 ? "#e2e8f0" : "#94a3b8"}>
                 {line}
               </text>
@@ -146,7 +146,7 @@ export function SleepWindowChart({ entries }: SleepWindowChartProps) {
       {timeLabels.map((label, i) => (
         <text key={label} x={xScale(timeLabelMinutes[i])}
           y={chartHeight - padBottom + 12} textAnchor="middle"
-          className="font-data" fontSize="8" fill="#64748b">
+          className="font-data" fontSize="10" fill="#64748b">
           {label}
         </text>
       ))}
@@ -159,14 +159,14 @@ export function SleepWindowChart({ entries }: SleepWindowChartProps) {
         const startX = padLeft;
         return (
           <g>
-            <text x={startX} y={legendY + 4} fontSize="7" fill="#64748b">Worse</text>
+            <text x={startX} y={legendY + 4} fontSize="9" fill="#64748b">Worse</text>
             {([1, 2, 3, 4, 5] as SleepQuality[]).map((q, i) => (
               <rect key={q} x={startX + 28 + i * (squareW + gap)} y={legendY - 3}
                 width={squareW} height={8} rx="1.5"
                 fill={QUALITY_LABELS[q].color} />
             ))}
             <text x={startX + 28 + 5 * (squareW + gap) + 4} y={legendY + 4}
-              fontSize="7" fill="#64748b">Better</text>
+              fontSize="9" fill="#64748b">Better</text>
           </g>
         );
       })()}

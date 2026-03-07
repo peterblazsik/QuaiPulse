@@ -93,11 +93,11 @@ export function ScoreRing({ breakdown }: ScoreRingProps) {
             {breakdown[hoveredRing as keyof SleepScoreBreakdown]}
           </text>
           <text x="80" y="96" textAnchor="middle" dominantBaseline="central"
-            fontSize="9" fill="#94a3b8">
+            fontSize="11" fill="#94a3b8">
             {RINGS.find((r) => r.key === hoveredRing)?.label}
           </text>
           <text x="80" y="108" textAnchor="middle" dominantBaseline="central"
-            fontSize="8" fill="#64748b">
+            fontSize="10" fill="#64748b">
             {RINGS.find((r) => r.key === hoveredRing)?.weight} weight
           </text>
         </>

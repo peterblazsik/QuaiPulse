@@ -57,13 +57,13 @@ export function DivergingBarChart({ data }: { data: DivergingBarChartData[] }) {
         return (
           <g key={d.id} opacity={opacity}>
             <text x={padLeft - 4} y={cy} textAnchor="end" dominantBaseline="central"
-              fontSize="9" fill="#94a3b8">
+              fontSize="11" fill="#94a3b8">
               {d.name.length > 12 ? `${d.name.slice(0, 11)}...` : d.name}
             </text>
             <rect x={barX} y={y + 3} width={Math.max(bw, 1)} height={rowH - 6}
               rx="2.5" fill={isPositive ? "url(#divBarPos)" : "url(#divBarNeg)"} />
             <text x={labelX} y={cy} textAnchor={labelAnchor} dominantBaseline="central"
-              className="font-data" fontSize="8" fill={isPositive ? "#22c55e" : "#ef4444"}>
+              className="font-data" fontSize="10" fill={isPositive ? "#22c55e" : "#ef4444"}>
               {d.delta >= 0 ? "+" : ""}{d.delta.toFixed(2)}
             </text>
           </g>

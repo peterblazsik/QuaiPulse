@@ -94,7 +94,7 @@ export function GradientTrendChart({ entries }: { entries: SleepEntry[] }) {
           <line x1={pl} y1={yOf(t)} x2={svgW - pr} y2={yOf(t)}
             stroke="#1e293b" strokeWidth="1" strokeDasharray="4,4" />
           <text x={pl - 4} y={yOf(t)} textAnchor="end" dominantBaseline="central"
-            className="font-data" fontSize="8" fill="#64748b">{t}h</text>
+            className="font-data" fontSize="10" fill="#64748b">{t}h</text>
         </g>
       ))}
 
@@ -108,7 +108,7 @@ export function GradientTrendChart({ entries }: { entries: SleepEntry[] }) {
         if (!show) return null;
         return (
           <text key={e.id} x={xOf(i)} y={mainH - pb + 16} textAnchor="end"
-            className="font-data" fontSize="8" fill="#64748b"
+            className="font-data" fontSize="10" fill="#64748b"
             transform={`rotate(-35 ${xOf(i)} ${mainH - pb + 16})`}>
             {formatDateLabel(e.date)}
           </text>
@@ -161,7 +161,7 @@ export function GradientTrendChart({ entries }: { entries: SleepEntry[] }) {
                   fill="#0f172a" stroke="#334155" strokeWidth="1" rx="5" />
                 {lines.map((line, li) => (
                   <text key={li} x={tx + 6} y={ty + 12 + li * lineH}
-                    className="font-data" fontSize="9"
+                    className="font-data" fontSize="11"
                     fill={li === 0 ? "#e2e8f0" : "#94a3b8"}>
                     {line}
                   </text>
