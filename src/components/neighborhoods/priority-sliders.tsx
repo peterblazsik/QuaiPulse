@@ -37,7 +37,10 @@ export function PrioritySliders() {
               style={{ backgroundColor: dim.color }}
             />
             {/* Label */}
-            <span className="w-20 text-xs text-text-secondary truncate">
+            <span
+              className="w-20 text-xs text-text-secondary truncate group-hover:overflow-visible group-hover:whitespace-nowrap group-hover:relative group-hover:z-10"
+              title={dim.label}
+            >
               {dim.label}
             </span>
             {/* Slider */}
