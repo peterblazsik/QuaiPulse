@@ -67,7 +67,7 @@ export type EquipmentType =
 
 export type KneeSafety = "safe" | "caution" | "avoid";
 
-// Sleep Tracker types
+// Sleep Intelligence types
 export type SleepLocation = "zurich" | "vienna" | "travel" | "other";
 export type SleepQuality = 1 | 2 | 3 | 4 | 5;
 

@@ -56,7 +56,7 @@ const NAV_ITEMS = [
   { label: "Checklist", href: "/checklist", icon: "CheckSquare" as const, shortcut: "G C" },
   { label: "AI Chat", href: "/ai", icon: "Bot" as const, shortcut: "G I" },
   { label: "Gym Finder", href: "/gym-finder", icon: "Dumbbell" as const, shortcut: "G F" },
-  { label: "Sleep Tracker", href: "/sleep", icon: "Moon" as const, shortcut: "G Z" },
+  { label: "Sleep Intelligence", href: "/sleep", icon: "Moon" as const, shortcut: "G Z" },
   { label: "Flights", href: "/flights", icon: "Plane" as const, shortcut: "G L" },
   { label: "Language Prep", href: "/language", icon: "Languages" as const, shortcut: "G P" },
   { label: "Subscriptions", href: "/subscriptions", icon: "CreditCard" as const, shortcut: "G U" },

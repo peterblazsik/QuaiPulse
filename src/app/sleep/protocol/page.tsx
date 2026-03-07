@@ -172,7 +172,7 @@ export default function SleepProtocolPage() {
         className="inline-flex items-center gap-2 text-sm text-text-tertiary hover:text-accent-primary transition-colors group"
       >
         <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
-        Back to Sleep Tracker
+        Back to Sleep Intelligence
       </Link>
 
       {/* ────────────────── HERO ────────────────── */}

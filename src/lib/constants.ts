@@ -11,7 +11,7 @@ export const NAVIGATION = [
   { label: "Checklist", href: "/checklist", icon: "CheckSquare", shortcut: "G C" },
   { label: "AI Chat", href: "/ai", icon: "Bot", shortcut: "G I" },
   { label: "Gym Finder", href: "/gym-finder", icon: "Dumbbell", shortcut: "G F" },
-  { label: "Sleep Tracker", href: "/sleep", icon: "Moon", shortcut: "G Z" },
+  { label: "Sleep Intelligence", href: "/sleep", icon: "Moon", shortcut: "G Z" },
   { label: "Flights", href: "/flights", icon: "Plane", shortcut: "G L" },
   { label: "Language Prep", href: "/language", icon: "Languages", shortcut: "G P" },
   { label: "Subscriptions", href: "/subscriptions", icon: "CreditCard", shortcut: "G U" },

@@ -33,7 +33,7 @@ const COMMANDS = [
   { label: "Move Checklist", href: "/checklist", icon: CheckSquare, group: "Navigate" },
   { label: "AI Chat", href: "/ai", icon: Bot, group: "Navigate" },
   { label: "Gym Finder", href: "/gym-finder", icon: Dumbbell, group: "Navigate" },
-  { label: "Sleep Tracker", href: "/sleep", icon: Moon, group: "Navigate" },
+  { label: "Sleep Intelligence", href: "/sleep", icon: Moon, group: "Navigate" },
   { label: "Flight Scanner", href: "/flights", icon: Plane, group: "Navigate" },
   { label: "Language Prep", href: "/language", icon: Languages, group: "Navigate" },
   { label: "Subscriptions", href: "/subscriptions", icon: CreditCard, group: "Navigate" },

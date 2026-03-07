@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sleep Tracker | QuaiPulse",
+  title: "Sleep Intelligence | QuaiPulse",
   description: "Track sleep quality, hours, and supplement correlations across locations.",
 };
 
