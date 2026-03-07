@@ -40,33 +40,39 @@ export function ComboMatrixChart({ matrix }: ComboMatrixProps) {
         <span className="text-xs text-text-muted ml-auto">supplement × intervention</span>
       </div>
 
-      {/* Tooltip */}
-      {hovered && (
-        <div className="mb-3 p-2.5 rounded-lg bg-surface-2 border border-border-default/30">
-          <div className="flex items-baseline gap-2">
-            <span className="text-xs text-text-primary font-medium">
-              {hovered.supplementName} + {hovered.interventionName}
-            </span>
-            <span className="font-data text-sm font-bold"
-              style={{ color: hovered.avgQuality >= 4 ? "#22c55e" : hovered.avgQuality >= 3 ? "#f59e0b" : "#ef4444" }}>
-              {hovered.avgQuality.toFixed(1)}/5
-            </span>
+      {/* Tooltip — fixed height container to prevent layout shift */}
+      <div className="mb-3 h-[52px]">
+        {hovered ? (
+          <div className="p-2.5 rounded-lg bg-surface-2 border border-border-default/30">
+            <div className="flex items-baseline gap-2">
+              <span className="text-xs text-text-primary font-medium">
+                {hovered.supplementName} + {hovered.interventionName}
+              </span>
+              <span className="font-data text-sm font-bold"
+                style={{ color: hovered.avgQuality >= 4 ? "#22c55e" : hovered.avgQuality >= 3 ? "#f59e0b" : "#ef4444" }}>
+                {hovered.avgQuality.toFixed(1)}/5
+              </span>
+            </div>
+            <div className="flex gap-3 mt-1">
+              <span className="text-[11px] text-text-muted">{hovered.count} nights</span>
+              {hovered.avgLatency != null && (
+                <span className="text-[11px] text-text-muted">latency {Math.round(hovered.avgLatency)}m</span>
+              )}
+              {hovered.avgAwakenings != null && (
+                <span className="text-[11px] text-text-muted">{hovered.avgAwakenings.toFixed(1)} wakeups</span>
+              )}
+              <span className="text-[11px] font-data"
+                style={{ color: hovered.avgQuality - matrix.baseline >= 0 ? "#22c55e" : "#ef4444" }}>
+                {hovered.avgQuality - matrix.baseline >= 0 ? "+" : ""}{(hovered.avgQuality - matrix.baseline).toFixed(1)} vs baseline
+              </span>
+            </div>
           </div>
-          <div className="flex gap-3 mt-1">
-            <span className="text-[11px] text-text-muted">{hovered.count} nights</span>
-            {hovered.avgLatency != null && (
-              <span className="text-[11px] text-text-muted">latency {Math.round(hovered.avgLatency)}m</span>
-            )}
-            {hovered.avgAwakenings != null && (
-              <span className="text-[11px] text-text-muted">{hovered.avgAwakenings.toFixed(1)} wakeups</span>
-            )}
-            <span className="text-[11px] font-data"
-              style={{ color: hovered.avgQuality - matrix.baseline >= 0 ? "#22c55e" : "#ef4444" }}>
-              {hovered.avgQuality - matrix.baseline >= 0 ? "+" : ""}{(hovered.avgQuality - matrix.baseline).toFixed(1)} vs baseline
-            </span>
+        ) : (
+          <div className="p-2.5 rounded-lg border border-transparent">
+            <span className="text-xs text-text-muted italic">Hover a cell to see combo details</span>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Grid-based matrix — fixed cell sizes */}
       <div className="overflow-x-auto -mx-5 px-5">
