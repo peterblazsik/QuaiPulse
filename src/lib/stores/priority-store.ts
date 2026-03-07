@@ -19,6 +19,10 @@ const DEFAULT_WEIGHTS: PriorityWeights = {
   food: 8,
   quiet: 7,
   transit: 6,
+  cost: 7,
+  safety: 6,
+  flightNoise: 4,
+  parking: 3,
 };
 
 export const usePriorityStore = create<PriorityStore>()(

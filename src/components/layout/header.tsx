@@ -17,6 +17,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/ai": "AI Chat",
   "/currency": "Currency",
   "/weather": "Weather",
+  "/flights": "Flight Scanner",
   "/settings": "Settings",
 };
 

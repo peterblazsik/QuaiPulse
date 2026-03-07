@@ -11,6 +11,10 @@ const SCORE_DIMENSIONS: ScoreDimension[] = [
   "food",
   "quiet",
   "transit",
+  "cost",
+  "safety",
+  "flightNoise",
+  "parking",
 ];
 
 describe("NEIGHBORHOODS data integrity", () => {
@@ -20,12 +24,12 @@ describe("NEIGHBORHOODS data integrity", () => {
 
   describe("score dimensions", () => {
     it.each(NEIGHBORHOODS.map((n) => [n.name, n]))(
-      "%s should have all 8 score dimensions",
+      "%s should have all 12 score dimensions",
       (_name, neighborhood) => {
         for (const dim of SCORE_DIMENSIONS) {
           expect(neighborhood.scores).toHaveProperty(dim);
         }
-        expect(Object.keys(neighborhood.scores)).toHaveLength(8);
+        expect(Object.keys(neighborhood.scores)).toHaveLength(12);
       }
     );
   });
@@ -143,7 +147,7 @@ describe("NEIGHBORHOODS data integrity", () => {
 
   describe("notes completeness", () => {
     it.each(NEIGHBORHOODS.map((n) => [n.name, n]))(
-      "%s should have notes for all 8 dimensions",
+      "%s should have notes for all 12 dimensions",
       (_name, neighborhood) => {
         for (const dim of SCORE_DIMENSIONS) {
           expect(neighborhood.notes).toHaveProperty(dim);

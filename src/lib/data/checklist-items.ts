@@ -7,6 +7,9 @@ export interface ChecklistItemData {
   dueDate?: string;
   url?: string;
   sortOrder: number;
+  dependsOn?: string[];
+  hardDeadline?: string;
+  estimatedDays?: number;
 }
 
 export const CHECKLIST_ITEMS: ChecklistItemData[] = [
@@ -26,6 +29,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Create rental dossier PDF",
     description: "Employment contract, 3 payslips, debt register extract, passport, intro letter",
     sortOrder: 2,
+    dependsOn: ["cl-03", "cl-04", "cl-05"],
+    estimatedDays: 3,
   },
   {
     id: "cl-03",
@@ -34,6 +39,7 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Request debt register extract (Betreibungsregisterauszug)",
     description: "From Amsterdam municipality — takes 2-3 weeks",
     sortOrder: 3,
+    estimatedDays: 21,
   },
   {
     id: "cl-04",
@@ -41,6 +47,7 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     category: "Apartment Search",
     title: "Get landlord reference letter from current apartment",
     sortOrder: 4,
+    estimatedDays: 7,
   },
   {
     id: "cl-05",
@@ -49,6 +56,7 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Write personal intro letter (Bewerbungsschreiben)",
     description: "Who you are, why Zurich, stable income, single professional — use AI to polish",
     sortOrder: 5,
+    estimatedDays: 2,
   },
   {
     id: "cl-06",
@@ -57,6 +65,7 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Apply for Swiss work permit (L or B permit)",
     description: "HR should handle this — confirm with Zurich Insurance HR",
     sortOrder: 6,
+    estimatedDays: 30,
   },
   {
     id: "cl-07",
@@ -65,6 +74,7 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Research health insurance options (KVG basic)",
     description: "Compare: Helsana, CSS, SWICA, Sanitas. Cheapest basic ~CHF 280-350/mo",
     sortOrder: 7,
+    estimatedDays: 5,
   },
   {
     id: "cl-08",
@@ -89,6 +99,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Schedule apartment viewings (aim for 5-10)",
     description: "Book a long weekend or take a few days off for Zurich apartment hunting trip",
     sortOrder: 10,
+    dependsOn: ["cl-02"],
+    estimatedDays: 3,
   },
   {
     id: "cl-11",
@@ -97,6 +109,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Apply to top 3 apartments",
     description: "Send dossier immediately after viewing. Speed matters in Zurich.",
     sortOrder: 11,
+    dependsOn: ["cl-10"],
+    estimatedDays: 5,
   },
   {
     id: "cl-12",
@@ -105,6 +119,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Choose health insurance provider and plan",
     description: "Must register within 3 months of arrival. Can choose before moving.",
     sortOrder: 12,
+    dependsOn: ["cl-07"],
+    estimatedDays: 3,
   },
   {
     id: "cl-13",
@@ -113,6 +129,7 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Open Swiss bank account (if possible remotely)",
     description: "UBS, ZKB, or Neon (digital). Some allow pre-opening before residence.",
     sortOrder: 13,
+    estimatedDays: 14,
   },
   {
     id: "cl-14",
@@ -129,6 +146,7 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Get moving quotes (Amsterdam to Zurich)",
     description: "Compare 3 international movers. Budget ~CHF 3,000-5,000 for a studio/1BR.",
     sortOrder: 15,
+    estimatedDays: 7,
   },
 
   // === JUNE ===
@@ -139,6 +157,9 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Sign apartment lease",
     description: "Review contract carefully. Check Kaution (deposit) = 3 months rent typically.",
     sortOrder: 16,
+    dependsOn: ["cl-11"],
+    estimatedDays: 1,
+    hardDeadline: "2026-06-15",
   },
   {
     id: "cl-17",
@@ -147,6 +168,9 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Book moving company / schedule move date",
     description: "Aim for last week of June to settle before July 1 start.",
     sortOrder: 17,
+    dependsOn: ["cl-16", "cl-15"],
+    estimatedDays: 3,
+    hardDeadline: "2026-06-20",
   },
   {
     id: "cl-18",
@@ -155,6 +179,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Cancel / transfer Amsterdam utilities",
     description: "Electricity, internet, water. Give 1 month notice.",
     sortOrder: 18,
+    dependsOn: ["cl-16"],
+    estimatedDays: 2,
   },
   {
     id: "cl-19",
@@ -163,6 +189,9 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Deregister from Amsterdam municipality",
     description: "BRP uitschrijving — do this in the last week before moving.",
     sortOrder: 19,
+    dependsOn: ["cl-16"],
+    estimatedDays: 1,
+    hardDeadline: "2026-06-28",
   },
   {
     id: "cl-20",
@@ -170,6 +199,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     category: "Insurance",
     title: "Cancel Dutch health insurance (after Swiss coverage confirmed)",
     sortOrder: 20,
+    dependsOn: ["cl-12"],
+    estimatedDays: 2,
   },
   {
     id: "cl-21",
@@ -177,6 +208,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     category: "Move",
     title: "Set up mail forwarding (PostNL to Swiss address)",
     sortOrder: 21,
+    dependsOn: ["cl-16"],
+    estimatedDays: 2,
   },
   {
     id: "cl-22",
@@ -194,6 +227,9 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Register at Kreisburo (residents registration)",
     description: "Must register within 14 days of arrival. Bring passport, work permit, lease.",
     sortOrder: 23,
+    dependsOn: ["cl-16", "cl-06"],
+    hardDeadline: "2026-07-14",
+    estimatedDays: 1,
   },
   {
     id: "cl-24",
@@ -202,6 +238,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Buy ZVV BonusPass (monthly transport)",
     description: "CHF 85/mo for zone 110. Or annual for savings.",
     sortOrder: 24,
+    dependsOn: ["cl-23"],
+    estimatedDays: 1,
   },
   {
     id: "cl-25",
@@ -210,6 +248,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Set up internet at new apartment",
     description: "Swisscom, Sunrise, or Salt. Book 2 weeks ahead for installation.",
     sortOrder: 25,
+    dependsOn: ["cl-16"],
+    estimatedDays: 14,
   },
   {
     id: "cl-26",
@@ -218,6 +258,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Join a gym",
     description: "Based on neighborhood ranking — PureGym (budget), Kieser (rehab), Holmes Place (premium).",
     sortOrder: 26,
+    dependsOn: ["cl-23"],
+    estimatedDays: 1,
   },
   {
     id: "cl-27",
@@ -225,6 +267,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     category: "Setup",
     title: "Buy SBB Half-Fare card",
     sortOrder: 27,
+    dependsOn: ["cl-23"],
+    estimatedDays: 1,
   },
   {
     id: "cl-28",
@@ -247,5 +291,6 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "First day at Zurich Insurance — Quai Zurich Campus",
     dueDate: "2026-07-01",
     sortOrder: 30,
+    hardDeadline: "2026-07-01",
   },
 ];

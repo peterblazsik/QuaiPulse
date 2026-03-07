@@ -16,6 +16,10 @@ const DIMENSIONS: ScoreDimension[] = [
   "food",
   "quiet",
   "transit",
+  "cost",
+  "safety",
+  "flightNoise",
+  "parking",
 ];
 
 /**

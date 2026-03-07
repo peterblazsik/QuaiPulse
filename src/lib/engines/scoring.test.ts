@@ -11,6 +11,7 @@ import type { NeighborhoodData } from "@/lib/data/neighborhoods";
 
 const allDimensions: ScoreDimension[] = [
   "commute", "gym", "social", "lake", "airport", "food", "quiet", "transit",
+  "cost", "safety", "flightNoise", "parking",
 ];
 
 function makeScores(value: number): Record<ScoreDimension, number> {

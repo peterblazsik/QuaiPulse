@@ -36,7 +36,7 @@
   --score-9: #22c55e;
   --score-10: #10b981;
 
-  /* Chart colors (8 dimensions) */
+  /* Chart colors (12 dimensions) */
   --chart-commute: #3b82f6;
   --chart-gym: #ef4444;
   --chart-social: #f59e0b;
@@ -45,6 +45,10 @@
   --chart-food: #f97316;
   --chart-quiet: #22c55e;
   --chart-transit: #ec4899;
+  --chart-cost: #14b8a6;
+  --chart-safety: #6366f1;
+  --chart-flightNoise: #a855f7;
+  --chart-parking: #78716c;
 
   /* Borders */
   --border-default: #334155;
@@ -114,6 +118,10 @@
   --chart-food: #d4783a;
   --chart-quiet: #22c55e;
   --chart-transit: #c06080;
+  --chart-cost: #2ea8a0;
+  --chart-safety: #7c6dc4;
+  --chart-flightNoise: #b07cc4;
+  --chart-parking: #8a7d70;
 
   /* Borders */
   --border-default: #2a2520;

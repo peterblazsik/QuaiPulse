@@ -14,6 +14,10 @@ const LABEL_SHORT: Record<ScoreDimension, string> = {
   food: "FOD",
   quiet: "QUI",
   transit: "TRN",
+  cost: "CST",
+  safety: "SAF",
+  flightNoise: "FLN",
+  parking: "PRK",
 };
 
 interface RadarDataset {

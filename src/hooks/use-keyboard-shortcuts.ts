@@ -13,6 +13,11 @@ const CHORD_MAP: Record<string, string> = {
   s: "/social",
   c: "/checklist",
   i: "/ai",
+  f: "/gym-finder",
+  z: "/sleep",
+  l: "/flights",
+  p: "/language",
+  u: "/subscriptions",
 };
 
 const CHORD_TIMEOUT = 800;

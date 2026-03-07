@@ -5,23 +5,25 @@ import { persist } from "zustand/middleware";
 
 interface ChecklistStore {
   completedIds: string[];
+  viewMode: "list" | "timeline";
   toggle: (id: string) => void;
-  isCompleted: (id: string) => boolean;
   clear: () => void;
+  setViewMode: (mode: "list" | "timeline") => void;
 }
 
 export const useChecklistStore = create<ChecklistStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       completedIds: [],
+      viewMode: "list",
       toggle: (id) =>
         set((s) => ({
           completedIds: s.completedIds.includes(id)
             ? s.completedIds.filter((x) => x !== id)
             : [...s.completedIds, id],
         })),
-      isCompleted: (id) => get().completedIds.includes(id),
       clear: () => set({ completedIds: [] }),
+      setViewMode: (mode) => set({ viewMode: mode }),
     }),
     {
       name: "quaipulse-checklist",

@@ -13,7 +13,7 @@ export function PrioritySliders() {
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
           Priority Weights
         </h3>
         <button
@@ -37,7 +37,7 @@ export function PrioritySliders() {
               style={{ backgroundColor: dim.color }}
             />
             {/* Label */}
-            <span className="w-16 text-[11px] text-text-secondary truncate">
+            <span className="w-20 text-xs text-text-secondary truncate">
               {dim.label}
             </span>
             {/* Slider */}
