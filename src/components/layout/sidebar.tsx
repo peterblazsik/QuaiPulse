@@ -23,7 +23,9 @@ import {
   Settings,
   PanelLeftClose,
   PanelLeft,
+  LogOut,
 } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
 import { useUIStore } from "@/lib/stores/ui-store";
 import { cn } from "@/lib/utils";
 import { ThemeSelector } from "./theme-selector";
@@ -71,6 +73,7 @@ const NAV_ITEMS = [
 export function Sidebar() {
   const pathname = usePathname();
   const { sidebarCollapsed, toggleSidebar, mobileSidebarOpen, setMobileSidebarOpen } = useUIStore();
+  const { data: session } = useSession();
 
   return (
     <>
@@ -149,6 +152,36 @@ export function Sidebar() {
       <div className="border-t border-border-default">
         <ThemeSelector collapsed={sidebarCollapsed} />
       </div>
+
+      {/* User menu */}
+      {session?.user && (
+        <div className="border-t border-border-default px-3 py-2">
+          <div className="flex items-center gap-2">
+            {session.user.image && (
+              <img
+                src={session.user.image}
+                alt=""
+                className="h-6 w-6 rounded-full shrink-0"
+                referrerPolicy="no-referrer"
+              />
+            )}
+            {!sidebarCollapsed && (
+              <>
+                <span className="flex-1 truncate text-xs text-text-secondary">
+                  {session.user.name ?? session.user.email}
+                </span>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/login" })}
+                  className="text-text-muted hover:text-text-primary transition-colors"
+                  title="Sign out"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Collapse toggle */}
       <button

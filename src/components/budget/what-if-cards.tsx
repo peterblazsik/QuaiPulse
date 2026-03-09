@@ -11,7 +11,10 @@ import { ArrowRight, TrendingUp, TrendingDown } from "lucide-react";
 export function WhatIfCards() {
   const values = useBudgetStore((s) => s.values);
   const setValue = useBudgetStore((s) => s.setValue);
-  const currentBudget = calculateBudget(values);
+  const has13thSalary = useBudgetStore((s) => s.has13thSalary);
+  const pillar3aMonthly = useBudgetStore((s) => s.pillar3aMonthly);
+  const opts = { has13thSalary, pillar3aMonthly };
+  const currentBudget = calculateBudget(values, opts);
 
   return (
     <div className="space-y-3">
@@ -23,7 +26,7 @@ export function WhatIfCards() {
         {WHAT_IF_SCENARIOS.map((scenario) => {
           // Calculate scenario impact
           const scenarioValues = { ...values, ...scenario.changes };
-          const scenarioBudget = calculateBudget(scenarioValues);
+          const scenarioBudget = calculateBudget(scenarioValues, opts);
           const impact = scenarioBudget.surplus - currentBudget.surplus;
           const isPositive = impact >= 0;
 

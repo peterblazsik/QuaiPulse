@@ -48,13 +48,23 @@ export const INCOME_ITEMS = [
   { label: "Expense allowance", value: 700 },
 ];
 
+export interface BudgetOptions {
+  has13thSalary?: boolean;
+  pillar3aMonthly?: number;
+}
+
 export function calculateBudget(
-  zurichValues: BudgetValues | Record<string, number>
+  zurichValues: BudgetValues | Record<string, number>,
+  options: BudgetOptions = {}
 ): BudgetBreakdown {
+  const { has13thSalary = false, pillar3aMonthly = 0 } = options;
+  const thirteenthBonus = has13thSalary ? Math.round(11450 / 12) : 0;
+  const effectiveIncome = FIXED_INCOME + thirteenthBonus;
+
   const zurichCosts = Object.values(zurichValues).reduce((a, b) => a + b, 0);
-  const totalExpenses = FIXED_COSTS_OUTSIDE + zurichCosts;
-  const surplus = FIXED_INCOME - totalExpenses;
-  const savingsRate = FIXED_INCOME > 0 ? (surplus / FIXED_INCOME) * 100 : 0;
+  const totalExpenses = FIXED_COSTS_OUTSIDE + zurichCosts + pillar3aMonthly;
+  const surplus = effectiveIncome - totalExpenses;
+  const savingsRate = effectiveIncome > 0 ? (surplus / effectiveIncome) * 100 : 0;
 
   // 12-month projection (cumulative savings)
   const annualSavingsProjection = Array.from({ length: 12 }, (_, i) =>
@@ -62,7 +72,7 @@ export function calculateBudget(
   );
 
   return {
-    totalIncome: FIXED_INCOME,
+    totalIncome: effectiveIncome,
     fixedOutside: FIXED_COSTS_OUTSIDE,
     zurichCosts,
     totalExpenses,

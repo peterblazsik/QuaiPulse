@@ -6,16 +6,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { CATEGORY_CONFIG, type SubscriptionData, type SubAction } from "@/lib/data/subscriptions";
-import { formatCHF } from "@/lib/utils";
-
-function formatEUR(amount: number): string {
-  return new Intl.NumberFormat("de-DE", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
+import { formatCHF, formatEUR } from "@/lib/utils";
 
 function ActionButton({
   label,

@@ -18,7 +18,11 @@ export interface BudgetValues {
 
 interface BudgetStore {
   values: BudgetValues;
+  has13thSalary: boolean;
+  pillar3aMonthly: number;
   setValue: (key: keyof BudgetValues, value: number) => void;
+  setHas13thSalary: (v: boolean) => void;
+  setPillar3a: (v: number) => void;
   resetValues: () => void;
 }
 
@@ -42,9 +46,14 @@ export const useBudgetStore = create<BudgetStore>()(
   persist(
     (set) => ({
       values: { ...DEFAULT_VALUES },
+      has13thSalary: true,
+      pillar3aMonthly: 0,
       setValue: (key, value) =>
         set((s) => ({ values: { ...s.values, [key]: value } })),
-      resetValues: () => set({ values: { ...DEFAULT_VALUES } }),
+      setHas13thSalary: (v) => set({ has13thSalary: v }),
+      setPillar3a: (v) => set({ pillar3aMonthly: Math.min(v, 588) }),
+      resetValues: () =>
+        set({ values: { ...DEFAULT_VALUES }, has13thSalary: true, pillar3aMonthly: 0 }),
     }),
     { name: "quaipulse-budget" }
   )

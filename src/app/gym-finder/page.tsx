@@ -23,6 +23,7 @@ import {
 } from "@/lib/data/gyms";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
 import { useGymFilterStore } from "@/lib/stores/gym-filter-store";
+import { DataFreshness } from "@/components/ui/data-freshness";
 import { formatCHF } from "@/lib/utils";
 
 function kneeColor(safety: KneeSafety) {
@@ -114,6 +115,9 @@ export default function GymFinderPage() {
           {GYMS.length} gyms analyzed for knee-safe training. Bilateral meniscus
           + torn ACL left knee — every machine rated.
         </p>
+        <div className="mt-1">
+          <DataFreshness />
+        </div>
       </div>
 
       {/* Filter bar */}

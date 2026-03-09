@@ -5,13 +5,26 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const chfFormatter = new Intl.NumberFormat("de-CH", {
+  style: "currency",
+  currency: "CHF",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+
+const eurFormatter = new Intl.NumberFormat("de-DE", {
+  style: "currency",
+  currency: "EUR",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+
 export function formatCHF(amount: number): string {
-  return new Intl.NumberFormat("de-CH", {
-    style: "currency",
-    currency: "CHF",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+  return chfFormatter.format(amount);
+}
+
+export function formatEUR(amount: number): string {
+  return eurFormatter.format(amount);
 }
 
 export function formatNumber(n: number): string {

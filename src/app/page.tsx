@@ -28,9 +28,12 @@ export default function DashboardPage() {
     [weights]
   );
 
+  const has13thSalary = useBudgetStore((s) => s.has13thSalary);
+  const pillar3aMonthly = useBudgetStore((s) => s.pillar3aMonthly);
+
   const budget = useMemo(
-    () => calculateBudget(values),
-    [values]
+    () => calculateBudget(values, { has13thSalary, pillar3aMonthly }),
+    [values, has13thSalary, pillar3aMonthly]
   );
 
   return (

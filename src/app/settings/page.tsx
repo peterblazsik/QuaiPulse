@@ -59,9 +59,12 @@ export default function SettingsPage() {
     [weights]
   );
 
+  const has13thSalary = useBudgetStore((s) => s.has13thSalary);
+  const pillar3aMonthly = useBudgetStore((s) => s.pillar3aMonthly);
+
   const breakdown = useMemo(
-    () => calculateBudget(budgetValues),
-    [budgetValues]
+    () => calculateBudget(budgetValues, { has13thSalary, pillar3aMonthly }),
+    [budgetValues, has13thSalary, pillar3aMonthly]
   );
 
   const handleExportBudget = () => {
@@ -166,7 +169,9 @@ export default function SettingsPage() {
               </span>
             </div>
             <button
-              onClick={resetWeights}
+              onClick={() => {
+                if (window.confirm("Reset neighborhood priority weights to defaults?")) resetWeights();
+              }}
               className="text-[10px] text-text-muted hover:text-warning transition-colors"
             >
               Reset to defaults
@@ -181,7 +186,9 @@ export default function SettingsPage() {
               </span>
             </div>
             <button
-              onClick={resetBudget}
+              onClick={() => {
+                if (window.confirm("Reset budget slider values to defaults?")) resetBudget();
+              }}
               className="text-[10px] text-text-muted hover:text-warning transition-colors"
             >
               Reset to defaults

@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  FileText,
   CheckCircle2,
   Clock,
   AlertCircle,
@@ -20,6 +19,7 @@ import {
   type DossierCategory,
 } from "@/lib/data/dossier-items";
 import { useDossierStore } from "@/lib/stores/dossier-store";
+import { KPICard } from "@/components/subscriptions/kpi-card";
 import type { DossierStatus } from "@/lib/types";
 
 const STATUS_CONFIG: Record<DossierStatus, { label: string; color: string; bg: string; icon: React.ElementType }> = {
@@ -31,46 +31,49 @@ const STATUS_CONFIG: Record<DossierStatus, { label: string; color: string; bg: s
 
 const STATUS_CYCLE: DossierStatus[] = ["missing", "in_progress", "obtained", "uploaded"];
 
+function isComplete(status: DossierStatus): boolean {
+  return status === "obtained" || status === "uploaded";
+}
+
+/** O(1) lookup by document ID */
+const DOCS_BY_ID = new Map(DOSSIER_DOCUMENTS.map((d) => [d.id, d]));
+
+/** Static grouping — DOSSIER_DOCUMENTS never changes */
+const GROUPED_DOCUMENTS: Map<DossierCategory, DossierDocument[]> = (() => {
+  const map = new Map<DossierCategory, DossierDocument[]>();
+  for (const doc of DOSSIER_DOCUMENTS) {
+    const list = map.get(doc.category) ?? [];
+    list.push(doc);
+    map.set(doc.category, list);
+  }
+  return map;
+})();
+
 export default function DossierPage() {
-  const { statuses, notes, setStatus, setNote, reset } = useDossierStore();
+  const { statuses, notes, urls, setStatus, setNote, setUrl, reset } = useDossierStore();
 
   const getStatus = (id: string): DossierStatus => statuses[id] ?? "missing";
 
   const stats = useMemo(() => {
+    const resolve = (id: string): DossierStatus => statuses[id] ?? "missing";
     const total = DOSSIER_DOCUMENTS.length;
     const required = DOSSIER_DOCUMENTS.filter((d) => d.required).length;
     const counts: Record<DossierStatus, number> = { missing: 0, in_progress: 0, obtained: 0, uploaded: 0 };
     let requiredDone = 0;
 
     for (const doc of DOSSIER_DOCUMENTS) {
-      const s = getStatus(doc.id);
+      const s = resolve(doc.id);
       counts[s]++;
-      if (doc.required && (s === "obtained" || s === "uploaded")) requiredDone++;
+      if (doc.required && isComplete(s)) requiredDone++;
     }
 
     const pct = total > 0 ? Math.round(((counts.obtained + counts.uploaded) / total) * 100) : 0;
     return { total, required, requiredDone, counts, pct };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statuses]);
 
-  // Group documents by category
-  const grouped = useMemo(() => {
-    const map = new Map<DossierCategory, DossierDocument[]>();
-    for (const doc of DOSSIER_DOCUMENTS) {
-      const list = map.get(doc.category) ?? [];
-      list.push(doc);
-      map.set(doc.category, list);
-    }
-    return map;
-  }, []);
-
-  // Check if a document's dependencies are met
   function isDepsBlocked(doc: DossierDocument): boolean {
     if (!doc.dependsOn?.length) return false;
-    return doc.dependsOn.some((depId) => {
-      const s = getStatus(depId);
-      return s !== "obtained" && s !== "uploaded";
-    });
+    return doc.dependsOn.some((depId) => !isComplete(getStatus(depId)));
   }
 
   function cycleStatus(docId: string) {
@@ -91,11 +94,13 @@ export default function DossierPage() {
             Dossier Tracker
           </h1>
           <p className="text-sm text-text-tertiary mt-1">
-            {stats.total} documents across {grouped.size} categories. Track every paper for the move.
+            {stats.total} documents across {GROUPED_DOCUMENTS.size} categories. Track every paper for the move.
           </p>
         </div>
         <button
-          onClick={reset}
+          onClick={() => {
+            if (window.confirm("Reset all dossier progress? This cannot be undone.")) reset();
+          }}
           className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border-default bg-bg-secondary text-text-muted hover:text-text-secondary transition-colors"
         >
           <RotateCcw className="h-3.5 w-3.5" />
@@ -171,12 +176,9 @@ export default function DossierPage() {
       </div>
 
       {/* Document categories */}
-      {Array.from(grouped.entries()).map(([category, docs]) => {
+      {Array.from(GROUPED_DOCUMENTS.entries()).map(([category, docs]) => {
         const catCfg = DOSSIER_CATEGORIES[category];
-        const catDone = docs.filter((d) => {
-          const s = getStatus(d.id);
-          return s === "obtained" || s === "uploaded";
-        }).length;
+        const catDone = docs.filter((d) => isComplete(getStatus(d.id))).length;
 
         return (
           <section key={category}>
@@ -191,151 +193,21 @@ export default function DossierPage() {
             </div>
 
             <div className="space-y-2">
-              {docs.map((doc) => {
-                const status = getStatus(doc.id);
-                const cfg = STATUS_CONFIG[status];
-                const StatusIcon = cfg.icon;
-                const blocked = isDepsBlocked(doc);
-                const note = notes[doc.id] ?? "";
-
-                return (
-                  <div
-                    key={doc.id}
-                    className={`rounded-lg border p-4 transition-all ${
-                      status === "obtained" || status === "uploaded"
-                        ? "border-border-default/50 bg-bg-primary/30 opacity-75"
-                        : blocked
-                          ? "border-amber-500/20 bg-amber-500/5"
-                          : "border-border-default bg-bg-secondary hover:border-border-default/80"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      {/* Status button */}
-                      <button
-                        onClick={() => cycleStatus(doc.id)}
-                        className="shrink-0 mt-0.5 rounded-full p-1 transition-colors hover:opacity-80"
-                        style={{ backgroundColor: cfg.bg, color: cfg.color }}
-                        title={`Status: ${cfg.label} — click to advance`}
-                      >
-                        <StatusIcon className="h-4 w-4" />
-                      </button>
-
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className={`text-xs font-semibold ${
-                            status === "obtained" || status === "uploaded"
-                              ? "text-text-muted line-through"
-                              : "text-text-primary"
-                          }`}>
-                            {doc.title}
-                          </h3>
-                          {doc.required && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-medium">
-                              Required
-                            </span>
-                          )}
-                          {blocked && (
-                            <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 font-medium">
-                              <Lock className="h-2.5 w-2.5" />
-                              Blocked
-                            </span>
-                          )}
-                          {doc.url && (
-                            <a
-                              href={doc.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-0.5 text-[10px] text-accent-primary hover:underline"
-                            >
-                              <ExternalLink className="h-2.5 w-2.5" />
-                              Link
-                            </a>
-                          )}
-                        </div>
-
-                        <p className="text-[10px] text-text-tertiary mt-0.5 leading-snug">
-                          {doc.description}
-                        </p>
-
-                        {/* Meta row */}
-                        <div className="flex flex-wrap items-center gap-3 mt-2">
-                          <span className="text-[10px] text-text-muted">
-                            Source: <span className="text-text-secondary">{doc.source}</span>
-                          </span>
-                          {doc.processingTime && (
-                            <span className="flex items-center gap-1 text-[10px] text-text-muted">
-                              <Clock className="h-2.5 w-2.5" />
-                              {doc.processingTime}
-                            </span>
-                          )}
-                          {doc.costCHF != null && (
-                            <span className="font-data text-[10px] text-text-muted">
-                              CHF {doc.costCHF}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Tips */}
-                        {doc.tips && (
-                          <div className="mt-2 flex items-start gap-1.5">
-                            <Info className="h-3 w-3 text-accent-primary shrink-0 mt-0.5" />
-                            <p className="text-[10px] text-text-secondary italic leading-snug">
-                              {doc.tips}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Blocked-by list */}
-                        {blocked && doc.dependsOn && (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {doc.dependsOn.map((depId) => {
-                              const depStatus = getStatus(depId);
-                              if (depStatus === "obtained" || depStatus === "uploaded") return null;
-                              const depDoc = DOSSIER_DOCUMENTS.find((d) => d.id === depId);
-                              return (
-                                <span
-                                  key={depId}
-                                  className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400"
-                                >
-                                  <Lock className="h-2 w-2" />
-                                  {depDoc?.title ?? depId}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        )}
-
-                        {/* Personal note */}
-                        <div className="mt-2">
-                          <input
-                            type="text"
-                            value={note}
-                            onChange={(e) => setNote(doc.id, e.target.value)}
-                            placeholder="Add a personal note..."
-                            className="w-full text-[10px] bg-transparent border-b border-border-subtle/50 py-1 text-text-secondary placeholder:text-text-muted/50 focus:outline-none focus:border-accent-primary/50"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Status selector */}
-                      <div className="shrink-0">
-                        <select
-                          value={status}
-                          onChange={(e) => setStatus(doc.id, e.target.value as DossierStatus)}
-                          className="text-[10px] rounded border border-border-default bg-bg-tertiary px-2 py-1 text-text-secondary focus:outline-none focus:border-accent-primary"
-                        >
-                          {STATUS_CYCLE.map((s) => (
-                            <option key={s} value={s}>
-                              {STATUS_CONFIG[s].label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {docs.map((doc) => (
+                <DocumentRow
+                  key={doc.id}
+                  doc={doc}
+                  status={getStatus(doc.id)}
+                  blocked={isDepsBlocked(doc)}
+                  note={notes[doc.id] ?? ""}
+                  docUrl={urls[doc.id] ?? ""}
+                  onCycleStatus={() => cycleStatus(doc.id)}
+                  onSetStatus={(s) => setStatus(doc.id, s)}
+                  onSetNote={(n) => setNote(doc.id, n)}
+                  onSetUrl={(u) => setUrl(doc.id, u)}
+                  getStatus={getStatus}
+                />
+              ))}
             </div>
           </section>
         );
@@ -344,30 +216,196 @@ export default function DossierPage() {
   );
 }
 
-/* ─────────────── KPI Card ─────────────── */
+/* ─────────────── Document Row ─────────────── */
 
-function KPICard({
-  label,
-  value,
-  sublabel,
-  color,
+function DocumentRow({
+  doc,
+  status,
+  blocked,
+  note,
+  docUrl,
+  onCycleStatus,
+  onSetStatus,
+  onSetNote,
+  onSetUrl,
+  getStatus,
 }: {
-  label: string;
-  value: string;
-  sublabel: string;
-  color: string;
+  doc: DossierDocument;
+  status: DossierStatus;
+  blocked: boolean;
+  note: string;
+  docUrl: string;
+  onCycleStatus: () => void;
+  onSetStatus: (s: DossierStatus) => void;
+  onSetNote: (n: string) => void;
+  onSetUrl: (u: string) => void;
+  getStatus: (id: string) => DossierStatus;
 }) {
+  const cfg = STATUS_CONFIG[status];
+  const StatusIcon = cfg.icon;
+  const done = isComplete(status);
+
+  // Local state for note — sync to store on blur to avoid per-keystroke writes
+  const [localNote, setLocalNote] = useState(note);
+  const [localUrl, setLocalUrl] = useState(docUrl);
+
+  // Sync from store when values change externally (e.g., reset)
+  useEffect(() => { setLocalNote(note); }, [note]);
+  useEffect(() => { setLocalUrl(docUrl); }, [docUrl]);
+
   return (
-    <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
-      <div className="flex items-center gap-2 mb-1.5">
-        <div
-          className="h-2 w-2 rounded-full"
-          style={{ backgroundColor: color }}
-        />
-        <span className="text-[10px] text-text-muted uppercase tracking-wider">{label}</span>
+    <div
+      className={`rounded-lg border p-4 transition-all ${
+        done
+          ? "border-border-default/50 bg-bg-primary/30 opacity-75"
+          : blocked
+            ? "border-amber-500/20 bg-amber-500/5"
+            : "border-border-default bg-bg-secondary hover:border-border-default/80"
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        {/* Status button */}
+        <button
+          onClick={onCycleStatus}
+          className="shrink-0 mt-0.5 rounded-full p-1 transition-colors hover:opacity-80"
+          style={{ backgroundColor: cfg.bg, color: cfg.color }}
+          title={`Status: ${cfg.label} — click to advance`}
+        >
+          <StatusIcon className="h-4 w-4" />
+        </button>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className={`text-xs font-semibold ${done ? "text-text-muted line-through" : "text-text-primary"}`}>
+              {doc.title}
+            </h3>
+            {doc.required && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-medium">
+                Required
+              </span>
+            )}
+            {blocked && (
+              <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 font-medium">
+                <Lock className="h-2.5 w-2.5" />
+                Blocked
+              </span>
+            )}
+            {doc.url && (
+              <a
+                href={doc.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-0.5 text-[10px] text-accent-primary hover:underline"
+              >
+                <ExternalLink className="h-2.5 w-2.5" />
+                Link
+              </a>
+            )}
+          </div>
+
+          <p className="text-[10px] text-text-tertiary mt-0.5 leading-snug">
+            {doc.description}
+          </p>
+
+          {/* Meta row */}
+          <div className="flex flex-wrap items-center gap-3 mt-2">
+            <span className="text-[10px] text-text-muted">
+              Source: <span className="text-text-secondary">{doc.source}</span>
+            </span>
+            {doc.processingTime && (
+              <span className="flex items-center gap-1 text-[10px] text-text-muted">
+                <Clock className="h-2.5 w-2.5" />
+                {doc.processingTime}
+              </span>
+            )}
+            {doc.costCHF != null && (
+              <span className="font-data text-[10px] text-text-muted">
+                CHF {doc.costCHF}
+              </span>
+            )}
+          </div>
+
+          {/* Tips */}
+          {doc.tips && (
+            <div className="mt-2 flex items-start gap-1.5">
+              <Info className="h-3 w-3 text-accent-primary shrink-0 mt-0.5" />
+              <p className="text-[10px] text-text-secondary italic leading-snug">
+                {doc.tips}
+              </p>
+            </div>
+          )}
+
+          {/* Blocked-by list */}
+          {blocked && doc.dependsOn && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {doc.dependsOn.map((depId) => {
+                if (isComplete(getStatus(depId))) return null;
+                const depDoc = DOCS_BY_ID.get(depId);
+                return (
+                  <span
+                    key={depId}
+                    className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400"
+                  >
+                    <Lock className="h-2 w-2" />
+                    {depDoc?.title ?? depId}
+                  </span>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Personal note — syncs to store on blur */}
+          <div className="mt-2">
+            <input
+              type="text"
+              value={localNote}
+              onChange={(e) => setLocalNote(e.target.value)}
+              onBlur={() => { if (localNote !== note) onSetNote(localNote); }}
+              placeholder="Add a personal note..."
+              className="w-full text-[10px] bg-transparent border-b border-border-subtle/50 py-1 text-text-secondary placeholder:text-text-muted/50 focus:outline-none focus:border-accent-primary/50"
+            />
+          </div>
+
+          {/* Document URL */}
+          <div className="mt-1.5 flex items-center gap-1.5">
+            <ExternalLink className="h-2.5 w-2.5 text-text-muted shrink-0" />
+            <input
+              type="url"
+              value={localUrl}
+              onChange={(e) => setLocalUrl(e.target.value)}
+              onBlur={() => { if (localUrl !== docUrl) onSetUrl(localUrl); }}
+              placeholder="Paste document URL..."
+              className="flex-1 text-[10px] bg-transparent border-b border-border-subtle/50 py-0.5 text-accent-primary placeholder:text-text-muted/50 focus:outline-none focus:border-accent-primary/50"
+            />
+            {localUrl && (
+              <a
+                href={localUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] text-accent-primary hover:underline"
+              >
+                Open
+              </a>
+            )}
+          </div>
+        </div>
+
+        {/* Status selector */}
+        <div className="shrink-0">
+          <select
+            value={status}
+            onChange={(e) => onSetStatus(e.target.value as DossierStatus)}
+            className="text-[10px] rounded border border-border-default bg-bg-tertiary px-2 py-1 text-text-secondary focus:outline-none focus:border-accent-primary"
+          >
+            {STATUS_CYCLE.map((s) => (
+              <option key={s} value={s}>
+                {STATUS_CONFIG[s].label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
-      <p className="font-data text-xl font-bold text-text-primary">{value}</p>
-      <p className="text-[10px] text-text-tertiary mt-0.5">{sublabel}</p>
     </div>
   );
 }

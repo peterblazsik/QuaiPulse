@@ -10,6 +10,7 @@ import { NEIGHBORHOODS, LAKE_TOWNS, ALL_LOCATIONS } from "@/lib/data/neighborhoo
 import { rankNeighborhoods, formatScore } from "@/lib/engines/scoring";
 import { PrioritySliders } from "@/components/neighborhoods/priority-sliders";
 import { NeighborhoodCard } from "@/components/neighborhoods/neighborhood-card";
+import { DataFreshness } from "@/components/ui/data-freshness";
 import { formatCHF } from "@/lib/utils";
 
 type LocationFilter = "all" | "zurich" | "lake";
@@ -124,6 +125,9 @@ export default function NeighborhoodsPage() {
               {ranked.length} locations ranked by your priorities.
               Adjust weights to re-rank in real time.
             </p>
+            <div className="mt-1">
+              <DataFreshness />
+            </div>
           </div>
           <div className="hidden md:flex items-center gap-2 text-xs text-text-muted">
             <kbd>J</kbd><kbd>K</kbd> navigate · <kbd>Enter</kbd> expand

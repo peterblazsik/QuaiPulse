@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Star,
   Check,
+  Volume2,
 } from "lucide-react";
 import { PHRASES, CATEGORY_CONFIG, type PhraseCategory, type PhraseData } from "@/lib/data/phrases";
 import { useLanguageStore } from "@/lib/stores/language-store";
@@ -20,6 +21,15 @@ export default function LanguagePage() {
   const [activeCategory, setActiveCategory] = useState<PhraseCategory | null>(null);
   const [cardIndex, setCardIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
+
+  function speakPhrase(text: string) {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "de-CH";
+    utterance.rate = 0.85;
+    window.speechSynthesis.speak(utterance);
+  }
 
   // Daily random phrase (seeded by date so it stays consistent per day)
   const dailyPhrase = useMemo(() => {
@@ -124,9 +134,18 @@ export default function LanguagePage() {
             Phrase of the Day
           </span>
         </div>
-        <p className="font-display text-xl font-bold text-text-primary">
-          &ldquo;{dailyPhrase.swiss}&rdquo;
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="font-display text-xl font-bold text-text-primary">
+            &ldquo;{dailyPhrase.swiss}&rdquo;
+          </p>
+          <button
+            onClick={() => speakPhrase(dailyPhrase.swiss)}
+            className="shrink-0 rounded-full p-1.5 text-text-muted hover:text-accent-primary hover:bg-accent-primary/10 transition-colors"
+            title="Listen to pronunciation"
+          >
+            <Volume2 className="h-4 w-4" />
+          </button>
+        </div>
         <p className="text-sm text-text-secondary mt-1">
           {dailyPhrase.english}
         </p>
@@ -205,9 +224,18 @@ export default function LanguagePage() {
           >
             {!flipped ? (
               <div className="text-center space-y-3">
-                <p className="font-display text-2xl font-bold text-text-primary">
-                  {currentPhrase.swiss}
-                </p>
+                <div className="flex items-center justify-center gap-2">
+                  <p className="font-display text-2xl font-bold text-text-primary">
+                    {currentPhrase.swiss}
+                  </p>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); speakPhrase(currentPhrase.swiss); }}
+                    className="shrink-0 rounded-full p-1.5 text-text-muted hover:text-accent-primary hover:bg-accent-primary/10 transition-colors"
+                    title="Listen"
+                  >
+                    <Volume2 className="h-4 w-4" />
+                  </button>
+                </div>
                 <div className="flex items-center justify-center gap-1">
                   {Array.from({ length: currentPhrase.difficulty }).map((_, i) => (
                     <div

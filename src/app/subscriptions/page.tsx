@@ -18,22 +18,13 @@ import {
   type SubCategory,
 } from "@/lib/data/subscriptions";
 import { useSubscriptionStore } from "@/lib/stores/subscription-store";
-import { formatCHF } from "@/lib/utils";
+import { formatCHF, formatEUR } from "@/lib/utils";
 import { KPICard } from "@/components/subscriptions/kpi-card";
 import { DonutChart } from "@/components/subscriptions/donut-chart";
 import { SubCard } from "@/components/subscriptions/sub-card";
 import { AddSubscriptionForm } from "@/components/subscriptions/add-form";
 
 const EUR_TO_CHF = 0.94;
-
-function formatEUR(amount: number): string {
-  return new Intl.NumberFormat("de-DE", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
 
 export default function SubscriptionsPage() {
   const { decisions, setDecision, resetDecisions, customSubs, addCustomSub, removeCustomSub } =

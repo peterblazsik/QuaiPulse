@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Playfair_Display } from "next/font/google";
 import { Providers } from "./providers";
-import { AppShell } from "@/components/layout/app-shell";
+import { ConditionalShell } from "@/components/layout/conditional-shell";
 import "./globals.css";
 
 const inter = Inter({
@@ -52,7 +52,7 @@ export default function RootLayout({
         className={`${inter.variable} ${jetbrainsMono.variable} ${playfairDisplay.variable} antialiased`}
       >
         <Providers>
-          <AppShell>{children}</AppShell>
+          <ConditionalShell>{children}</ConditionalShell>
         </Providers>
       </body>
     </html>

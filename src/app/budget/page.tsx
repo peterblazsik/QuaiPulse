@@ -14,10 +14,12 @@ import { WhatIfCards } from "@/components/budget/what-if-cards";
 
 export default function BudgetPage() {
   const values = useBudgetStore((s) => s.values);
+  const has13thSalary = useBudgetStore((s) => s.has13thSalary);
+  const pillar3aMonthly = useBudgetStore((s) => s.pillar3aMonthly);
 
   const breakdown = useMemo(
-    () => calculateBudget(values),
-    [values]
+    () => calculateBudget(values, { has13thSalary, pillar3aMonthly }),
+    [values, has13thSalary, pillar3aMonthly]
   );
 
   return (
