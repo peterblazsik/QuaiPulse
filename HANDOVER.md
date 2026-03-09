@@ -1,114 +1,140 @@
 # Session Handover
 
-**Date:** 2026-03-06
+**Date:** 2026-03-09
 **Branch:** main
-**Last Commit:** 2bf5ea0 Add 4 features: apartment form, exports, live currency & weather
+**Last Commit:** 45ace3e feat: add setup costs, Katie flight tips, and detailed rental price data
 
 ---
 
 ## What Was Done
 
-### P1 Audit Fixes (commit 1c8cffb)
-- Installed **Vitest** with jsdom — 43 unit tests across 3 files (scoring, budget-calculator, utils)
-- Extracted **shared RentCard** component (`src/components/shared/rent-card.tsx`) — was duplicated in `neighborhood-card.tsx` and `[slug]/page.tsx`
-- Centralized **venue type config** (`src/lib/data/venue-config.ts`) — labels, colors, short labels, text colors were duplicated in `[slug]/page.tsx`, `social/page.tsx`, `venue-map.tsx`
-- Updated `[slug]/page.tsx` to use `PORTALS` from `portal-urls.ts` with kreis-aware filtering instead of hardcoded links
-- Used `OFFICE_COORDS` from constants in `venue-map.tsx` (was duplicated)
-- Extended **RadarChart** to support `datasets` prop for overlay mode — removed 130-line `OverlaidRadar` from compare page
+### Phase 1: Google OAuth Authentication (Auth.js v5)
+- Installed `next-auth@beta` (v5.0.0-beta.30) via pnpm
+- Created `src/lib/auth.ts` — NextAuth config with Google provider, JWT strategy, email restriction via `ALLOWED_EMAIL` env var
+- Created `src/app/api/auth/[...nextauth]/route.ts` — API route handler
+- Created `middleware.ts` — protects all routes except `/login`, `/api/auth`, static assets; redirects unauthenticated to `/login`
+- Created `src/app/login/page.tsx` — dark-themed login with Google sign-in button, Suspense-wrapped for `useSearchParams`
+- Created `src/components/layout/conditional-shell.tsx` — renders AppShell for all routes except `/login`
+- Modified `src/app/layout.tsx` — swapped `AppShell` for `ConditionalShell`
+- Modified `src/app/providers.tsx` — added `SessionProvider` wrapper
+- Modified `src/components/layout/sidebar.tsx` — user avatar + name + logout button at sidebar bottom
+- Modified `next.config.ts` — CSP updated for Google OAuth + avatar domains
+- Modified `.env.example` — added auth env var placeholders
+- Updated `.env.local` with real credentials (Google OAuth client ID/secret, AUTH_SECRET, ALLOWED_EMAIL=peterblazsik@gmail.com)
+- Configured Vercel environment variables for production deployment
+- Helped user set up Google Cloud Console OAuth credentials with correct redirect URIs
 
-### Feature Development (commit 2bf5ea0)
-- **Apartment form wired up**: Zustand store with persist (`apartment-store.ts`), add/delete/status change, status filter tabs, form validation
-- **Export suite**: Budget CSV, neighborhood rankings CSV, Katie visits .ics, full JSON backup — all wired to settings page buttons (`src/lib/exports.ts`)
-- **Live currency rates**: `/api/currency` route using Frankfurter API (free, no key), real 30-day sparklines, 1-hour cache
-- **Live weather**: `/api/weather` route using Open-Meteo API (free, no key), Zurich + Vienna current + 7-day forecast, 30-min cache
-- Settings page updated with API status indicators and functional export buttons
+### Phase 2: Wave 1 Quick Fixes (from Expert Evaluation)
+- **Fix #6 — Confirmation dialogs:** Added `window.confirm()` to reset buttons on dossier, settings (weights + budget), and priority sliders
+- **Fix #1 — Data freshness:** New `DataFreshness` badge component (`src/components/ui/data-freshness.tsx`), added to neighborhoods + gym finder headers. `DATA_FRESHNESS` constant in `src/lib/constants.ts`
+- **Fix #7 — Document URLs:** Added `urls` state + `setUrl` action to dossier store. URL input with "Open" link per document row
+- **Fix #21 — Audio pronunciation:** Added `speakPhrase()` using Web Speech API (`de-CH`, rate 0.85), Volume2 buttons on daily phrase + flashcards
+- **Fix #5 — 13th salary + Pillar 3a:** Toggle for 13th salary (+CHF 954/mo), slider for Pillar 3a (0-588/mo). Budget calculator updated with `BudgetOptions` parameter across all 5 consumers (budget page, dashboard, settings, what-if cards)
+- **Fix #2 — Priority profiles:** 2 built-in presets ("Commute & Gym Focus", "Budget Conscious"), save/load/delete user profiles, dropdown + inline save input in priority sliders. `BUILT_IN_PROFILES` exported from priority store
+
+### Phase 3: Additional Fixes
+- **Fix #3 — One-time relocation costs:** New `SetupCosts` component with 6 adjustable cost items (deposit, furniture, moving, permits, health setup, misc). Shows monthly impact spread over 3 months. Added `setupCosts` + `setSetupCost` to budget store
+- **Fix #10 — Katie↔flights cross-reference:** Visit cards now show amber savings tips when departure falls on expensive travel days (Fri/Sun), suggesting cheaper alternatives (Tue) with estimated CHF savings
+- **Rental price data:** 999-line `src/lib/data/rental-prices.ts` with per-sqm pricing for all 20 locations across 3 building age categories (old pre-1970 / modern 1970-2010 / new 2010+) and 4 apartment sizes (studio/1BR/2BR/3BR). Includes market tier, vacancy rates, utility functions (`getRentalDataByLocationId`, `getMedianRent`, `getPricePerSqm`, `rankByAffordability`, `filterByBudget`), and `ZURICH_MARKET_SUMMARY`
+
+### Also included (from prior session's uncommitted /simplify fixes)
+- `formatEUR` extraction to `src/lib/utils.ts` with hoisted `Intl.NumberFormat`
+- KPICard icon made optional for dossier reuse
+- Dossier page: extracted DocumentRow, isComplete helper, blur-sync with useEffect fix, module-scope maps
 
 ## What Worked and What Didn't
 
 ### Successes
-- All 4 features built cleanly — zero type errors, build passes, 43 tests green
-- Frankfurter API and Open-Meteo API both work perfectly with no API keys needed
-- RadarChart refactor was clean — backward-compatible `scores` prop still works, `datasets` adds overlay
+- Auth.js v5 integration was clean — middleware pattern works elegantly with Next.js 16
+- All 439 tests continued passing after every change — zero regressions across 2 commits
+- Build stayed clean throughout (Turbopack, ~2s builds)
+- Rental data agent produced comprehensive 999-line file with realistic Swiss market data despite WebSearch/WebFetch being denied (used training knowledge)
 
 ### Issues Encountered
-- `scoring.test.ts`: `7.55.toFixed(1)` returns "7.5" not "7.6" due to IEEE 754 banker's rounding — fixed test to use 7.56 instead
-- No other issues this session
+- **Google OAuth redirect_uri_mismatch:** User initially had placeholder `https://your-vercel-domain.vercel.app` in both Authorized JavaScript Origins and Authorized Redirect URIs in Google Console. Fixed by replacing with actual `https://quaipulse.vercel.app`. Also hit propagation delay — took a few minutes after saving correct URIs.
+- **Rental research agent permission blocks:** WebSearch and WebFetch were denied for the background agent. Agent fell back to training knowledge + the reference price points provided in the prompt, which produced realistic data.
 
 ## Key Decisions
 
-- **Frankfurter API over exchangerate.host** — Frankfurter is free with no signup, supports historical ranges for sparklines, and provides CHF base currency natively
-- **Open-Meteo over OpenWeatherMap** — completely free, no API key, covers both Zurich and Vienna, includes precipitation probability
-- **Server-side API routes with caching** — currency (1hr) and weather (30min) cached via Cache-Control headers to avoid hammering external APIs
-- **Graceful fallback** — both currency and weather pages render with mock/fallback data if API calls fail, with visual indicator
-- **RentCard shared component uses `highlight` prop** — the `[slug]` page version had highlight (accent border + "Target range" label), the card version didn't. Unified with optional `highlight` prop defaulting to false
+1. **Auth.js v5 (beta) over v4** — v5 has native Next.js middleware support via `auth()` wrapper, cleaner API. Beta is stable enough for a personal tool.
+2. **JWT strategy, no database** — no need for session persistence in DB since it's a single-user app. JWT keeps things simple.
+3. **`window.confirm()` for reset dialogs** — chose simplicity over a Radix dialog component. Adequate for a personal tool, avoids adding UI complexity for one pattern.
+4. **Setup costs as separate component, not in budget calculator** — the one-time costs are conceptually different from recurring expenses. They display alongside the budget but don't alter the steady-state `calculateBudget()` function. This keeps the calculator pure.
+5. **Rental data as standalone file, not embedded in neighborhoods.ts** — 999 lines of detailed pricing data would bloat the already-large neighborhoods file. Linked via matching `locationId` fields.
 
 ## Lessons Learned & Gotchas
 
-- `vitest.config.ts` needs explicit `@/` path alias resolution — doesn't inherit from `tsconfig.json`
-- Frankfurter API returns no data on weekends — the `getYesterday()` function skips Saturday/Sunday
-- Open-Meteo doesn't provide visibility data in free tier — hardcoded to 15km
-- `budgetValues` needs `as unknown as Record<string, number>` cast due to typed BudgetValues interface — this is a known audit item (Q2 in AUDIT-REPORT.md)
+- **Auth.js v5 `signIn` callback** receives `{ profile }` not `{ user }` — `profile.email` is the Google email, `user.email` may be undefined at sign-in time.
+- **Google OAuth propagation delay** — changes to redirect URIs can take 5+ minutes. The "It may take 5 minutes to a few hours" warning is real.
+- **`useSearchParams()` in Next.js 16** requires Suspense boundary or the page won't render. The login page wraps content in `<Suspense>`.
+- **Budget calculator consumers are widespread** — 5 files call `calculateBudget()`. When adding the `BudgetOptions` parameter, all had to be updated. The optional parameter pattern (`options: BudgetOptions = {}`) kept it backward-compatible with tests.
 
 ## Current State
 
-- **Tests:** 43 passing, 0 failing (3 test files: scoring, budget-calculator, utils)
-- **App runs:** Yes — `pnpm dev` on port 3000
-- **Build:** Passes cleanly — 18 routes (12 static, 6 dynamic)
-- **Uncommitted changes:** Clean tree (only stale HANDOVER.md and IMAGE-GENERATION-STRATEGY.md untracked)
-- **Known bugs:** None critical. Audit open items documented in `AUDIT-REPORT.md`
+- **Tests:** 439 passing, 0 failing (13 test files)
+- **App runs:** Yes — `pnpm dev` (port 3000). Auth requires valid Google OAuth credentials in `.env.local`
+- **Uncommitted changes:** Clean tree (HANDOVER.md is modified but doesn't need committing)
+- **Known bugs:** None identified
+- **Deployment:** Both commits pushed to main, Vercel auto-deploying. Auth env vars configured in Vercel.
+- **Auth status:** Working — Google OAuth with peterblazsik@gmail.com as sole authorized user
 
 ## File Map
 
 | File | Purpose |
 |------|---------|
-| `src/lib/stores/apartment-store.ts` | NEW — Zustand persist store for saved apartment listings |
-| `src/lib/exports.ts` | NEW — Budget CSV, rankings CSV, Katie .ics, JSON backup exports |
-| `src/app/api/currency/route.ts` | NEW — Frankfurter API proxy for CHF/EUR/HUF rates + sparklines |
-| `src/app/api/weather/route.ts` | NEW — Open-Meteo API proxy for Zurich + Vienna weather |
-| `src/app/apartments/page.tsx` | REWRITTEN — Functional form, status pipeline, Zustand-backed |
-| `src/app/currency/page.tsx` | REWRITTEN — Live rates, refresh button, fallback handling |
-| `src/app/weather/page.tsx` | REWRITTEN — Live weather, refresh button, fallback handling |
-| `src/app/settings/page.tsx` | UPDATED — Wired export buttons, API status indicators |
-| `src/components/shared/rent-card.tsx` | NEW — Shared RentCard with optional highlight |
-| `src/lib/data/venue-config.ts` | NEW — Centralized venue type labels/colors |
-| `src/components/neighborhoods/radar-chart.tsx` | UPDATED — Added `datasets` prop for overlay mode |
-| `vitest.config.ts` | NEW — Vitest config with @ alias |
-| `src/lib/engines/scoring.test.ts` | NEW — 17 tests for scoring engine |
-| `src/lib/engines/budget-calculator.test.ts` | NEW — 12 tests for budget calculator |
-| `src/lib/utils.test.ts` | NEW — 14 tests for utils |
-| `AUDIT-REPORT.md` | Full audit report with grade B- (74/100) |
+| `src/lib/auth.ts` | **NEW** — NextAuth v5 config with Google provider + email restriction |
+| `src/app/api/auth/[...nextauth]/route.ts` | **NEW** — Auth API route handler |
+| `middleware.ts` | **NEW** — Route protection, redirects unauthenticated to /login |
+| `src/app/login/page.tsx` | **NEW** — Dark-themed Google sign-in page |
+| `src/components/layout/conditional-shell.tsx` | **NEW** — Renders AppShell except on /login |
+| `src/components/ui/data-freshness.tsx` | **NEW** — "Data as of Mar 2026" badge |
+| `src/components/budget/setup-costs.tsx` | **NEW** — One-time relocation cost sliders |
+| `src/lib/data/rental-prices.ts` | **NEW** — 999 lines of per-sqm rental data for 20 locations, 3 building ages, 4 sizes |
+| `src/lib/stores/budget-store.ts` | **MODIFIED** — Added has13thSalary, pillar3aMonthly, setupCosts |
+| `src/lib/stores/priority-store.ts` | **MODIFIED** — Added profiles, saveProfile, loadProfile, deleteProfile, BUILT_IN_PROFILES |
+| `src/lib/stores/dossier-store.ts` | **MODIFIED** — Added urls state + setUrl action |
+| `src/lib/engines/budget-calculator.ts` | **MODIFIED** — Added BudgetOptions (13th salary, pillar3a), adjusted income calculation |
+| `src/components/budget/income-section.tsx` | **MODIFIED** — 13th salary toggle, Pillar 3a slider |
+| `src/components/neighborhoods/priority-sliders.tsx` | **MODIFIED** — Profile dropdown, save/load/delete |
+| `src/app/katie/page.tsx` | **MODIFIED** — Flight savings tips per visit card |
+| `src/app/language/page.tsx` | **MODIFIED** — speakPhrase() + Volume2 buttons |
+| `EXPERT-USER-EVALUATION.md` | Expert evaluation with 22 fix requests — source of all priorities |
 
 ## Next Steps
 
-1. **Command palette (cmdk)** — cmdk is already a dependency. Wire up global Cmd+K with navigation, quick actions, and search across neighborhoods/apartments
-2. **Rate limiting** on `/api/chat` — P0 security item from audit. Consider `@upstash/ratelimit` or in-memory token bucket
-3. **Security headers** in `next.config.ts` — CSP, X-Frame-Options, X-Content-Type-Options (P0 from audit)
-4. **Dossier tracker** — Document vault for move paperwork (permit, insurance, bank). Planned in architecture but not built
-5. **Split large page components** — compare (390 lines), [slug] (440 lines), katie (365 lines), apartments (310 lines) are all >300 lines
-6. **PWA manifest** — `manifest.json`, service worker for offline support
-7. **Fix type casts** — `as unknown as Record<string, number>` in budget page/dashboard (3 files). Make `calculateBudget` accept `BudgetValues` directly
+1. **Integrate rental prices into neighborhood UI** — The 999-line `rental-prices.ts` is created but not yet rendered anywhere. Add a detailed rental breakdown section to neighborhood detail pages (`/neighborhoods/[slug]`) and optionally a rental comparison view. Use `getRentalDataByLocationId()` to link. Show per-sqm prices by building age, rent ranges by apartment size, market tier badge.
+
+2. **Fix #16 — Cross-module data flows** — Three connections to implement:
+   - Neighborhood rent selection → auto-populate budget rent slider
+   - Subscription savings (cut/replace decisions) → flow into budget surplus
+   - Rental price data → feed into neighborhood affordability scoring
+
+3. **Fix #4 — Swiss cantonal tax estimation** — Model approximate tax rates by municipality (Zurich city ~12%, Zollikon ~10%, Thalwil ~11%, etc.). Feed into budget and neighborhood scoring. Even approximate values add CHF 5-9K/yr decision impact.
+
+4. **Fix #8 — Notification system for checklist deadlines** — Browser Notification API for approaching deadlines. Phase-gate alerts based on checklist phases.
+
+5. **Fix #14 — Service worker for offline PWA** — Manifest exists, needs service worker for static asset caching. Critical for mobile use.
+
+6. **Fix #15 — AI assistant with store data awareness** — Give Pulse AI read access to Zustand stores (checklist progress, budget state, priorities, apartment pipeline). Transform from generic Zurich chatbot to personal advisor.
 
 ## Continuation Prompt
 
 ```
-Please read HANDOVER.md and continue development on QuaiPulse.
+Read HANDOVER.md in /Users/peterblazsik/DevApps/QuaiPulse for full context.
 
-Project: /Users/peterblazsik/DevApps/QuaiPulse
-Stack: Next.js 16, React 19, TypeScript strict, Tailwind 4, Zustand, Framer Motion
-Branch: main (deployed to Vercel)
+QuaiPulse is a Next.js 15 + TypeScript personal relocation dashboard (Zurich move). Dark mode, Bloomberg-aesthetic, keyboard-first. Uses pnpm (not bun).
 
-Current state: Build passes, 43 Vitest tests green, all features working including live currency/weather APIs and functional apartment pipeline.
+Current state: 439 tests passing, app builds clean, deployed on Vercel with Google OAuth auth working. Clean git tree, 2 commits pushed this session.
 
-Key files to know:
-- AUDIT-REPORT.md — full code quality audit with open items
-- src/lib/exports.ts — export functions (CSV, ICS, JSON)
-- src/lib/stores/ — Zustand stores (apartment, budget, checklist, compare, priority, ui)
-- src/app/api/ — API routes (chat via Gemini, currency via Frankfurter, weather via Open-Meteo)
+Key new file: src/lib/data/rental-prices.ts (999 lines) — comprehensive per-sqm rental data for all 20 locations (3 building ages × 4 apartment sizes). NOT YET INTEGRATED into any UI.
 
-Priority next steps:
-1. Command palette (cmdk already installed, wire up Cmd+K)
-2. Rate limiting on /api/chat (security P0)
-3. Security headers in next.config.ts
-4. Dossier tracker page
-5. Split large page components (>300 lines each)
+The expert evaluation (EXPERT-USER-EVALUATION.md) drives all priorities. Fixes completed so far: #1 (data freshness), #2 (priority profiles), #3 (setup costs), #5 (13th salary + Pillar 3a), #6 (confirmation dialogs), #7 (document URLs), #10 (Katie↔flights tips), #13 (Google OAuth auth), #21 (audio pronunciation).
+
+Next priorities:
+1. Integrate rental-prices.ts into neighborhood detail pages — show per-sqm breakdown by building age and apartment size
+2. Fix #16 — Cross-module data flows (rent→budget, subs→budget)
+3. Fix #4 — Swiss cantonal tax estimation
+4. Fix #8 — Notification system for checklist deadlines
+5. Fix #14 — Service worker for offline PWA
+6. Fix #15 — AI with store data awareness
 ```

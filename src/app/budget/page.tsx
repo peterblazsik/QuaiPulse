@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
 import { useBudgetStore } from "@/lib/stores/budget-store";
-import { calculateBudget, EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
+import { EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
+import { useBudgetWithTax } from "@/lib/hooks/use-budget-with-tax";
 import { exportBudgetCSV } from "@/lib/exports";
 import { Download } from "lucide-react";
 import { IncomeSection } from "@/components/budget/income-section";
@@ -15,13 +15,7 @@ import { SetupCosts } from "@/components/budget/setup-costs";
 
 export default function BudgetPage() {
   const values = useBudgetStore((s) => s.values);
-  const has13thSalary = useBudgetStore((s) => s.has13thSalary);
-  const pillar3aMonthly = useBudgetStore((s) => s.pillar3aMonthly);
-
-  const breakdown = useMemo(
-    () => calculateBudget(values, { has13thSalary, pillar3aMonthly }),
-    [values, has13thSalary, pillar3aMonthly]
-  );
+  const breakdown = useBudgetWithTax();
 
   return (
     <div className="space-y-6 relative">
@@ -34,8 +28,7 @@ export default function BudgetPage() {
             Budget Simulator
           </h1>
           <p className="text-sm text-text-tertiary mt-1">
-            Drag the sliders. Watch your surplus move in real time. Every CHF
-            accounted for.
+            Start from gross salary. Watch deductions, tax, and surplus update in real time.
           </p>
         </div>
         <button
@@ -49,15 +42,15 @@ export default function BudgetPage() {
 
       {/* Main layout: 3-column on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left column: Income + Fixed costs */}
-        <div className="lg:col-span-3">
+        {/* Left column: Income pipeline */}
+        <div className="lg:col-span-4">
           <div className="sticky top-0 rounded-xl border border-border-default bg-bg-secondary p-4">
             <IncomeSection />
           </div>
         </div>
 
         {/* Center column: Surplus + Charts */}
-        <div className="lg:col-span-5 space-y-5">
+        <div className="lg:col-span-4 space-y-5">
           {/* Surplus hero */}
           <div className="rounded-xl border border-border-default bg-bg-secondary p-5">
             <SurplusDisplay breakdown={breakdown} />

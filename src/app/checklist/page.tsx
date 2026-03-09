@@ -14,6 +14,7 @@ import {
   Calendar,
   ExternalLink,
 } from "lucide-react";
+import { DeadlineAlerts } from "@/components/checklist/deadline-alerts";
 import { CHECKLIST_ITEMS, type ChecklistItemData } from "@/lib/data/checklist-items";
 import { useChecklistStore } from "@/lib/stores/checklist-store";
 import {
@@ -59,6 +60,10 @@ export default function ChecklistPage() {
     <div className="space-y-6 relative">
       {/* Ambient glow */}
       <div className="ambient-glow glow-cyan" />
+
+      {/* Deadline notifications banner */}
+      <DeadlineAlerts />
+
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>

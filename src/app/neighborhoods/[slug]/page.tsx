@@ -20,7 +20,7 @@ import { ScoreBadge } from "@/components/neighborhoods/score-badge";
 import { ScoreBreakdown } from "@/components/neighborhoods/score-breakdown";
 import { VibeBadges, CrowdTags, LocationTypeBadge } from "@/components/neighborhoods/vibe-badges";
 import { VenueCard } from "@/components/neighborhoods/venue-card";
-import { RentCard } from "@/components/shared/rent-card";
+import { RentalPriceBreakdown } from "@/components/neighborhoods/rental-price-breakdown";
 import { formatCHF } from "@/lib/utils";
 import { VENUE_TYPE_LABELS, VENUE_TYPE_TEXT_COLORS } from "@/lib/data/venue-config";
 import { PORTALS } from "@/lib/data/portal-urls";
@@ -205,22 +205,8 @@ export default function NeighborhoodDetailPage() {
         </div>
       </motion.div>
 
-      {/* Rent Ranges */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="card p-5"
-      >
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-4">
-          Rent Ranges (monthly)
-        </h2>
-        <div className="grid grid-cols-3 gap-4">
-          <RentCard label="Studio" min={n.rentStudioMin} max={n.rentStudioMax} />
-          <RentCard label="1 Bedroom" min={n.rentOneBrMin} max={n.rentOneBrMax} highlight={true} />
-          <RentCard label="2 Bedroom" min={n.rentTwoBrMin} max={n.rentTwoBrMax} />
-        </div>
-      </motion.div>
+      {/* Rental Market Breakdown */}
+      <RentalPriceBreakdown locationId={n.id} locationName={n.name} />
 
       {/* Pros & Cons */}
       <motion.div

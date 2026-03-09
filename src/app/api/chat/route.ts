@@ -28,6 +28,8 @@ const ChatRequestSchema = z.object({
     )
     .min(1)
     .max(50),
+  /** Live user data context from Zustand stores, injected into system prompt */
+  storeContext: z.string().max(5_000).optional(),
 });
 
 const SYSTEM_PROMPT = `You are Pulse, an expert AI assistant for Peter Blazsik's relocation to Zurich. You have deep knowledge of Zurich neighborhoods, Swiss systems, and Peter's specific situation.
@@ -108,7 +110,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Invalid request." }, { status: 400 });
   }
 
-  const { messages } = parsed.data;
+  const { messages, storeContext } = parsed.data;
 
   const key = process.env.GEMINI_API_KEY;
 
@@ -132,10 +134,14 @@ export async function POST(request: NextRequest) {
   const readable = new ReadableStream({
     async start(controller) {
       try {
+        const fullSystemPrompt = storeContext
+          ? `${SYSTEM_PROMPT}\n${storeContext}\n\nIMPORTANT: Use the live user data above to give personalized, specific answers. Reference actual numbers, progress, and decisions — never give generic advice when you have real data.`
+          : SYSTEM_PROMPT;
+
         const stream = await ai.models.generateContentStream({
           model: "gemini-2.5-pro",
           config: {
-            systemInstruction: SYSTEM_PROMPT,
+            systemInstruction: fullSystemPrompt,
             maxOutputTokens: 2048,
           },
           contents,

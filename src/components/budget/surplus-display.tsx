@@ -8,7 +8,7 @@ interface SurplusDisplayProps {
 }
 
 export function SurplusDisplay({ breakdown }: SurplusDisplayProps) {
-  const { surplus, savingsRate, annualSurplus, totalIncome, totalExpenses } =
+  const { surplus, savingsRate, annualSurplus, totalMonthlyIncome: totalIncome, totalExpenses } =
     breakdown;
 
   const surplusColor =

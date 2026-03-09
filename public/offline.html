@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3b82f6" />
+  <title>Offline - QuaiPulse</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0f1a;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .container {
+      text-align: center;
+      max-width: 480px;
+    }
+    .icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      opacity: 0.6;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 0.75rem;
+    }
+    p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #94a3b8;
+      margin-bottom: 2rem;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 2rem;
+      background: #3b82f6;
+      color: #fff;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      text-decoration: none;
+    }
+    .btn:hover { background: #2563eb; }
+    .btn:active { background: #1d4ed8; }
+    .subtitle {
+      font-size: 0.8125rem;
+      color: #64748b;
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">&#x1F50C;</div>
+    <h1>You're offline</h1>
+    <p>
+      QuaiPulse works best with an internet connection, but your data is saved locally.
+      Check your connection and try again.
+    </p>
+    <button class="btn" onclick="window.location.reload()">Try again</button>
+    <p class="subtitle">QuaiPulse - Zurich Life Navigator</p>
+  </div>
+</body>
+</html>

@@ -19,12 +19,11 @@ import {
 } from "@/lib/data/subscriptions";
 import { useSubscriptionStore } from "@/lib/stores/subscription-store";
 import { formatCHF, formatEUR } from "@/lib/utils";
+import { EUR_TO_CHF } from "@/lib/constants";
 import { KPICard } from "@/components/subscriptions/kpi-card";
 import { DonutChart } from "@/components/subscriptions/donut-chart";
 import { SubCard } from "@/components/subscriptions/sub-card";
 import { AddSubscriptionForm } from "@/components/subscriptions/add-form";
-
-const EUR_TO_CHF = 0.94;
 
 export default function SubscriptionsPage() {
   const { decisions, setDecision, resetDecisions, customSubs, addCustomSub, removeCustomSub } =
@@ -56,7 +55,7 @@ export default function SubscriptionsPage() {
       } else if (action === "replace" && sub.swissAlternativeCostCHF) {
         postMoveBurnCHF += sub.swissAlternativeCostCHF;
       } else if (action === "cut") {
-        potentialSavingsCHF += sub.monthlyCostCHF || sub.monthlyCostEUR * EUR_TO_CHF;
+        potentialSavingsCHF += sub.monthlyCostCHF ?? sub.monthlyCostEUR * EUR_TO_CHF;
       }
     }
 

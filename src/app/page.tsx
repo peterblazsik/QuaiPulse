@@ -5,13 +5,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { daysUntil, formatCHF } from "@/lib/utils";
 import { MOVE_DATE } from "@/lib/constants";
-import { useBudgetStore, FIXED_INCOME, FIXED_COSTS_OUTSIDE } from "@/lib/stores/budget-store";
+import { useBudgetStore } from "@/lib/stores/budget-store";
 import { usePriorityStore } from "@/lib/stores/priority-store";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
 import { PLANNED_VISITS } from "@/lib/data/katie-visits";
 import { CHECKLIST_ITEMS } from "@/lib/data/checklist-items";
 import { rankNeighborhoods, formatScore, scoreTextClass } from "@/lib/engines/scoring";
-import { calculateBudget, EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
+import { EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
+import { useBudgetWithTax } from "@/lib/hooks/use-budget-with-tax";
 import { RadarChart } from "@/components/neighborhoods/radar-chart";
 import { HERO_IMAGES, NEIGHBORHOOD_IMAGES } from "@/lib/data/images";
 
@@ -19,22 +20,15 @@ export default function DashboardPage() {
   const values = useBudgetStore((s) => s.values);
   const weights = usePriorityStore((s) => s.weights);
   const days = daysUntil(MOVE_DATE);
-  const zurichCosts = Object.values(values).reduce((a, b) => a + b, 0);
-  const surplus = FIXED_INCOME - FIXED_COSTS_OUTSIDE - zurichCosts;
-  const savingsRate = Math.round((surplus / FIXED_INCOME) * 100);
 
   const top3 = useMemo(
     () => rankNeighborhoods(NEIGHBORHOODS, weights).slice(0, 3),
     [weights]
   );
 
-  const has13thSalary = useBudgetStore((s) => s.has13thSalary);
-  const pillar3aMonthly = useBudgetStore((s) => s.pillar3aMonthly);
-
-  const budget = useMemo(
-    () => calculateBudget(values, { has13thSalary, pillar3aMonthly }),
-    [values, has13thSalary, pillar3aMonthly]
-  );
+  const budget = useBudgetWithTax();
+  const { surplus, totalMonthlyIncome, savingsRate, totalExpenses } = budget;
+  const savingsRateInt = Math.round(savingsRate);
 
   return (
     <div className="space-y-6 relative">
@@ -90,7 +84,7 @@ export default function DashboardPage() {
             {formatCHF(surplus)}
           </p>
           <p className="mt-1 text-xs text-text-tertiary">
-            of {formatCHF(FIXED_INCOME)} income
+            of {formatCHF(totalMonthlyIncome)} take-home
           </p>
         </div>
 
@@ -99,12 +93,12 @@ export default function DashboardPage() {
           <div className="card-hover-line" />
           <p className="section-label">Savings Rate</p>
           <p className="mt-2 font-data text-4xl font-bold text-success">
-            {savingsRate}%
+            {savingsRateInt}%
           </p>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-bg-tertiary relative">
             <div
               className="h-full rounded-full bg-success transition-all progress-shimmer relative"
-              style={{ width: `${Math.max(0, Math.min(100, savingsRate))}%` }}
+              style={{ width: `${Math.max(0, Math.min(100, savingsRateInt))}%` }}
             />
           </div>
         </div>
@@ -134,7 +128,6 @@ export default function DashboardPage() {
               className="card card-interactive relative overflow-hidden"
             >
               <div className="card-hover-line" />
-              {/* Background image */}
               {NEIGHBORHOOD_IMAGES[n.id] && (
                 <div className="absolute inset-0">
                   <Image
@@ -189,7 +182,7 @@ export default function DashboardPage() {
           <div className="h-5 rounded-full overflow-hidden flex bg-bg-tertiary mb-2">
             {EXPENSE_CONFIG.slice(0, 5).map((e) => {
               const val = values[e.key as keyof typeof values];
-              const pct = (val / FIXED_INCOME) * 100;
+              const pct = totalMonthlyIncome > 0 ? (val / totalMonthlyIncome) * 100 : 0;
               return (
                 <div
                   key={e.key}
@@ -199,19 +192,19 @@ export default function DashboardPage() {
                 />
               );
             })}
-            {budget.surplus > 0 && (
+            {surplus > 0 && (
               <div
                 className="h-full bg-emerald-500/40"
-                style={{ width: `${(budget.surplus / FIXED_INCOME) * 100}%` }}
+                style={{ width: `${(surplus / totalMonthlyIncome) * 100}%` }}
               />
             )}
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-text-muted">
-              Expenses {formatCHF(budget.totalExpenses)}
+              Expenses {formatCHF(totalExpenses)}
             </span>
-            <span className={`font-data font-bold ${budget.surplus >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-              Surplus {formatCHF(budget.surplus)}
+            <span className={`font-data font-bold ${surplus >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+              Surplus {formatCHF(surplus)}
             </span>
           </div>
           <span className="mt-3 inline-block rounded-md bg-accent-primary/10 px-3 py-1.5 text-xs font-medium text-accent-primary transition-colors group-hover:bg-accent-primary/20">

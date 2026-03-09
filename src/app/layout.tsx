@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Playfair_Display } from "next/font/google";
 import { Providers } from "./providers";
 import { ConditionalShell } from "@/components/layout/conditional-shell";
+import { ServiceWorkerRegister } from "@/components/layout/sw-register";
 import "./globals.css";
 
 const inter = Inter({
@@ -54,6 +55,7 @@ export default function RootLayout({
         <Providers>
           <ConditionalShell>{children}</ConditionalShell>
         </Providers>
+        <ServiceWorkerRegister />
       </body>
     </html>
   );

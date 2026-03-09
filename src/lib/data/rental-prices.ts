@@ -85,11 +85,19 @@ export const APARTMENT_SIZES: Record<ApartmentSize, ApartmentSizeSpec> = {
   "3br": { sqmMin: 80, sqmMax: 110, swissRooms: 4.5 },
 };
 
-// ─── Helper ──────────────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function r(min: number, max: number): RentRange {
   return { min, max, median: Math.round((min + max) / 2) };
 }
+
+/** Map ApartmentSize to the corresponding key in BuildingCategoryPricing */
+export const SIZE_TO_PRICING_KEY: Record<ApartmentSize, "studio" | "oneBr" | "twoBr" | "threeBr"> = {
+  studio: "studio",
+  "1br": "oneBr",
+  "2br": "twoBr",
+  "3br": "threeBr",
+};
 
 // ─── Zurich Kreise Rental Data ───────────────────────────────────────────────
 
@@ -893,14 +901,7 @@ export function getMedianRent(
   if (!data) return undefined;
 
   const ageData = data[buildingAge];
-  const sizeKey: Record<ApartmentSize, keyof BuildingCategoryPricing> = {
-    studio: "studio",
-    "1br": "oneBr",
-    "2br": "twoBr",
-    "3br": "threeBr",
-  };
-
-  const rentRange = ageData[sizeKey[size]];
+  const rentRange = ageData[SIZE_TO_PRICING_KEY[size]];
   if (typeof rentRange === "number") return undefined; // pricePerSqm guard
   return (rentRange as RentRange).median;
 }
@@ -925,17 +926,10 @@ export function rankByAffordability(
   size: ApartmentSize,
   buildingAge: BuildingAge,
 ): { locationId: string; name: string; median: number; pricePerSqm: number }[] {
-  const sizeKey: Record<ApartmentSize, "studio" | "oneBr" | "twoBr" | "threeBr"> = {
-    studio: "studio",
-    "1br": "oneBr",
-    "2br": "twoBr",
-    "3br": "threeBr",
-  };
-
   return RENTAL_PRICES.map((loc) => ({
     locationId: loc.locationId,
     name: loc.name,
-    median: (loc[buildingAge][sizeKey[size]] as RentRange).median,
+    median: (loc[buildingAge][SIZE_TO_PRICING_KEY[size]] as RentRange).median,
     pricePerSqm: loc[buildingAge].pricePerSqm,
   })).sort((a, b) => a.median - b.median);
 }
@@ -948,15 +942,8 @@ export function filterByBudget(
   size: ApartmentSize,
   buildingAge: BuildingAge,
 ): LocationRentalData[] {
-  const sizeKey: Record<ApartmentSize, "studio" | "oneBr" | "twoBr" | "threeBr"> = {
-    studio: "studio",
-    "1br": "oneBr",
-    "2br": "twoBr",
-    "3br": "threeBr",
-  };
-
   return RENTAL_PRICES.filter((loc) => {
-    const range = loc[buildingAge][sizeKey[size]] as RentRange;
+    const range = loc[buildingAge][SIZE_TO_PRICING_KEY[size]] as RentRange;
     return range.min <= maxBudget;
   });
 }

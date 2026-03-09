@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Bot, Send, Sparkles, User, AlertCircle, Square, Copy, Check, Trash2 } from "lucide-react";
+import { Bot, Send, Sparkles, User, AlertCircle, Square, Copy, Check, Trash2, Database } from "lucide-react";
 import { useChatStore, type ChatMessage } from "@/lib/stores/chat-store";
+import { buildStoreContext } from "@/lib/ai/store-context";
 import dynamic from "next/dynamic";
 
 const Markdown = dynamic(() => import("react-markdown"), { ssr: false });
@@ -15,27 +16,27 @@ interface Message {
 }
 
 const SUGGESTION_CHIPS = [
-  "Compare Enge vs Wiedikon for my lifestyle",
+  "What should I focus on this week?",
+  "Am I on track with my budget?",
+  "Compare my top 3 neighborhoods with real scores",
+  "Which checklist items are most urgent right now?",
   "Draft an apartment application email in German",
-  "Best strategy for apartment hunting in Zurich?",
-  "Explain the Swiss rental dossier process",
-  "Suggest a weekend itinerary for Katie's first visit",
+  "Optimize my Katie visit schedule for cheaper flights",
   "What gym should I join given my knee issues?",
-  "Cheapest health insurance options in Zurich?",
-  "How does the Swiss tax system work?",
+  "How much tax would I save in Rüschlikon vs the city?",
 ];
 
-const WELCOME_MESSAGE = `I'm Pulse, your Zurich relocation AI assistant. I have full context on your profile, priorities, budget, and neighborhood rankings.
+const WELCOME_MESSAGE = `I'm Pulse, your personal Zurich relocation advisor. I have **live access to all your app data** — budget, neighborhood rankings, checklist progress, apartment pipeline, subscriptions, dossier status, and more.
 
 **I can help with:**
-- Neighborhood comparisons and deep-dives
-- Apartment hunting strategy and application letters
-- Budget optimization and what-if scenarios
-- Katie visit planning and logistics
+- Personalized neighborhood recommendations based on your actual priority weights
+- Budget analysis using your real numbers and tax municipality
+- "What should I focus on?" based on your checklist progress and deadlines
+- Apartment strategy referencing your saved listings
+- Katie visit optimization with your planned dates
 - Swiss admin, insurance, and tax questions
-- Social life recommendations
 
-Ask me anything about your move to Zurich. I know your constraints (knee, Katie visits, budget) and preferences (gym, chess, AI meetups) intimately.`;
+Every answer is tailored to *your* data, not generic advice. Ask me anything.`;
 
 export default function AIPage() {
   const chatStore = useChatStore();
@@ -119,10 +120,18 @@ export default function AIPage() {
       abortRef.current = controller;
 
       try {
+        // Build live store context for personalized AI responses
+        let storeContext = "";
+        try {
+          storeContext = buildStoreContext();
+        } catch {
+          // Stores may not be hydrated yet — send without context
+        }
+
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: history }),
+          body: JSON.stringify({ messages: history, storeContext }),
           signal: controller.signal,
         });
 
@@ -232,8 +241,9 @@ export default function AIPage() {
               <h1 className="font-display text-lg font-bold text-text-primary">
                 Pulse AI
               </h1>
-              <p className="text-[10px] text-text-muted">
-                Context-aware assistant for your Zurich move — powered by Gemini
+              <p className="text-[10px] text-text-muted flex items-center gap-1">
+                <Database className="h-2.5 w-2.5 text-success" />
+                Live data access — powered by Gemini
               </p>
             </div>
           </div>

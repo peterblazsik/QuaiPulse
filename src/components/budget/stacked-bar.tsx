@@ -1,19 +1,17 @@
 "use client";
 
-import { useBudgetStore, FIXED_INCOME } from "@/lib/stores/budget-store";
-import {
-  EXPENSE_CONFIG,
-  FIXED_OUTSIDE_ITEMS,
-} from "@/lib/engines/budget-calculator";
+import { useBudgetStore } from "@/lib/stores/budget-store";
+import { EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
+import { useBudgetWithTax } from "@/lib/hooks/use-budget-with-tax";
 import { formatCHF } from "@/lib/utils";
 
 export function StackedBar() {
   const values = useBudgetStore((s) => s.values);
+  const breakdown = useBudgetWithTax();
 
   // Build segments: fixed outside + zurich costs
-  const fixedTotal = FIXED_OUTSIDE_ITEMS.reduce((s, i) => s + i.value, 0);
   const segments: { label: string; value: number; color: string }[] = [
-    { label: "Vienna / Fixed", value: fixedTotal, color: "#475569" },
+    { label: "Vienna / Fixed", value: breakdown.fixedOutside, color: "#475569" },
     ...EXPENSE_CONFIG.map((e) => ({
       label: e.label,
       value: values[e.key as keyof typeof values],
@@ -21,14 +19,22 @@ export function StackedBar() {
     })),
   ];
 
-  const totalExpenses = segments.reduce((s, seg) => s + seg.value, 0);
-  const surplus = FIXED_INCOME - totalExpenses;
-
-  if (surplus > 0) {
-    segments.push({ label: "Surplus", value: surplus, color: "#22c55e" });
+  if (breakdown.monthlyTax > 0) {
+    segments.push({ label: "Tax", value: breakdown.monthlyTax, color: "#6366f1" });
   }
 
-  const barTotal = Math.max(FIXED_INCOME, totalExpenses);
+  if (breakdown.pillar3aMonthly > 0) {
+    segments.push({ label: "Pillar 3a", value: breakdown.pillar3aMonthly, color: "#14b8a6" });
+  }
+
+  const totalExpenses = segments.reduce((s, seg) => s + seg.value, 0);
+  const totalIncome = breakdown.totalMonthlyIncome;
+
+  if (breakdown.surplus > 0) {
+    segments.push({ label: "Surplus", value: breakdown.surplus, color: "#22c55e" });
+  }
+
+  const barTotal = Math.max(totalIncome, totalExpenses);
 
   return (
     <div className="space-y-3">

@@ -22,7 +22,8 @@ import { useSleepStore } from "@/lib/stores/sleep-store";
 import { ThemeSelector } from "@/components/layout/theme-selector";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
 import { rankNeighborhoods } from "@/lib/engines/scoring";
-import { calculateBudget, EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
+import { EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
+import { useBudgetWithTax } from "@/lib/hooks/use-budget-with-tax";
 import { PLANNED_VISITS } from "@/lib/data/katie-visits";
 import {
   exportBudgetCSV,
@@ -59,13 +60,7 @@ export default function SettingsPage() {
     [weights]
   );
 
-  const has13thSalary = useBudgetStore((s) => s.has13thSalary);
-  const pillar3aMonthly = useBudgetStore((s) => s.pillar3aMonthly);
-
-  const breakdown = useMemo(
-    () => calculateBudget(budgetValues, { has13thSalary, pillar3aMonthly }),
-    [budgetValues, has13thSalary, pillar3aMonthly]
-  );
+  const breakdown = useBudgetWithTax();
 
   const handleExportBudget = () => {
     exportBudgetCSV(breakdown, EXPENSE_CONFIG, budgetValues);

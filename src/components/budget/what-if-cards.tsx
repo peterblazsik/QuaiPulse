@@ -1,20 +1,54 @@
 "use client";
 
+import { useMemo } from "react";
 import { useBudgetStore } from "@/lib/stores/budget-store";
-import {
-  WHAT_IF_SCENARIOS,
-  calculateBudget,
-} from "@/lib/engines/budget-calculator";
+import { WHAT_IF_SCENARIOS, calculateBudget, type BudgetInputs } from "@/lib/engines/budget-calculator";
+import { getTaxDataByLocationId } from "@/lib/data/tax-rates";
 import { formatCHF } from "@/lib/utils";
 import { ArrowRight, TrendingUp, TrendingDown } from "lucide-react";
 
 export function WhatIfCards() {
   const values = useBudgetStore((s) => s.values);
   const setValue = useBudgetStore((s) => s.setValue);
+  const grossMonthlySalary = useBudgetStore((s) => s.grossMonthlySalary);
   const has13thSalary = useBudgetStore((s) => s.has13thSalary);
+  const expenseAllowance = useBudgetStore((s) => s.expenseAllowance);
+  const bvgMonthly = useBudgetStore((s) => s.bvgMonthly);
   const pillar3aMonthly = useBudgetStore((s) => s.pillar3aMonthly);
-  const opts = { has13thSalary, pillar3aMonthly };
-  const currentBudget = calculateBudget(values, opts);
+  const taxLocationId = useBudgetStore((s) => s.taxLocationId);
+  const viennaRent = useBudgetStore((s) => s.viennaRent);
+  const childSupport = useBudgetStore((s) => s.childSupport);
+  const viennaUtils = useBudgetStore((s) => s.viennaUtils);
+  const carInsurance = useBudgetStore((s) => s.carInsurance);
+
+  const scenarios = useMemo(() => {
+    const taxData = taxLocationId ? getTaxDataByLocationId(taxLocationId) : undefined;
+    const baseInputs: BudgetInputs = {
+      grossMonthlySalary,
+      has13thSalary,
+      expenseAllowance,
+      bvgMonthly,
+      pillar3aMonthly,
+      taxEffectiveRate: taxData?.effectiveRate ?? 0,
+      viennaRent,
+      childSupport,
+      viennaUtils,
+      carInsurance,
+      zurichValues: values,
+    };
+    const currentBudget = calculateBudget(baseInputs);
+
+    return WHAT_IF_SCENARIOS.map((scenario) => {
+      const scenarioValues = { ...values, ...scenario.changes };
+      const scenarioBudget = calculateBudget({ ...baseInputs, zurichValues: scenarioValues });
+      const impact = scenarioBudget.surplus - currentBudget.surplus;
+      return { scenario, impact, surplus: scenarioBudget.surplus };
+    });
+  }, [
+    values, grossMonthlySalary, has13thSalary, expenseAllowance,
+    bvgMonthly, pillar3aMonthly, taxLocationId,
+    viennaRent, childSupport, viennaUtils, carInsurance,
+  ]);
 
   return (
     <div className="space-y-3">
@@ -23,11 +57,7 @@ export function WhatIfCards() {
       </h4>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {WHAT_IF_SCENARIOS.map((scenario) => {
-          // Calculate scenario impact
-          const scenarioValues = { ...values, ...scenario.changes };
-          const scenarioBudget = calculateBudget(scenarioValues, opts);
-          const impact = scenarioBudget.surplus - currentBudget.surplus;
+        {scenarios.map(({ scenario, impact, surplus }) => {
           const isPositive = impact >= 0;
 
           return (
@@ -65,7 +95,7 @@ export function WhatIfCards() {
               </div>
 
               <div className="flex items-center gap-2 mt-2 text-[10px] text-text-tertiary">
-                <span>Surplus: {formatCHF(scenarioBudget.surplus)}</span>
+                <span>Surplus: {formatCHF(surplus)}</span>
                 <ArrowRight className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 transition-opacity text-accent-primary" />
                 <span className="opacity-0 group-hover:opacity-100 transition-opacity text-accent-primary">
                   Apply

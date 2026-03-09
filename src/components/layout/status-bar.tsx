@@ -2,14 +2,11 @@
 
 import { daysUntil, formatCHF } from "@/lib/utils";
 import { MOVE_DATE } from "@/lib/constants";
-import { useBudgetStore, FIXED_INCOME, FIXED_COSTS_OUTSIDE } from "@/lib/stores/budget-store";
+import { useBudgetWithTax } from "@/lib/hooks/use-budget-with-tax";
 
 export function StatusBar() {
-  const values = useBudgetStore((s) => s.values);
+  const breakdown = useBudgetWithTax();
   const days = daysUntil(MOVE_DATE);
-
-  const zurichCosts = Object.values(values).reduce((a, b) => a + b, 0);
-  const surplus = FIXED_INCOME - FIXED_COSTS_OUTSIDE - zurichCosts;
 
   return (
     <footer className="flex h-8 shrink-0 items-center justify-between border-t border-border-default bg-bg-secondary px-6 text-[11px]">
@@ -23,9 +20,9 @@ export function StatusBar() {
         <span className="text-border-default">|</span>
         <span className="text-text-tertiary">
           <span
-            className={`font-data ${surplus >= 0 ? "text-success" : "text-danger"}`}
+            className={`font-data ${breakdown.surplus >= 0 ? "text-success" : "text-danger"}`}
           >
-            {formatCHF(surplus)}
+            {formatCHF(breakdown.surplus)}
           </span>
           /mo surplus
         </span>

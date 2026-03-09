@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { ArrowLeftRight, TrendingUp, TrendingDown, Minus, RefreshCw } from "lucide-react";
 import { formatCHF } from "@/lib/utils";
-import { FIXED_COSTS_OUTSIDE } from "@/lib/stores/budget-store";
+import { useBudgetStore } from "@/lib/stores/budget-store";
 
 interface RateData {
   rate: number;
@@ -67,8 +67,14 @@ export default function CurrencyPage() {
     return { CHF: amount / chfHuf, EUR: amount / eurHuf };
   }, [amount, fromCurrency, rates]);
 
+  const viennaRent = useBudgetStore((s) => s.viennaRent);
+  const childSupport = useBudgetStore((s) => s.childSupport);
+  const viennaUtils = useBudgetStore((s) => s.viennaUtils);
+  const carInsurance = useBudgetStore((s) => s.carInsurance);
+  const viennaCostsTotal = viennaRent + childSupport + viennaUtils + carInsurance;
+
   const chfEurRate = rates["CHF/EUR"]?.rate ?? 0.94;
-  const viennaCostsEur = FIXED_COSTS_OUTSIDE * chfEurRate;
+  const viennaCostsEur = viennaCostsTotal * chfEurRate;
 
   return (
     <div className="space-y-6 relative">
@@ -173,7 +179,7 @@ export default function CurrencyPage() {
             Vienna Costs in Real Terms
           </h3>
           <p className="text-xs text-text-tertiary mb-4">
-            Your CHF {formatCHF(FIXED_COSTS_OUTSIDE)}/mo Vienna costs in EUR at
+            Your CHF {formatCHF(viennaCostsTotal)}/mo Vienna costs in EUR at
             current rate:
           </p>
 
@@ -187,16 +193,16 @@ export default function CurrencyPage() {
           </div>
 
           <div className="space-y-2 mt-4">
-            <ImpactRow label="Vienna rent" chf={1450} rate={chfEurRate} />
-            <ImpactRow label="Child support" chf={915} rate={chfEurRate} />
-            <ImpactRow label="Utilities" chf={220} rate={chfEurRate} />
-            <ImpactRow label="Car + OAMTC" chf={175} rate={chfEurRate} />
+            <ImpactRow label="Vienna rent" chf={viennaRent} rate={chfEurRate} />
+            <ImpactRow label="Child support" chf={childSupport} rate={chfEurRate} />
+            <ImpactRow label="Utilities" chf={viennaUtils} rate={chfEurRate} />
+            <ImpactRow label="Car + OAMTC" chf={carInsurance} rate={chfEurRate} />
           </div>
 
           <div className="mt-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
             <p className="text-[10px] text-amber-400">
               If CHF weakens to 0.90 EUR, your Vienna costs effectively drop by{" "}
-              {formatCHF(Math.round(FIXED_COSTS_OUTSIDE * (chfEurRate - 0.90)))} /mo in CHF terms.
+              {formatCHF(Math.round(viennaCostsTotal * (chfEurRate - 0.90)))} /mo in CHF terms.
             </p>
           </div>
         </div>

@@ -16,14 +16,41 @@ export interface BudgetValues {
   misc: number;
 }
 
+type ViennaCostKey = "viennaRent" | "childSupport" | "viennaUtils" | "carInsurance";
+
 interface BudgetStore {
   values: BudgetValues;
+
+  // Gross income
+  grossMonthlySalary: number;
   has13thSalary: boolean;
+  expenseAllowance: number;
+
+  // Deductions
+  bvgMonthly: number;
   pillar3aMonthly: number;
+
+  // Tax
+  taxLocationId: string;
+
+  // Vienna fixed costs (individually adjustable)
+  viennaRent: number;
+  childSupport: number;
+  viennaUtils: number;
+  carInsurance: number;
+
+  // One-time setup costs
   setupCosts: Record<string, number>;
+
+  // Actions
   setValue: (key: keyof BudgetValues, value: number) => void;
+  setGrossMonthlySalary: (v: number) => void;
   setHas13thSalary: (v: boolean) => void;
+  setExpenseAllowance: (v: number) => void;
+  setBvgMonthly: (v: number) => void;
   setPillar3a: (v: number) => void;
+  setTaxLocation: (locationId: string) => void;
+  setViennaCost: (key: ViennaCostKey, v: number) => void;
   setSetupCost: (key: string, value: number) => void;
   resetValues: () => void;
 }
@@ -41,25 +68,80 @@ const DEFAULT_VALUES: BudgetValues = {
   misc: 200,
 };
 
-export const FIXED_INCOME = 12150; // Net salary 11,450 + expense allowance 700
-export const FIXED_COSTS_OUTSIDE = 2760; // Vienna rent + child support + Vienna utils + car
-
 export const useBudgetStore = create<BudgetStore>()(
   persist(
     (set) => ({
       values: { ...DEFAULT_VALUES },
+
+      // Gross income defaults
+      grossMonthlySalary: 15000,
       has13thSalary: true,
+      expenseAllowance: 700,
+
+      // Deduction defaults
+      bvgMonthly: 390,
       pillar3aMonthly: 0,
+
+      // Tax
+      taxLocationId: "",
+
+      // Vienna defaults
+      viennaRent: 1450,
+      childSupport: 915,
+      viennaUtils: 220,
+      carInsurance: 175,
+
+      // Setup
       setupCosts: {},
+
+      // Actions
       setValue: (key, value) =>
         set((s) => ({ values: { ...s.values, [key]: value } })),
+      setGrossMonthlySalary: (v) => set({ grossMonthlySalary: v }),
       setHas13thSalary: (v) => set({ has13thSalary: v }),
+      setExpenseAllowance: (v) => set({ expenseAllowance: v }),
+      setBvgMonthly: (v) => set({ bvgMonthly: v }),
       setPillar3a: (v) => set({ pillar3aMonthly: Math.min(v, 588) }),
+      setTaxLocation: (locationId) => set({ taxLocationId: locationId }),
+      setViennaCost: (key, v) => set({ [key]: v }),
       setSetupCost: (key, value) =>
         set((s) => ({ setupCosts: { ...s.setupCosts, [key]: value } })),
       resetValues: () =>
-        set({ values: { ...DEFAULT_VALUES }, has13thSalary: true, pillar3aMonthly: 0, setupCosts: {} }),
+        set({
+          values: { ...DEFAULT_VALUES },
+          grossMonthlySalary: 15000,
+          has13thSalary: true,
+          expenseAllowance: 700,
+          bvgMonthly: 390,
+          pillar3aMonthly: 0,
+          setupCosts: {},
+          taxLocationId: "",
+          viennaRent: 1450,
+          childSupport: 915,
+          viennaUtils: 220,
+          carInsurance: 175,
+        }),
     }),
-    { name: "quaipulse-budget" }
+    {
+      name: "quaipulse-budget",
+      version: 2,
+      migrate: (persisted, version) => {
+        const state = persisted as Record<string, unknown>;
+        if (version < 2) {
+          // Migration from v0/v1: add new fields with defaults
+          return {
+            ...state,
+            grossMonthlySalary: state.grossMonthlySalary ?? 15000,
+            expenseAllowance: state.expenseAllowance ?? 700,
+            bvgMonthly: state.bvgMonthly ?? 390,
+            viennaRent: state.viennaRent ?? 1450,
+            childSupport: state.childSupport ?? 915,
+            viennaUtils: state.viennaUtils ?? 220,
+            carInsurance: state.carInsurance ?? 175,
+          };
+        }
+        return state;
+      },
+    }
   )
 );

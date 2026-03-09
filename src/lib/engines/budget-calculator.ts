@@ -1,14 +1,68 @@
-import { type BudgetValues, FIXED_INCOME, FIXED_COSTS_OUTSIDE } from "@/lib/stores/budget-store";
+import { type BudgetValues } from "@/lib/stores/budget-store";
+
+// ─── Swiss Payroll Deduction Rates (2025) ────────────────────────────────────
+/** AHV/IV/EO employee contribution rate */
+export const AHV_RATE = 5.3;
+/** ALV (unemployment insurance) employee rate */
+export const ALV_RATE = 1.1;
+/** ALV annual salary cap — contributions only on first CHF 148,200 */
+export const ALV_CAP = 148200;
+
+// ─── Interfaces ──────────────────────────────────────────────────────────────
 
 export interface BudgetBreakdown {
-  totalIncome: number;
+  // Gross income
+  grossMonthlySalary: number;
+  grossAnnualSalary: number;
+
+  // Social deductions (monthly)
+  ahvMonthly: number;
+  alvMonthly: number;
+  bvgMonthly: number;
+  totalSocialMonthly: number;
+
+  // Tax
+  taxableAnnualIncome: number;
+  effectiveTaxRate: number;
+  monthlyTax: number;
+  annualTax: number;
+
+  // Net income
+  netMonthlySalary: number;
+  expenseAllowance: number;
+  totalMonthlyIncome: number;
+
+  // Fixed costs outside Switzerland
   fixedOutside: number;
+  viennaBreakdown: { label: string; value: number }[];
+
+  // Zurich expenses
   zurichCosts: number;
+  pillar3aMonthly: number;
+
+  // Totals
   totalExpenses: number;
   surplus: number;
   savingsRate: number;
   annualSurplus: number;
   annualSavingsProjection: number[];
+}
+
+export interface BudgetInputs {
+  grossMonthlySalary: number;
+  has13thSalary: boolean;
+  expenseAllowance: number;
+  bvgMonthly: number;
+  pillar3aMonthly: number;
+  /** Effective all-in tax rate (%), 0 = no tax modeled */
+  taxEffectiveRate: number;
+  // Vienna costs
+  viennaRent: number;
+  childSupport: number;
+  viennaUtils: number;
+  carInsurance: number;
+  // Zurich living costs
+  zurichValues: BudgetValues | Record<string, number>;
 }
 
 export interface ExpenseItem {
@@ -35,53 +89,6 @@ export const EXPENSE_CONFIG: ExpenseItem[] = [
   { key: "subscriptions", label: "Subscriptions", value: 200, min: 100, max: 400, step: 10, color: "#ec4899" },
   { key: "misc", label: "Misc / Unexpected", value: 200, min: 100, max: 500, step: 25, color: "#64748b" },
 ];
-
-export const FIXED_OUTSIDE_ITEMS = [
-  { label: "Vienna rent share", value: 1450 },
-  { label: "Child support", value: 915 },
-  { label: "Vienna utilities", value: 220 },
-  { label: "Car insurance + OAMTC", value: 175 },
-];
-
-export const INCOME_ITEMS = [
-  { label: "Net salary", value: 11450 },
-  { label: "Expense allowance", value: 700 },
-];
-
-export interface BudgetOptions {
-  has13thSalary?: boolean;
-  pillar3aMonthly?: number;
-}
-
-export function calculateBudget(
-  zurichValues: BudgetValues | Record<string, number>,
-  options: BudgetOptions = {}
-): BudgetBreakdown {
-  const { has13thSalary = false, pillar3aMonthly = 0 } = options;
-  const thirteenthBonus = has13thSalary ? Math.round(11450 / 12) : 0;
-  const effectiveIncome = FIXED_INCOME + thirteenthBonus;
-
-  const zurichCosts = Object.values(zurichValues).reduce((a, b) => a + b, 0);
-  const totalExpenses = FIXED_COSTS_OUTSIDE + zurichCosts + pillar3aMonthly;
-  const surplus = effectiveIncome - totalExpenses;
-  const savingsRate = effectiveIncome > 0 ? (surplus / effectiveIncome) * 100 : 0;
-
-  // 12-month projection (cumulative savings)
-  const annualSavingsProjection = Array.from({ length: 12 }, (_, i) =>
-    surplus * (i + 1)
-  );
-
-  return {
-    totalIncome: effectiveIncome,
-    fixedOutside: FIXED_COSTS_OUTSIDE,
-    zurichCosts,
-    totalExpenses,
-    surplus,
-    savingsRate,
-    annualSurplus: surplus * 12,
-    annualSavingsProjection,
-  };
-}
 
 export interface WhatIfScenario {
   id: string;
@@ -122,3 +129,94 @@ export const WHAT_IF_SCENARIOS: WhatIfScenario[] = [
     changes: { rent: 1800, foodDining: 700, gym: 35, subscriptions: 100, misc: 100 },
   },
 ];
+
+// ─── Calculator ──────────────────────────────────────────────────────────────
+
+export function calculateBudget(inputs: BudgetInputs): BudgetBreakdown {
+  const {
+    grossMonthlySalary,
+    has13thSalary,
+    expenseAllowance,
+    bvgMonthly,
+    pillar3aMonthly,
+    taxEffectiveRate,
+    viennaRent,
+    childSupport,
+    viennaUtils,
+    carInsurance,
+    zurichValues,
+  } = inputs;
+
+  // ── Gross ──
+  const grossAnnualSalary = grossMonthlySalary * (has13thSalary ? 13 : 12);
+
+  // ── Social deductions (annual → monthly) ──
+  const annualAHV = grossAnnualSalary * (AHV_RATE / 100);
+  const alvBase = Math.min(grossAnnualSalary, ALV_CAP);
+  const annualALV = alvBase * (ALV_RATE / 100);
+  const annualBVG = bvgMonthly * 12;
+  const totalAnnualSocial = annualAHV + annualALV + annualBVG;
+
+  const ahvMonthly = Math.round(annualAHV / 12);
+  const alvMonthly = Math.round(annualALV / 12);
+  const totalSocialMonthly = ahvMonthly + alvMonthly + bvgMonthly;
+
+  // ── Tax ──
+  const annualPillar3a = pillar3aMonthly * 12;
+  const taxableAnnualIncome = Math.max(0, grossAnnualSalary - totalAnnualSocial - annualPillar3a);
+  const annualTax = taxEffectiveRate > 0
+    ? Math.round(taxableAnnualIncome * (taxEffectiveRate / 100))
+    : 0;
+  const monthlyTax = Math.round(annualTax / 12);
+
+  // ── Net monthly income ──
+  const netAnnual = grossAnnualSalary - totalAnnualSocial - annualTax;
+  const netMonthlySalary = Math.round(netAnnual / 12);
+  const totalMonthlyIncome = netMonthlySalary + expenseAllowance;
+
+  // ── Fixed outside costs (Vienna) ──
+  const viennaBreakdown = [
+    { label: "Vienna rent share", value: viennaRent },
+    { label: "Child support", value: childSupport },
+    { label: "Vienna utilities", value: viennaUtils },
+    { label: "Car insurance + OAMTC", value: carInsurance },
+  ];
+  const fixedOutside = viennaRent + childSupport + viennaUtils + carInsurance;
+
+  // ── Zurich costs ──
+  const zurichCosts = Object.values(zurichValues).reduce((a, b) => a + b, 0);
+
+  // ── Surplus ──
+  const totalExpenses = fixedOutside + zurichCosts + pillar3aMonthly;
+  const surplus = totalMonthlyIncome - totalExpenses;
+  const savingsRate = totalMonthlyIncome > 0 ? (surplus / totalMonthlyIncome) * 100 : 0;
+
+  const annualSavingsProjection = Array.from({ length: 12 }, (_, i) =>
+    surplus * (i + 1)
+  );
+
+  return {
+    grossMonthlySalary,
+    grossAnnualSalary,
+    ahvMonthly,
+    alvMonthly,
+    bvgMonthly,
+    totalSocialMonthly,
+    taxableAnnualIncome,
+    effectiveTaxRate: taxEffectiveRate,
+    monthlyTax,
+    annualTax,
+    netMonthlySalary,
+    expenseAllowance,
+    totalMonthlyIncome,
+    fixedOutside,
+    viennaBreakdown,
+    zurichCosts,
+    pillar3aMonthly,
+    totalExpenses,
+    surplus,
+    savingsRate,
+    annualSurplus: surplus * 12,
+    annualSavingsProjection,
+  };
+}

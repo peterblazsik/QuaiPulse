@@ -1,6 +1,7 @@
 export const MOVE_DATE = new Date("2026-07-01T00:00:00");
 export const DATA_FRESHNESS = "Mar 2026";
 export const OFFICE_COORDS = { lat: 47.3629, lng: 8.5318 } as const; // Quai Zurich Campus, Mythenquai
+export const EUR_TO_CHF = 0.94;
 
 export const NAVIGATION = [
   { label: "Dashboard", href: "/", icon: "LayoutDashboard", shortcut: "G D" },
