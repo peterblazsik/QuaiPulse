@@ -11,6 +11,7 @@ import { SurplusDisplay } from "@/components/budget/surplus-display";
 import { StackedBar } from "@/components/budget/stacked-bar";
 import { SavingsProjection } from "@/components/budget/savings-projection";
 import { WhatIfCards } from "@/components/budget/what-if-cards";
+import { SetupCosts } from "@/components/budget/setup-costs";
 
 export default function BudgetPage() {
   const values = useBudgetStore((s) => s.values);
@@ -70,6 +71,11 @@ export default function BudgetPage() {
           {/* 12-month projection */}
           <div className="rounded-xl border border-border-default bg-bg-secondary p-5">
             <SavingsProjection breakdown={breakdown} />
+          </div>
+
+          {/* One-time setup costs */}
+          <div className="rounded-xl border border-amber-500/20 bg-bg-secondary p-5">
+            <SetupCosts />
           </div>
 
           {/* What-if scenarios */}

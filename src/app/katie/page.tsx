@@ -2,12 +2,26 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import { Heart, Plane, Train, Calendar, Trash2, Plus, X } from "lucide-react";
+import { Heart, Plane, Train, Calendar, Trash2, Plus, X, Sparkles } from "lucide-react";
 import { CalendarGrid } from "@/components/katie/calendar-grid";
 import { formatCHF } from "@/lib/utils";
 import { COST_DEFAULTS, KEY_DATES } from "@/lib/data/katie-visits";
+import { DAY_PRICING } from "@/lib/data/flights";
 import { HERO_IMAGES } from "@/lib/data/images";
 import { useKatieStore } from "@/lib/stores/katie-store";
+
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const cheapestDay = DAY_PRICING.reduce((a, b) => (a.avgPrice < b.avgPrice ? a : b));
+
+function getFlightTip(startDate: string, transportMode: "flight" | "train"): string | null {
+  if (transportMode !== "flight") return null;
+  const d = new Date(startDate);
+  const dayName = DAY_NAMES[d.getDay()];
+  const dayData = DAY_PRICING.find((dp) => dp.day === dayName);
+  if (!dayData || dayData.rating !== "expensive") return null;
+  const saving = dayData.avgPrice - cheapestDay.avgPrice;
+  return `${dayName} departures avg CHF ${dayData.avgPrice}. ${cheapestDay.day}s avg CHF ${cheapestDay.avgPrice} (save ~CHF ${saving}).`;
+}
 
 export default function KatiePage() {
   const { visits, addVisit, removeVisit } = useKatieStore();
@@ -369,6 +383,16 @@ export default function KatiePage() {
                     {visit.notes}
                   </p>
                 )}
+                {(() => {
+                  const tip = getFlightTip(visit.startDate, visit.transportMode);
+                  if (!tip) return null;
+                  return (
+                    <div className="flex items-start gap-1.5 mt-1.5 px-2 py-1.5 rounded bg-amber-500/10 border border-amber-500/20">
+                      <Sparkles className="h-3 w-3 text-amber-400 shrink-0 mt-0.5" />
+                      <p className="text-[10px] text-amber-300 leading-snug">{tip}</p>
+                    </div>
+                  );
+                })()}
               </div>
             );
           })}
