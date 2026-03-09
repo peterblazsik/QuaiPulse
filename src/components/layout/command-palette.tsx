@@ -19,6 +19,7 @@ import {
   CreditCard,
   ArrowLeftRight,
   CloudSun,
+  FileText,
   Settings,
 } from "lucide-react";
 import { useUIStore } from "@/lib/stores/ui-store";
@@ -37,6 +38,7 @@ const COMMANDS = [
   { label: "Flight Scanner", href: "/flights", icon: Plane, group: "Navigate" },
   { label: "Language Prep", href: "/language", icon: Languages, group: "Navigate" },
   { label: "Subscriptions", href: "/subscriptions", icon: CreditCard, group: "Navigate" },
+  { label: "Dossier Tracker", href: "/dossier", icon: FileText, group: "Navigate" },
   { label: "Currency Dashboard", href: "/currency", icon: ArrowLeftRight, group: "Navigate" },
   { label: "Weather", href: "/weather", icon: CloudSun, group: "Navigate" },
   { label: "Settings", href: "/settings", icon: Settings, group: "Navigate" },

@@ -40,6 +40,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#3b82f6" />
         <script
           dangerouslySetInnerHTML={{
             __html: `try{const t=JSON.parse(localStorage.getItem('quaipulse-ui')||'{}');if(t.state?.theme)document.documentElement.setAttribute('data-theme',t.state.theme)}catch(e){}`,

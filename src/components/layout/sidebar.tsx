@@ -19,6 +19,7 @@ import {
   CreditCard,
   ArrowLeftRight,
   CloudSun,
+  FileText,
   Settings,
   PanelLeftClose,
   PanelLeft,
@@ -43,6 +44,7 @@ const ICON_MAP = {
   CreditCard,
   ArrowLeftRight,
   CloudSun,
+  FileText,
   Settings,
 } as const;
 
@@ -60,6 +62,7 @@ const NAV_ITEMS = [
   { label: "Flights", href: "/flights", icon: "Plane" as const, shortcut: "G L" },
   { label: "Language Prep", href: "/language", icon: "Languages" as const, shortcut: "G P" },
   { label: "Subscriptions", href: "/subscriptions", icon: "CreditCard" as const, shortcut: "G U" },
+  { label: "Dossier", href: "/dossier", icon: "FileText" as const, shortcut: "G O" },
   { label: "Currency", href: "/currency", icon: "ArrowLeftRight" as const },
   { label: "Weather", href: "/weather", icon: "CloudSun" as const },
   { label: "Settings", href: "/settings", icon: "Settings" as const },

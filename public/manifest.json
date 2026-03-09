@@ -1,0 +1,52 @@
+{
+  "name": "QuaiPulse - Zurich Life Navigator",
+  "short_name": "QuaiPulse",
+  "description": "Personal command center for relocating to Zurich. Neighborhoods, budget, apartments, and more.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0f1a",
+  "theme_color": "#3b82f6",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Neighborhoods",
+      "url": "/neighborhoods",
+      "description": "Browse Zurich neighborhoods"
+    },
+    {
+      "name": "Budget",
+      "url": "/budget",
+      "description": "Budget simulator"
+    },
+    {
+      "name": "Sleep Intelligence",
+      "url": "/sleep",
+      "description": "Sleep tracking & analysis"
+    },
+    {
+      "name": "Dossier",
+      "url": "/dossier",
+      "description": "Move document tracker"
+    }
+  ]
+}
