@@ -15,6 +15,7 @@ import {
   Dumbbell,
   Moon,
   Plane,
+  Route,
   Languages,
   CreditCard,
   ArrowLeftRight,
@@ -42,6 +43,7 @@ const ICON_MAP = {
   Dumbbell,
   Moon,
   Plane,
+  Route,
   Languages,
   CreditCard,
   ArrowLeftRight,
@@ -50,24 +52,72 @@ const ICON_MAP = {
   Settings,
 } as const;
 
-const NAV_ITEMS = [
-  { label: "Dashboard", href: "/", icon: "LayoutDashboard" as const, shortcut: "G D" },
-  { label: "Neighborhoods", href: "/neighborhoods", icon: "MapPin" as const, shortcut: "G N" },
-  { label: "Budget", href: "/budget", icon: "Wallet" as const, shortcut: "G B" },
-  { label: "Apartments", href: "/apartments", icon: "Building2" as const, shortcut: "G A" },
-  { label: "Katie Planner", href: "/katie", icon: "Heart" as const, shortcut: "G K" },
-  { label: "Social Map", href: "/social", icon: "Users" as const, shortcut: "G S" },
-  { label: "Checklist", href: "/checklist", icon: "CheckSquare" as const, shortcut: "G C" },
-  { label: "AI Chat", href: "/ai", icon: "Bot" as const, shortcut: "G I" },
-  { label: "Gym Finder", href: "/gym-finder", icon: "Dumbbell" as const, shortcut: "G F" },
-  { label: "Sleep Intelligence", href: "/sleep", icon: "Moon" as const, shortcut: "G Z" },
-  { label: "Flights", href: "/flights", icon: "Plane" as const, shortcut: "G L" },
-  { label: "Language Prep", href: "/language", icon: "Languages" as const, shortcut: "G P" },
-  { label: "Subscriptions", href: "/subscriptions", icon: "CreditCard" as const, shortcut: "G U" },
-  { label: "Dossier", href: "/dossier", icon: "FileText" as const, shortcut: "G O" },
-  { label: "Currency", href: "/currency", icon: "ArrowLeftRight" as const },
-  { label: "Weather", href: "/weather", icon: "CloudSun" as const },
-  { label: "Settings", href: "/settings", icon: "Settings" as const },
+interface NavItem {
+  label: string;
+  href: string;
+  icon: keyof typeof ICON_MAP;
+  shortcut?: string;
+}
+
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    label: "Overview",
+    items: [
+      { label: "Dashboard", href: "/", icon: "LayoutDashboard", shortcut: "G D" },
+      { label: "AI Chat", href: "/ai", icon: "Bot", shortcut: "G I" },
+    ],
+  },
+  {
+    label: "Zurich Life",
+    items: [
+      { label: "Neighborhoods", href: "/neighborhoods", icon: "MapPin", shortcut: "G N" },
+      { label: "Apartments", href: "/apartments", icon: "Building2", shortcut: "G A" },
+      { label: "Gym Finder", href: "/gym-finder", icon: "Dumbbell", shortcut: "G F" },
+      { label: "Social Map", href: "/social", icon: "Users", shortcut: "G S" },
+    ],
+  },
+  {
+    label: "Finance",
+    items: [
+      { label: "Budget", href: "/budget", icon: "Wallet", shortcut: "G B" },
+      { label: "Subscriptions", href: "/subscriptions", icon: "CreditCard", shortcut: "G U" },
+      { label: "Currency", href: "/currency", icon: "ArrowLeftRight" },
+    ],
+  },
+  {
+    label: "Travel & Katie",
+    items: [
+      { label: "Travel Intel", href: "/travel", icon: "Route", shortcut: "G T" },
+      { label: "Flights", href: "/flights", icon: "Plane", shortcut: "G L" },
+      { label: "Katie Planner", href: "/katie", icon: "Heart", shortcut: "G K" },
+    ],
+  },
+  {
+    label: "Wellness",
+    items: [
+      { label: "Sleep Intelligence", href: "/sleep", icon: "Moon", shortcut: "G Z" },
+      { label: "Weather", href: "/weather", icon: "CloudSun" },
+    ],
+  },
+  {
+    label: "Move Prep",
+    items: [
+      { label: "Checklist", href: "/checklist", icon: "CheckSquare", shortcut: "G C" },
+      { label: "Dossier", href: "/dossier", icon: "FileText", shortcut: "G O" },
+      { label: "Language Prep", href: "/language", icon: "Languages", shortcut: "G P" },
+    ],
+  },
+  {
+    label: "",
+    items: [
+      { label: "Settings", href: "/settings", icon: "Settings" },
+    ],
+  },
 ];
 
 export function Sidebar() {
@@ -113,39 +163,51 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav aria-label="Main navigation" className="flex-1 overflow-y-auto py-2">
-        {NAV_ITEMS.map((item) => {
-          const Icon = ICON_MAP[item.icon];
-          const isActive =
-            item.href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={isActive ? "page" : undefined}
-              onClick={() => setMobileSidebarOpen(false)}
-              className={cn(
-                "group flex items-center gap-3 px-4 py-2 text-sm transition-colors",
-                isActive
-                  ? "bg-accent-primary/10 text-accent-primary"
-                  : "text-text-secondary hover:bg-bg-tertiary/50 hover:text-text-primary"
-              )}
-            >
-              <Icon className="h-4 w-4 shrink-0" />
-              {!sidebarCollapsed && (
-                <>
-                  <span className="flex-1">{item.label}</span>
-                  {item.shortcut && (
-                    <kbd className="hidden text-[10px] group-hover:inline-flex">
-                      {item.shortcut}
-                    </kbd>
+        {NAV_GROUPS.map((group, gi) => (
+          <div key={gi} className={gi > 0 ? "mt-3" : ""}>
+            {group.label && !sidebarCollapsed && (
+              <p className="px-4 pb-1 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                {group.label}
+              </p>
+            )}
+            {group.label && sidebarCollapsed && gi > 0 && (
+              <div className="mx-3 mb-1 border-t border-border-subtle" />
+            )}
+            {group.items.map((item) => {
+              const Icon = ICON_MAP[item.icon];
+              const isActive =
+                item.href === "/"
+                  ? pathname === "/"
+                  : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  onClick={() => setMobileSidebarOpen(false)}
+                  className={cn(
+                    "group flex items-center gap-3 px-4 py-1.5 text-sm transition-colors",
+                    isActive
+                      ? "bg-accent-primary/10 text-accent-primary"
+                      : "text-text-secondary hover:bg-bg-tertiary/50 hover:text-text-primary"
                   )}
-                </>
-              )}
-            </Link>
-          );
-        })}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  {!sidebarCollapsed && (
+                    <>
+                      <span className="flex-1">{item.label}</span>
+                      {item.shortcut && (
+                        <kbd className="hidden text-[10px] group-hover:inline-flex">
+                          {item.shortcut}
+                        </kbd>
+                      )}
+                    </>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
       {/* Theme selector */}
