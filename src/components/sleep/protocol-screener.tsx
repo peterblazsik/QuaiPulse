@@ -111,7 +111,7 @@ export function ProtocolScreener({ stats }: ProtocolScreenerProps) {
           <tbody>
             {sorted.map((s) => {
               return (
-                <tr key={s.id} className="border-b border-border-default/10 hover:bg-surface-2/50 transition-colors group">
+                <tr key={s.id} className="border-b border-border-default/10 hover:bg-bg-tertiary/50 transition-colors group">
                   <td className="py-2 text-left">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
@@ -133,7 +133,7 @@ export function ProtocolScreener({ stats }: ProtocolScreenerProps) {
                   </td>
                   <td className="py-2 text-right">
                     <div className="inline-flex items-center gap-1.5">
-                      <div className="w-10 h-[4px] bg-surface-2 rounded-full overflow-hidden">
+                      <div className="w-10 h-[4px] bg-bg-tertiary rounded-full overflow-hidden">
                         <div className="h-full rounded-full" style={{
                           width: `${s.hitRate * 100}%`,
                           backgroundColor: s.hitRate >= 0.7 ? "#22c55e" : s.hitRate >= 0.5 ? "#f59e0b" : "#ef4444",

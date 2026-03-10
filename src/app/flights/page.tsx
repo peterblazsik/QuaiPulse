@@ -362,7 +362,7 @@ export default function FlightsPage() {
                   textAnchor="end"
                   dominantBaseline="central"
                   fill="var(--text-muted)"
-                  fontSize={9}
+                  fontSize={10}
                   fontFamily="var(--font-jetbrains), monospace"
                 >
                   {val}
@@ -424,7 +424,7 @@ export default function FlightsPage() {
                       y={y - 9}
                       textAnchor="middle"
                       fill="var(--text-primary)"
-                      fontSize={9}
+                      fontSize={10}
                       fontFamily="var(--font-jetbrains), monospace"
                       fontWeight="bold"
                     >
@@ -438,7 +438,7 @@ export default function FlightsPage() {
                   y={chartH - 6}
                   textAnchor="middle"
                   fill="var(--text-muted)"
-                  fontSize={8}
+                  fontSize={10}
                   fontFamily="var(--font-jetbrains), monospace"
                 >
                   {d.day.slice(0, 3)}

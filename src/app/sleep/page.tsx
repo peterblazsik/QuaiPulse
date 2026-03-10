@@ -152,7 +152,7 @@ export default function SleepPage() {
         <div className="flex items-center gap-2 text-xs text-text-muted uppercase tracking-widest font-semibold hover:text-text-secondary transition-colors">
           {trackingOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           Tracking &amp; History
-          <kbd className="text-[10px] opacity-50 px-1.5 py-0.5 rounded bg-surface-2">T</kbd>
+          <kbd className="text-[10px] opacity-50 px-1.5 py-0.5 rounded bg-bg-tertiary">T</kbd>
         </div>
         <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border-default/50 to-transparent" />
       </button>

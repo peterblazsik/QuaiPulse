@@ -51,7 +51,7 @@ export function TopPerformersPanel({ performers }: TopPerformersProps) {
             </span>
 
             {/* Hit rate bar */}
-            <div className="w-12 h-[5px] bg-surface-2 rounded-full overflow-hidden flex-shrink-0">
+            <div className="w-12 h-[5px] bg-bg-tertiary rounded-full overflow-hidden flex-shrink-0">
               <div
                 className="h-full rounded-full"
                 style={{

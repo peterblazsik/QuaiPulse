@@ -43,7 +43,7 @@ export function ScorePanel({ breakdown, scoreDelta }: ScorePanelProps) {
               <span className="text-[10px] text-text-muted w-[68px] shrink-0 text-right font-data">
                 {row.label}
               </span>
-              <div className="flex-1 h-[6px] bg-surface-2 rounded-full overflow-hidden">
+              <div className="flex-1 h-[6px] bg-bg-tertiary rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-300"
                   style={{

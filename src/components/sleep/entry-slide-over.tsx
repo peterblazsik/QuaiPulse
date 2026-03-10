@@ -62,7 +62,7 @@ export function EntrySlideOver({ open, onClose, form, onSubmit }: EntrySlideOver
                 </button>
               )}
               <button onClick={onClose}
-                className="p-1.5 rounded-lg hover:bg-surface-2 transition-colors"
+                className="p-1.5 rounded-lg hover:bg-bg-tertiary transition-colors"
                 aria-label="Close">
                 <X className="h-4 w-4 text-text-muted" />
               </button>
@@ -193,7 +193,7 @@ export function EntrySlideOver({ open, onClose, form, onSubmit }: EntrySlideOver
 
             {/* Keyboard hint */}
             <p className="text-[11px] text-text-muted text-center">
-              Press <kbd className="px-1 py-0.5 rounded bg-surface-2 text-text-secondary">Esc</kbd> to close
+              Press <kbd className="px-1 py-0.5 rounded bg-bg-tertiary text-text-secondary">Esc</kbd> to close
             </p>
           </div>
         </div>

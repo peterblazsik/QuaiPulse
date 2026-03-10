@@ -61,7 +61,7 @@ function AdvisoryCard({ advisory }: { advisory: Advisory }) {
   const signalColor = getSignalColor(advisory.signal);
 
   return (
-    <div className="flex gap-3 items-start p-2.5 rounded-lg hover:bg-surface-2/50 transition-colors group">
+    <div className="flex gap-3 items-start p-2.5 rounded-lg hover:bg-bg-tertiary/50 transition-colors group">
       {/* Signal badge */}
       <div className="flex-shrink-0 mt-0.5">
         <span className="text-[10px] font-bold px-2 py-0.5 rounded tracking-wider"
@@ -86,7 +86,7 @@ function AdvisoryCard({ advisory }: { advisory: Advisory }) {
 
         {/* Confidence bar */}
         <div className="flex items-center gap-2 mt-1.5">
-          <div className="w-14 h-[3px] bg-surface-2 rounded-full overflow-hidden">
+          <div className="w-14 h-[3px] bg-bg-tertiary rounded-full overflow-hidden">
             <div className="h-full rounded-full bg-text-muted/50" style={{ width: `${advisory.confidence * 100}%` }} />
           </div>
           <span className="text-[10px] text-text-muted">{Math.round(advisory.confidence * 100)}% conf</span>

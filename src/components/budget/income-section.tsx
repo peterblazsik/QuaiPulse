@@ -26,7 +26,7 @@ const locationOptions = TAX_RATES.map((t) => {
 }).sort((a, b) => a.name.localeCompare(b.name));
 
 const SLIDER_CLASSES =
-  "w-full h-1.5 appearance-none rounded-full bg-bg-tertiary cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent-primary [&::-webkit-slider-thumb]:cursor-pointer";
+  "w-full h-1.5 py-3 appearance-none rounded-full bg-bg-tertiary cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent-primary [&::-webkit-slider-thumb]:cursor-pointer";
 
 interface SliderRowProps {
   label: string;

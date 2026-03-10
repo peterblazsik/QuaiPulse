@@ -55,7 +55,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 const SLIDER_CLASSES =
-  "w-full h-1.5 appearance-none rounded-full bg-bg-tertiary cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent-primary [&::-webkit-slider-thumb]:cursor-pointer";
+  "w-full h-1.5 py-3 appearance-none rounded-full bg-bg-tertiary cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent-primary [&::-webkit-slider-thumb]:cursor-pointer";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -347,7 +347,7 @@ export default function TravelPage() {
                             }}
                           >
                             {pct > 8 && (
-                              <span className="text-[9px] font-data font-bold text-white/90 truncate px-1">
+                              <span className="text-[10px] font-data font-bold text-white/90 truncate px-1">
                                 {formatDuration(bar.minutes)}
                               </span>
                             )}
@@ -540,7 +540,7 @@ export default function TravelPage() {
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="text-sm font-semibold text-text-primary">{city.name}</span>
                 {city.kidFriendly && (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-rose-500/15 text-rose-400 font-medium">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-rose-500/15 text-rose-400 font-medium">
                     Katie-friendly
                   </span>
                 )}
@@ -587,7 +587,7 @@ export default function TravelPage() {
                 <p className="text-[11px] text-text-secondary mt-1">{pass.benefit}</p>
                 <p className="text-[10px] text-text-muted mt-1">{pass.note}</p>
                 {pass.worthIt && (
-                  <span className="inline-block mt-1.5 text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">
+                  <span className="inline-block mt-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">
                     RECOMMENDED
                   </span>
                 )}

@@ -43,7 +43,7 @@ export function ComboMatrixChart({ matrix }: ComboMatrixProps) {
       {/* Tooltip — fixed height container to prevent layout shift */}
       <div className="mb-3 h-[52px]">
         {hovered ? (
-          <div className="p-2.5 rounded-lg bg-surface-2 border border-border-default/30">
+          <div className="p-2.5 rounded-lg bg-bg-tertiary border border-border-default/30">
             <div className="flex items-baseline gap-2">
               <span className="text-xs text-text-primary font-medium">
                 {hovered.supplementName} + {hovered.interventionName}
