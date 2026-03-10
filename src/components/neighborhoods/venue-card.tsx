@@ -23,8 +23,8 @@ export function VenueCard({ venue: v }: VenueCardProps) {
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {v.rating && (
-            <span className="flex items-center gap-0.5 text-xs text-amber-400 font-data">
-              <Star className="h-3 w-3 fill-amber-400" />
+            <span className="flex items-center gap-0.5 text-xs text-warning font-data">
+              <Star className="h-3 w-3 fill-warning" />
               {v.rating.toFixed(1)}
             </span>
           )}

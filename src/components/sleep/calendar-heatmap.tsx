@@ -164,7 +164,7 @@ export function CalendarHeatmap({ entries }: { entries: SleepEntry[] }) {
     <div className="w-full">
       {streak > 0 && (
         <div className="flex items-center gap-1.5 font-data text-[10px] mb-2">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-success" />
           <span className="text-slate-300">{streak}-day streak</span>
         </div>
       )}

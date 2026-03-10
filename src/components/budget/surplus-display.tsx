@@ -53,7 +53,7 @@ export function SurplusDisplay({ breakdown }: SurplusDisplayProps) {
           />
           {surplus > 0 && (
             <div
-              className="absolute right-0 top-0 h-full rounded-r-full bg-emerald-500/30 border-l-2 border-emerald-400"
+              className="absolute right-0 top-0 h-full rounded-r-full bg-success/30 border-l-2 border-success"
               style={{ width: `${Math.max(0, 100 - ratioUsed)}%` }}
             />
           )}

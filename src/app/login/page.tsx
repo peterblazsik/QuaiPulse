@@ -37,7 +37,7 @@ function LoginContent() {
         {/* Error message */}
         {error && (
           <div className="rounded-lg border border-danger/20 bg-danger/10 px-4 py-3 text-center">
-            <p className="text-xs text-red-400">
+            <p className="text-xs text-danger">
               {error === "AccessDenied"
                 ? "Access denied. This account is not authorized."
                 : "Something went wrong. Please try again."}

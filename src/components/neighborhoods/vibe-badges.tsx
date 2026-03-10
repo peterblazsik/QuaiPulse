@@ -78,7 +78,7 @@ export function LocationTypeBadge({ locationType, kreis, region }: LocationTypeB
   }
 
   return (
-    <span className="text-xs text-cyan-400/80 shrink-0">
+    <span className="text-xs text-info/80 shrink-0">
       {region || "Lake Zurich"}
     </span>
   );

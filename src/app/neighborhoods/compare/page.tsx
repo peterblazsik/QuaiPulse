@@ -175,7 +175,7 @@ export default function ComparePage() {
                           {formatScore(score)}
                         </span>
                         {isBest && scores.filter((s) => s === maxScore).length === 1 && (
-                          <Trophy className="h-3 w-3 text-amber-400 shrink-0" />
+                          <Trophy className="h-3 w-3 text-warning shrink-0" />
                         )}
                       </div>
                     );

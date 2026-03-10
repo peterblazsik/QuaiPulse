@@ -16,18 +16,18 @@ const URGENCY_STYLES: Record<
   { border: string; bg: string; text: string; badge: string; badgeBg: string }
 > = {
   overdue: {
-    border: "border-red-500/40",
-    bg: "bg-red-500/10",
-    text: "text-red-400",
-    badge: "text-red-300",
-    badgeBg: "bg-red-500/20",
+    border: "border-danger/40",
+    bg: "bg-danger/10",
+    text: "text-danger",
+    badge: "text-danger",
+    badgeBg: "bg-danger/20",
   },
   critical: {
-    border: "border-amber-500/40",
-    bg: "bg-amber-500/10",
-    text: "text-amber-400",
-    badge: "text-amber-300",
-    badgeBg: "bg-amber-500/20",
+    border: "border-warning/40",
+    bg: "bg-warning/10",
+    text: "text-warning",
+    badge: "text-warning",
+    badgeBg: "bg-warning/20",
   },
   warning: {
     border: "border-yellow-500/30",
@@ -93,7 +93,7 @@ export function DeadlineAlerts() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           {hasOverdueOrCritical ? (
-            <AlertTriangle className="h-4 w-4 text-red-400" />
+            <AlertTriangle className="h-4 w-4 text-danger" />
           ) : (
             <Clock className="h-4 w-4 text-yellow-400" />
           )}
@@ -111,9 +111,9 @@ export function DeadlineAlerts() {
             onClick={requestPermission}
             className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] font-medium transition-colors ${
               permission === "granted"
-                ? "bg-green-500/10 text-green-400 border border-green-500/20"
+                ? "bg-success/10 text-success border border-success/20"
                 : permission === "denied"
-                  ? "bg-red-500/10 text-red-400 border border-red-500/20 cursor-not-allowed"
+                  ? "bg-danger/10 text-danger border border-danger/20 cursor-not-allowed"
                   : "bg-bg-tertiary text-text-muted hover:text-text-secondary border border-border-subtle hover:border-border-default"
             }`}
             disabled={permission === "denied"}

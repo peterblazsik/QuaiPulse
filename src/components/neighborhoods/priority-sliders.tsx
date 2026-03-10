@@ -113,7 +113,7 @@ export function PrioritySliders() {
                   onClick={() => {
                     if (window.confirm(`Delete profile "${name}"?`)) deleteProfile(name);
                   }}
-                  className="hover:text-red-400 transition-colors"
+                  className="hover:text-danger transition-colors"
                 >
                   <Trash2 className="h-2.5 w-2.5" />
                 </button>

@@ -18,10 +18,10 @@ export function KpiStrip({ analytics }: KpiStripProps) {
   } = analytics;
 
   const latencyColor = avgLatency != null && avgLatency <= 15
-    ? "text-emerald-400" : avgLatency != null && avgLatency <= 25 ? "text-amber-400" : "text-red-400";
+    ? "text-success" : avgLatency != null && avgLatency <= 25 ? "text-warning" : "text-danger";
 
   const awakeningsColor = avgAwakenings != null && avgAwakenings <= 0.5
-    ? "text-emerald-400" : avgAwakenings != null && avgAwakenings <= 1.5 ? "text-amber-400" : "text-red-400";
+    ? "text-success" : avgAwakenings != null && avgAwakenings <= 1.5 ? "text-warning" : "text-danger";
 
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">

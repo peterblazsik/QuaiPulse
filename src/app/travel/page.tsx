@@ -221,7 +221,7 @@ export default function TravelPage() {
                     <CostLine label="Ticket" value={a.ticketCostCHF} />
                     <CostLine label="Transit" value={a.transitCostCHF} />
                     <CostLine label="Dead time" value={a.timeCostCHF} color="text-danger" />
-                    <CostLine label="Carbon" value={a.carbonCostCHF} color="text-orange-400" />
+                    <CostLine label="Carbon" value={a.carbonCostCHF} color="text-warning" />
                     {a.productivityValueCHF > 0 && (
                       <CostLine label="Productivity recovered" value={-a.productivityValueCHF} color="text-success" />
                     )}
@@ -243,7 +243,7 @@ export default function TravelPage() {
       {/* ── The Killer Insight: Waking Hours Consumed ── */}
       <div className="card elevation-1 p-5">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-4 flex items-center gap-2">
-          <Clock className="h-3.5 w-3.5 text-amber-400" />
+          <Clock className="h-3.5 w-3.5 text-warning" />
           Waking Hours Consumed Per Trip
           <span className="text-[10px] font-normal normal-case ml-auto text-text-muted">
             total time minus sleep = actual cost to your day
@@ -555,7 +555,7 @@ export default function TravelPage() {
       {/* ── Travel Passes & Cards ── */}
       <div className="card elevation-1 p-5">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-4 flex items-center gap-2">
-          <Award className="h-3.5 w-3.5 text-amber-400" />
+          <Award className="h-3.5 w-3.5 text-warning" />
           Recommended Passes & Cards
         </h2>
 

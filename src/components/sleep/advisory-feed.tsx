@@ -21,7 +21,7 @@ export function AdvisoryFeed({ advisories }: AdvisoryFeedProps) {
     return (
       <div className="card elevation-1 p-5">
         <div className="flex items-center gap-2 mb-2">
-          <Lightbulb className="h-4 w-4 text-amber-400" />
+          <Lightbulb className="h-4 w-4 text-warning" />
           <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted">Advisory Signals</h2>
         </div>
         <p className="text-xs text-text-muted">Log more entries to generate personalized signals.</p>
@@ -32,7 +32,7 @@ export function AdvisoryFeed({ advisories }: AdvisoryFeedProps) {
   return (
     <div className="card elevation-1 p-5">
       <div className="flex items-center gap-2 mb-3">
-        <Lightbulb className="h-4 w-4 text-amber-400" />
+        <Lightbulb className="h-4 w-4 text-warning" />
         <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted">Advisory Signals</h2>
         <span className="text-xs text-text-muted ml-auto">{actionable.length} signals</span>
       </div>

@@ -143,7 +143,7 @@ export default function KatiePage() {
               <StatRow
                 label="By train"
                 value={`${visitStats.trainVisits}x`}
-                icon={<Train className="h-3 w-3 text-cyan-400" />}
+                icon={<Train className="h-3 w-3 text-info" />}
               />
             </div>
           </div>
@@ -176,7 +176,7 @@ export default function KatiePage() {
               onClick={() => setHasHalfFare(!hasHalfFare)}
               className={`w-full text-left text-[11px] rounded-lg border p-2 transition-colors ${
                 hasHalfFare
-                  ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400"
+                  ? "border-cyan-500/40 bg-cyan-500/10 text-info"
                   : "border-border-default bg-bg-primary/50 text-text-muted"
               }`}
             >
@@ -263,7 +263,7 @@ export default function KatiePage() {
                     onClick={() => setNewTransport("train")}
                     className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs transition-colors ${
                       newTransport === "train"
-                        ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400"
+                        ? "border-cyan-500/40 bg-cyan-500/10 text-info"
                         : "border-border-default bg-bg-primary/50 text-text-muted"
                     }`}
                   >
@@ -345,17 +345,17 @@ export default function KatiePage() {
               >
                 <button
                   onClick={() => removeVisit(visit.id)}
-                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-red-500/20"
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-danger/20"
                   aria-label={`Delete visit ${start.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`}
                 >
-                  <Trash2 className="h-3 w-3 text-red-400" />
+                  <Trash2 className="h-3 w-3 text-danger" />
                 </button>
                 <div className="flex items-center justify-between pr-5">
                   <div className="flex items-center gap-2">
                     {visit.transportMode === "flight" ? (
                       <Plane className="h-3 w-3 text-purple-400" />
                     ) : (
-                      <Train className="h-3 w-3 text-cyan-400" />
+                      <Train className="h-3 w-3 text-info" />
                     )}
                     <span className="text-xs font-medium text-text-primary">
                       {start.toLocaleDateString("en-GB", {
@@ -387,9 +387,9 @@ export default function KatiePage() {
                   const tip = getFlightTip(visit.startDate, visit.transportMode);
                   if (!tip) return null;
                   return (
-                    <div className="flex items-start gap-1.5 mt-1.5 px-2 py-1.5 rounded bg-amber-500/10 border border-amber-500/20">
-                      <Sparkles className="h-3 w-3 text-amber-400 shrink-0 mt-0.5" />
-                      <p className="text-[10px] text-amber-300 leading-snug">{tip}</p>
+                    <div className="flex items-start gap-1.5 mt-1.5 px-2 py-1.5 rounded bg-warning/10 border border-warning/20">
+                      <Sparkles className="h-3 w-3 text-warning shrink-0 mt-0.5" />
+                      <p className="text-[10px] text-warning leading-snug">{tip}</p>
                     </div>
                   );
                 })()}

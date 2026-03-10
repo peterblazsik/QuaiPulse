@@ -29,7 +29,7 @@ export function SetupCosts() {
         <h4 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
           One-Time Setup Costs (Months 1-3)
         </h4>
-        <span className="font-data text-xs text-amber-400 tabular-nums">
+        <span className="font-data text-xs text-warning tabular-nums">
           {formatCHF(total)}
         </span>
       </div>
@@ -54,7 +54,7 @@ export function SetupCosts() {
                 onChange={(e) => setSetupCost(item.key, Number(e.target.value))}
                 className="w-full h-1 appearance-none rounded-full bg-bg-tertiary cursor-pointer
                   [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3
-                  [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-amber-400
+                  [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-warning
                   [&::-webkit-slider-thumb]:cursor-pointer"
               />
               <p className="text-[10px] text-text-muted">{item.note}</p>
@@ -64,12 +64,12 @@ export function SetupCosts() {
       </div>
 
       {/* Monthly impact for months 1-3 */}
-      <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 p-3">
+      <div className="rounded-lg bg-warning/10 border border-warning/20 p-3">
         <div className="flex items-center justify-between">
           <span className="text-[10px] uppercase tracking-wider text-text-muted">
             Monthly impact (spread over 3 months)
           </span>
-          <span className="font-data text-sm font-bold text-amber-400 tabular-nums">
+          <span className="font-data text-sm font-bold text-warning tabular-nums">
             +{formatCHF(Math.round(total / 3))}/mo
           </span>
         </div>

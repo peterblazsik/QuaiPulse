@@ -37,7 +37,7 @@ export function RecentEntries({ entries, onEdit, onRemove }: RecentEntriesProps)
               <span className="font-data text-[10px] text-text-muted">{entry.sleepLatency}m</span>
             )}
             {entry.awakenings != null && entry.awakenings > 0 && (
-              <span className="font-data text-[10px] text-amber-400/70">{entry.awakenings}w</span>
+              <span className="font-data text-[10px] text-warning/70">{entry.awakenings}w</span>
             )}
             <span className="text-xs text-text-muted truncate flex-1">
               {LOCATIONS.find(l => l.value === entry.location)?.label}
@@ -50,7 +50,7 @@ export function RecentEntries({ entries, onEdit, onRemove }: RecentEntriesProps)
                 <Pencil className="h-3 w-3" />
               </button>
               <button onClick={() => { if (window.confirm(`Delete entry from ${entry.date}?`)) onRemove(entry.id); }}
-                className="p-1 rounded text-text-muted hover:text-red-400 transition-colors" title="Delete">
+                className="p-1 rounded text-text-muted hover:text-danger transition-colors" title="Delete">
                 <Trash2 className="h-3 w-3" />
               </button>
             </div>

@@ -299,7 +299,7 @@ export default function SleepProtocolPage() {
                         {CATEGORY_LABELS[sup.category] ?? sup.category}
                       </span>
                       {sup.cycleRequired && (
-                        <span className="text-xs uppercase tracking-wider text-amber-400/80 flex items-center gap-0.5">
+                        <span className="text-xs uppercase tracking-wider text-warning/80 flex items-center gap-0.5">
                           <Timer className="h-2.5 w-2.5" />
                           Cycle
                         </span>
@@ -356,7 +356,7 @@ export default function SleepProtocolPage() {
                           {sup.interactions.map((inter) => (
                             <span
                               key={inter}
-                              className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                              className="text-[10px] px-2 py-0.5 rounded-full bg-warning/10 text-warning border border-warning/20"
                             >
                               {inter}
                             </span>
@@ -369,7 +369,7 @@ export default function SleepProtocolPage() {
                         <p className="text-xs uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
                           <Timer className="h-2.5 w-2.5" /> Cycle Pattern
                         </p>
-                        <p className="text-xs text-amber-400">{sup.cyclePattern}</p>
+                        <p className="text-xs text-warning">{sup.cyclePattern}</p>
                       </div>
                     )}
                   </div>

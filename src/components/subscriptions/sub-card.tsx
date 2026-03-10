@@ -62,18 +62,18 @@ export function SubCard({
   const cat = CATEGORY_CONFIG[sub.category];
   const borderColor =
     action === "keep"
-      ? "border-green-500/30"
+      ? "border-success/30"
       : action === "cut"
-        ? "border-red-500/30"
+        ? "border-danger/30"
         : action === "replace"
           ? "border-blue-500/30"
           : "border-border-default";
 
   const bgColor =
     action === "keep"
-      ? "bg-green-500/5"
+      ? "bg-success/5"
       : action === "cut"
-        ? "bg-red-500/5"
+        ? "bg-danger/5"
         : action === "replace"
           ? "bg-blue-500/5"
           : "bg-bg-secondary";
@@ -90,7 +90,7 @@ export function SubCard({
               {sub.name}
             </h4>
             {sub.essential && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium shrink-0">
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-warning/15 text-warning font-medium shrink-0">
                 Essential
               </span>
             )}
@@ -121,7 +121,7 @@ export function SubCard({
           {onDelete && (
             <button
               onClick={onDelete}
-              className="p-1 rounded text-text-muted hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              className="p-1 rounded text-text-muted hover:text-danger hover:bg-danger/10 transition-colors"
               title="Remove custom subscription"
             >
               <Trash2 className="h-3 w-3" />

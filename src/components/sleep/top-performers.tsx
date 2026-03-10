@@ -12,7 +12,7 @@ export function TopPerformersPanel({ performers }: TopPerformersProps) {
     return (
       <div className="card elevation-1 p-5">
         <div className="flex items-center gap-2 mb-3">
-          <Trophy className="h-4 w-4 text-amber-400" />
+          <Trophy className="h-4 w-4 text-warning" />
           <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted">Top Performers</h2>
         </div>
         <p className="text-xs text-text-muted">Need more data to rank performers</p>
@@ -23,7 +23,7 @@ export function TopPerformersPanel({ performers }: TopPerformersProps) {
   return (
     <div className="card elevation-1 p-5">
       <div className="flex items-center gap-2 mb-3">
-        <Trophy className="h-4 w-4 text-amber-400" />
+        <Trophy className="h-4 w-4 text-warning" />
         <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted">Top Performers</h2>
         <span className="text-[11px] text-text-muted ml-auto">ranked by Δ quality</span>
       </div>

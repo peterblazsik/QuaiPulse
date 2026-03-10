@@ -41,10 +41,10 @@ const SIZE_LABELS: Record<ApartmentSize, string> = {
 };
 
 const TIER_COLORS: Record<string, string> = {
-  premium: "text-amber-400 bg-amber-400/10 border-amber-400/30",
+  premium: "text-warning bg-warning/10 border-warning/30",
   upper: "text-blue-400 bg-blue-400/10 border-blue-400/30",
-  mid: "text-emerald-400 bg-emerald-400/10 border-emerald-400/30",
-  affordable: "text-green-400 bg-green-400/10 border-green-400/30",
+  mid: "text-success bg-success/10 border-success/30",
+  affordable: "text-success bg-success/10 border-success/30",
 };
 
 function MarketTierBadge({ tier }: { tier: string }) {
@@ -80,7 +80,7 @@ function RentCell({
           withinBudget
             ? "text-success"
             : tight
-              ? "text-amber-400"
+              ? "text-warning"
               : "text-text-primary"
         }
       >
@@ -221,7 +221,7 @@ export function RentalPriceBreakdown({
         <p className="text-[10px] text-text-muted mt-2">
           <span className="text-success">■</span> Within budget ({formatCHF(budgetRent)})
           {" · "}
-          <span className="text-amber-400">■</span> Tight (min within budget)
+          <span className="text-warning">■</span> Tight (min within budget)
         </p>
       </div>
 

@@ -67,7 +67,7 @@ export default function BudgetPage() {
           </div>
 
           {/* One-time setup costs */}
-          <div className="rounded-xl border border-amber-500/20 bg-bg-secondary p-5">
+          <div className="rounded-xl border border-warning/20 bg-bg-secondary p-5">
             <SetupCosts />
           </div>
 

@@ -102,7 +102,7 @@ export function CalendarGrid({
                     ? "bg-pink-500/20 border border-pink-500/30"
                     : "bg-purple-500/15 border border-purple-500/25"
                   : keyDate
-                    ? "bg-amber-500/10 border border-amber-500/20"
+                    ? "bg-warning/10 border border-warning/20"
                     : "bg-bg-primary/30 border border-transparent hover:border-border-default"
               }`}
             >
@@ -122,7 +122,7 @@ export function CalendarGrid({
                 <Star className="absolute top-0.5 right-0.5 h-2.5 w-2.5 text-pink-400" />
               )}
               {keyDate && !visit && (
-                <span className="text-[10px] text-amber-400 mt-0.5 leading-tight">
+                <span className="text-[10px] text-warning mt-0.5 leading-tight">
                   {keyDate.label.split(" ")[0]}
                 </span>
               )}
@@ -140,7 +140,7 @@ export function CalendarGrid({
           <div className="h-2.5 w-2.5 rounded bg-pink-500/30" /> Special
         </span>
         <span className="flex items-center gap-1">
-          <div className="h-2.5 w-2.5 rounded bg-amber-500/20" /> Key date
+          <div className="h-2.5 w-2.5 rounded bg-warning/20" /> Key date
         </span>
       </div>
     </div>

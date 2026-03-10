@@ -190,19 +190,19 @@ function ListView({
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3"
+                className="mb-3 rounded-lg border border-warning/30 bg-warning/10 p-3"
               >
                 <div className="flex items-start gap-2">
-                  <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+                  <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-xs font-semibold text-amber-300">
+                    <p className="text-xs font-semibold text-warning">
                       Phase blocked -- prerequisites incomplete
                     </p>
                     <div className="mt-1.5 flex flex-wrap gap-1.5">
                       {gateStatus.blockers.map((b) => (
                         <span
                           key={b.id}
-                          className="inline-flex items-center gap-1 rounded-md bg-amber-500/15 px-2 py-0.5 text-[10px] text-amber-300"
+                          className="inline-flex items-center gap-1 rounded-md bg-warning/15 px-2 py-0.5 text-[10px] text-warning"
                         >
                           <ArrowRight className="h-2.5 w-2.5" />
                           {b.title}
@@ -286,7 +286,7 @@ function ChecklistRow({
       layout
       onClick={onToggle}
       className={`w-full text-left flex items-start gap-3 rounded-lg p-2.5 transition-colors ${
-        isCritical && !isDone ? "border-l-2 border-l-orange-500/70" : ""
+        isCritical && !isDone ? "border-l-2 border-l-warning/70" : ""
       } ${
         isDone
           ? "bg-bg-primary/30 opacity-60"
@@ -305,7 +305,7 @@ function ChecklistRow({
             <Check className="h-3 w-3 text-white" />
           </div>
         ) : isBlocked ? (
-          <Lock className="h-4.5 w-4.5 text-amber-500/70" />
+          <Lock className="h-4.5 w-4.5 text-warning/70" />
         ) : (
           <Circle className="h-4.5 w-4.5 text-text-muted" />
         )}
@@ -328,7 +328,7 @@ function ChecklistRow({
             </a>
           )}
           {isCritical && !isDone && (
-            <span className="inline-flex items-center rounded px-1 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-orange-500/15 text-orange-400">
+            <span className="inline-flex items-center rounded px-1 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-warning/15 text-warning">
               Critical
             </span>
           )}
@@ -344,7 +344,7 @@ function ChecklistRow({
             {depInfo.blockedBy.map((dep) => (
               <span
                 key={dep.id}
-                className="inline-flex items-center gap-0.5 rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-400"
+                className="inline-flex items-center gap-0.5 rounded bg-warning/10 px-1.5 py-0.5 text-[10px] text-warning"
               >
                 <Lock className="h-2 w-2" />
                 Blocked by: {dep.title}
@@ -361,9 +361,9 @@ function ChecklistRow({
           <span
             className={`flex items-center gap-1 text-[10px] font-medium ${
               deadlineDays < 14
-                ? "text-red-400"
+                ? "text-danger"
                 : deadlineDays < 30
-                  ? "text-amber-400"
+                  ? "text-warning"
                   : "text-text-muted"
             }`}
           >
@@ -373,7 +373,7 @@ function ChecklistRow({
         )}
         {/* Due date fallback */}
         {item.dueDate && !item.hardDeadline && (
-          <span className="flex items-center gap-1 text-[10px] text-amber-400">
+          <span className="flex items-center gap-1 text-[10px] text-warning">
             <Clock className="h-2.5 w-2.5" />
             {item.dueDate}
           </span>
@@ -446,7 +446,7 @@ function TimelineView({
                           isDone
                             ? "text-text-muted line-through"
                             : isBlocked
-                              ? "text-amber-500/70"
+                              ? "text-warning/70"
                               : "text-text-secondary"
                         }`}
                         title={item.title}
@@ -465,9 +465,9 @@ function TimelineView({
                           isDone
                             ? "bg-slate-700/50"
                             : isCritical
-                              ? "bg-orange-500/25 border border-orange-500/40"
+                              ? "bg-warning/25 border border-warning/40"
                               : isBlocked
-                                ? "bg-amber-500/10 border border-amber-500/20"
+                                ? "bg-warning/10 border border-warning/20"
                                 : "bg-blue-500/20 border border-blue-500/30"
                         }`}
                         style={
@@ -484,9 +484,9 @@ function TimelineView({
                             isDone
                               ? "text-text-muted"
                               : isCritical
-                                ? "text-orange-300"
+                                ? "text-warning"
                                 : isBlocked
-                                  ? "text-amber-400"
+                                  ? "text-warning"
                                   : "text-blue-300"
                           }`}
                         >
@@ -495,11 +495,11 @@ function TimelineView({
 
                         {/* Done overlay */}
                         {isDone && (
-                          <Check className="h-3 w-3 text-green-500 ml-1" />
+                          <Check className="h-3 w-3 text-success ml-1" />
                         )}
                         {/* Blocked icon */}
                         {isBlocked && !isDone && (
-                          <Lock className="h-2.5 w-2.5 text-amber-500/60 ml-1" />
+                          <Lock className="h-2.5 w-2.5 text-warning/60 ml-1" />
                         )}
                       </motion.div>
 
@@ -511,19 +511,19 @@ function TimelineView({
                               isDone
                                 ? "bg-slate-600"
                                 : deadlineDays !== null && deadlineDays < 14
-                                  ? "bg-red-500"
+                                  ? "bg-danger"
                                   : deadlineDays !== null && deadlineDays < 30
-                                    ? "bg-amber-500"
-                                    : "bg-red-500/60"
+                                    ? "bg-warning"
+                                    : "bg-danger/60"
                             }`}
                           />
                           {!isDone && deadlineDays !== null && (
                             <span
                               className={`text-[10px] font-data ${
                                 deadlineDays < 14
-                                  ? "text-red-400"
+                                  ? "text-danger"
                                   : deadlineDays < 30
-                                    ? "text-amber-400"
+                                    ? "text-warning"
                                     : "text-text-muted"
                               }`}
                             >
@@ -549,12 +549,12 @@ function TimelineView({
           <span className="text-[10px] text-text-muted">Normal</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-3 w-6 rounded bg-orange-500/25 border border-orange-500/40" />
+          <div className="h-3 w-6 rounded bg-warning/25 border border-warning/40" />
           <span className="text-[10px] text-text-muted">Critical path</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div
-            className="h-3 w-6 rounded bg-amber-500/10 border border-amber-500/20"
+            className="h-3 w-6 rounded bg-warning/10 border border-warning/20"
             style={{
               backgroundImage:
                 "repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(245,158,11,0.08) 4px, rgba(245,158,11,0.08) 8px)",
@@ -563,7 +563,7 @@ function TimelineView({
           <span className="text-[10px] text-text-muted">Blocked</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-3 w-3 rotate-45 bg-red-500/60" />
+          <div className="h-3 w-3 rotate-45 bg-danger/60" />
           <span className="text-[10px] text-text-muted">Hard deadline</span>
         </div>
         <div className="flex items-center gap-1.5">

@@ -39,9 +39,9 @@ export function ExpenseSliders() {
 
       {/* Subscription sync banner */}
       {showSubSync && (
-        <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-2.5 mb-2">
+        <div className="rounded-lg border border-warning/20 bg-warning/5 p-2.5 mb-2">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-[11px] text-amber-400">
+            <p className="text-[11px] text-warning">
               Subscriptions module:{" "}
               <span className="font-data font-semibold">{formatCHF(subTotal.total)}</span>/mo
               {subTotal.savings > 0 && (
@@ -51,7 +51,7 @@ export function ExpenseSliders() {
             <button
               type="button"
               onClick={() => setValue("subscriptions", subTotal.total)}
-              className="inline-flex items-center gap-1 rounded-md bg-amber-500/10 border border-amber-500/30 px-2 py-1 text-[10px] font-medium text-amber-400 hover:bg-amber-500/20 transition-colors shrink-0"
+              className="inline-flex items-center gap-1 rounded-md bg-warning/10 border border-warning/30 px-2 py-1 text-[10px] font-medium text-warning hover:bg-warning/20 transition-colors shrink-0"
             >
               <RefreshCw className="h-3 w-3" />
               Sync
