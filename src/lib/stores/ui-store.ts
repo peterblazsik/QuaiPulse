@@ -3,11 +3,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type ThemeId = "midnight" | "obsidian";
+export type ThemeId = "midnight" | "obsidian" | "swiss";
 
 export const THEMES: { id: ThemeId; label: string; preview: [string, string, string] }[] = [
   { id: "midnight", label: "Midnight Blue", preview: ["#0f172a", "#3b82f6", "#1e293b"] },
   { id: "obsidian", label: "Obsidian Gold", preview: ["#0a0a08", "#d4a853", "#161412"] },
+  { id: "swiss", label: "Swiss Banking", preview: ["#FAF9F6", "#1B3A6B", "#DDD9D0"] },
 ];
 
 interface UIStore {

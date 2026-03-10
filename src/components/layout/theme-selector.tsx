@@ -47,7 +47,7 @@ export function ThemeSelector({ collapsed }: { collapsed: boolean }) {
               {t.preview.map((color, i) => (
                 <div
                   key={i}
-                  className="h-2.5 w-2.5 rounded-full border border-white/10"
+                  className="h-2.5 w-2.5 rounded-full border border-border-default"
                   style={{ background: color }}
                 />
               ))}

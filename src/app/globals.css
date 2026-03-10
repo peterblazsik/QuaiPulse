@@ -137,6 +137,138 @@
 }
 
 /* ============================================================
+   THEME: SWISS BANKING (light)
+   ============================================================ */
+
+[data-theme="swiss"] {
+  /* Base — warm ivory paper, Lombard Odier meets Pictet */
+  --bg-primary: #FAF9F6;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #EBE8E2;
+  --bg-elevated: #FFFFFF;
+
+  /* Text — navy ink, never pure black */
+  --text-primary: #1A1F36;
+  --text-secondary: #4A5068;
+  --text-tertiary: #74798C;
+  --text-muted: #9CA0AF;
+
+  /* Accent — deep Swiss navy */
+  --accent-primary: #1B3A6B;
+  --accent-hover: #142D54;
+
+  /* Semantic — desaturated, restrained */
+  --color-success: #2D7A5F;
+  --color-warning: #A67B2E;
+  --color-danger: #9B3B3B;
+  --color-info: #2E6B96;
+
+  /* Score gradient — burgundy through brass to sage */
+  --score-1: #9B3B3B;
+  --score-3: #A5623C;
+  --score-5: #A68E45;
+  --score-7: #548A52;
+  --score-9: #2D7A5F;
+  --score-10: #1B6B5E;
+
+  /* Chart colors — sophisticated, no neons */
+  --chart-commute: #1B3A6B;
+  --chart-gym: #2D7A5F;
+  --chart-social: #7B5EA7;
+  --chart-lake: #3E8DA0;
+  --chart-airport: #6B7B8D;
+  --chart-food: #B8943F;
+  --chart-quiet: #8B9E82;
+  --chart-transit: #4A6FA5;
+  --chart-cost: #9B3B3B;
+  --chart-safety: #3B6B7F;
+  --chart-flightNoise: #A0704A;
+  --chart-parking: #8C8279;
+
+  /* Borders — warm, barely there */
+  --border-default: #DDD9D0;
+  --border-subtle: #EBE8E2;
+
+  /* Overlay — navy-black for modals */
+  --overlay-rgb: 10, 18, 36;
+
+  /* Glass — warm ivory frosted */
+  --glass-bg: rgba(250, 249, 246, 0.85);
+  --glass-sidebar-bg: rgba(243, 241, 236, 0.92);
+  --glass-border: rgba(27, 58, 107, 0.08);
+}
+
+/* Swiss theme — lighter elevation shadows */
+[data-theme="swiss"] .elevation-1 {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  box-shadow:
+    0 1px 2px rgba(10, 18, 36, 0.04),
+    0 2px 8px rgba(10, 18, 36, 0.06);
+}
+
+[data-theme="swiss"] .elevation-2 {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  box-shadow:
+    0 2px 8px rgba(10, 18, 36, 0.06),
+    0 4px 16px rgba(10, 18, 36, 0.08);
+}
+
+[data-theme="swiss"] .elevation-3 {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  box-shadow:
+    0 4px 16px rgba(10, 18, 36, 0.08),
+    0 8px 32px rgba(10, 18, 36, 0.12);
+}
+
+/* Swiss theme — cards use white on ivory */
+[data-theme="swiss"] .card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  box-shadow:
+    0 1px 2px rgba(10, 18, 36, 0.04),
+    0 2px 8px rgba(10, 18, 36, 0.06);
+}
+
+[data-theme="swiss"] .card-interactive:hover {
+  border-color: var(--border-default);
+  box-shadow:
+    0 2px 8px rgba(10, 18, 36, 0.08),
+    0 4px 16px rgba(10, 18, 36, 0.10);
+  transform: translateY(-1px);
+}
+
+[data-theme="swiss"] .card-hero {
+  background: linear-gradient(145deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  border: 1px solid var(--border-default);
+  box-shadow:
+    0 2px 8px rgba(10, 18, 36, 0.06),
+    0 4px 16px rgba(10, 18, 36, 0.08);
+}
+
+/* Swiss theme — subtle ambient glow */
+[data-theme="swiss"] .ambient-glow {
+  opacity: 0.04;
+}
+
+/* Swiss theme — progress shimmer subtler */
+[data-theme="swiss"] .progress-shimmer::after {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(27, 58, 107, 0.04) 50%,
+    transparent 100%
+  );
+}
+
+/* Swiss theme — scrollbar */
+[data-theme="swiss"] * {
+  scrollbar-color: var(--border-default) transparent;
+}
+
+/* ============================================================
    TAILWIND THEME BRIDGE
    ============================================================ */
 
