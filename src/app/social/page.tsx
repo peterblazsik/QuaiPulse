@@ -255,8 +255,8 @@ function VenueCard({ venue }: { venue: VenueData }) {
         </div>
         {venue.rating && (
           <div className="flex items-center gap-0.5 shrink-0">
-            <Star className="h-2.5 w-2.5 text-amber-400 fill-amber-400" />
-            <span className="font-data text-[10px] text-amber-400">
+            <Star className="h-2.5 w-2.5 text-warning fill-warning" />
+            <span className="font-data text-[10px] text-warning">
               {venue.rating}
             </span>
           </div>

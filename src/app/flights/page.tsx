@@ -113,8 +113,8 @@ export default function FlightsPage() {
       {/* Hero Recommendation Card */}
       <div className="rounded-xl border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 via-bg-secondary to-bg-secondary p-5">
         <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="h-4 w-4 text-cyan-400" />
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-cyan-400">
+          <Sparkles className="h-4 w-4 text-info" />
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-info">
             Optimal Strategy
           </h2>
         </div>
@@ -123,8 +123,8 @@ export default function FlightsPage() {
         </p>
         <div className="mt-3 flex flex-wrap gap-4">
           <div className="flex items-center gap-2">
-            <TrendingDown className="h-3.5 w-3.5 text-emerald-400" />
-            <span className="font-data text-sm font-bold text-emerald-400">
+            <TrendingDown className="h-3.5 w-3.5 text-success" />
+            <span className="font-data text-sm font-bold text-success">
               {rec.estimatedSaving}
             </span>
           </div>
@@ -517,7 +517,7 @@ function AirlineRow({ airline }: { airline: AirlineRoute }) {
               {airline.airline}
             </span>
             {isCheapest && (
-              <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
+              <span className="text-[10px] uppercase tracking-wider text-success font-bold">
                 Best Value
               </span>
             )}

@@ -229,7 +229,7 @@ export default function SubscriptionsPage() {
                       <td className="py-2 pr-4 text-text-secondary">{sub.swissAlternative}</td>
                       <td className="py-2 pr-4 text-right font-data text-text-primary">{formatEUR(sub.monthlyCostEUR)}</td>
                       <td className="py-2 pr-4 text-right font-data text-text-primary">{formatCHF(sub.swissAlternativeCostCHF ?? 0)}</td>
-                      <td className={`py-2 text-right font-data ${delta > 0 ? "text-red-400" : "text-green-400"}`}>
+                      <td className={`py-2 text-right font-data ${delta > 0 ? "text-danger" : "text-success"}`}>
                         {delta > 0 ? "+" : ""}{formatCHF(delta)}
                       </td>
                     </tr>

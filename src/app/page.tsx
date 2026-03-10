@@ -194,7 +194,7 @@ export default function DashboardPage() {
             })}
             {surplus > 0 && (
               <div
-                className="h-full bg-emerald-500/40"
+                className="h-full bg-success/40"
                 style={{ width: `${(surplus / totalMonthlyIncome) * 100}%` }}
               />
             )}
@@ -203,7 +203,7 @@ export default function DashboardPage() {
             <span className="text-text-muted">
               Expenses {formatCHF(totalExpenses)}
             </span>
-            <span className={`font-data font-bold ${surplus >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+            <span className={`font-data font-bold ${surplus >= 0 ? "text-success" : "text-danger"}`}>
               Surplus {formatCHF(surplus)}
             </span>
           </div>

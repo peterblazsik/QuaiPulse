@@ -129,8 +129,8 @@ export default function LanguagePage() {
       {/* Daily Prompt Hero */}
       <div className="rounded-xl border border-border-default bg-bg-secondary p-5">
         <div className="flex items-center gap-2 mb-3">
-          <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-400">
+          <Star className="h-4 w-4 text-warning fill-warning" />
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-warning">
             Phrase of the Day
           </span>
         </div>

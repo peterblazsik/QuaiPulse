@@ -123,7 +123,7 @@ export default function WeatherPage() {
           </h1>
           <p className="text-sm text-text-tertiary mt-1">
             Zurich vs Vienna — live from Open-Meteo.{" "}
-            {!isLive && <span className="text-amber-400">(Fallback data)</span>}
+            {!isLive && <span className="text-warning">(Fallback data)</span>}
           </p>
         </div>
         <button
@@ -145,7 +145,7 @@ export default function WeatherPage() {
               <h2 className="text-sm font-semibold text-text-primary">Zurich</h2>
               <p className="text-[10px] text-text-muted">Your future home</p>
             </div>
-            <WeatherIcon icon={zurich.current.icon} className="h-10 w-10 text-amber-400" />
+            <WeatherIcon icon={zurich.current.icon} className="h-10 w-10 text-warning" />
           </div>
 
           <div className="flex items-end gap-2 mb-4">
@@ -238,8 +238,8 @@ export default function WeatherPage() {
                 </div>
                 {day.precip > 0 && (
                   <div className="flex items-center justify-center gap-0.5 mt-1">
-                    <Droplets className="h-2 w-2 text-cyan-400" />
-                    <span className="font-data text-[10px] text-cyan-400">
+                    <Droplets className="h-2 w-2 text-info" />
+                    <span className="font-data text-[10px] text-info">
                       {day.precip}%
                     </span>
                   </div>

@@ -16,7 +16,7 @@
   --text-primary: #f1f5f9;
   --text-secondary: #b0bec5;
   --text-tertiary: #8094a8;
-  --text-muted: #708090;
+  --text-muted: #8094a8;
 
   /* Accent */
   --accent-primary: #3b82f6;
@@ -157,6 +157,22 @@
   --color-info: var(--color-info);
   --color-border-default: var(--border-default);
   --color-border-subtle: var(--border-subtle);
+
+  /* Semantic text colors */
+  --color-text-success: var(--color-success);
+  --color-text-warning: var(--color-warning);
+  --color-text-danger: var(--color-danger);
+  --color-text-info: var(--color-info);
+
+  /* Accent palette */
+  --color-accent-purple: #8b5cf6;
+  --color-accent-indigo: #6366f1;
+  --color-accent-pink: #ec4899;
+  --color-accent-rose: #f43f5e;
+  --color-accent-cyan: #06b6d4;
+  --color-accent-orange: #f97316;
+  --color-accent-amber: #f59e0b;
+
   --font-display: var(--font-playfair);
   --font-mono: var(--font-jetbrains);
   --font-sans: var(--font-inter);

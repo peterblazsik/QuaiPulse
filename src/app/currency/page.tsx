@@ -92,7 +92,7 @@ export default function CurrencyPage() {
               <span className="text-text-muted">Updated: {data.updatedAt}</span>
             )}
             {error && !data && (
-              <span className="text-amber-400">Using fallback rates</span>
+              <span className="text-warning">Using fallback rates</span>
             )}
           </p>
         </div>
@@ -199,8 +199,8 @@ export default function CurrencyPage() {
             <ImpactRow label="Car + OAMTC" chf={carInsurance} rate={chfEurRate} />
           </div>
 
-          <div className="mt-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-            <p className="text-[10px] text-amber-400">
+          <div className="mt-4 p-3 rounded-lg bg-warning/10 border border-warning/20">
+            <p className="text-[10px] text-warning">
               If CHF weakens to 0.90 EUR, your Vienna costs effectively drop by{" "}
               {formatCHF(Math.round(viennaCostsTotal * (chfEurRate - 0.90)))} /mo in CHF terms.
             </p>
@@ -228,15 +228,15 @@ function RateCard({
 }) {
   const trendIcon =
     trend === "up" ? (
-      <TrendingUp className="h-3 w-3 text-emerald-400" />
+      <TrendingUp className="h-3 w-3 text-success" />
     ) : trend === "down" ? (
-      <TrendingDown className="h-3 w-3 text-red-400" />
+      <TrendingDown className="h-3 w-3 text-danger" />
     ) : (
       <Minus className="h-3 w-3 text-text-muted" />
     );
 
   const changeColor =
-    trend === "up" ? "text-emerald-400" : trend === "down" ? "text-red-400" : "text-text-muted";
+    trend === "up" ? "text-success" : trend === "down" ? "text-danger" : "text-text-muted";
 
   return (
     <div className={`rounded-xl border border-border-default bg-bg-secondary p-4 ${loading ? "animate-pulse" : ""}`}>

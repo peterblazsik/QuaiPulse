@@ -259,7 +259,7 @@ function DocumentRow({
         done
           ? "border-border-default/50 bg-bg-primary/30 opacity-75"
           : blocked
-            ? "border-amber-500/20 bg-amber-500/5"
+            ? "border-warning/20 bg-warning/5"
             : "border-border-default bg-bg-secondary hover:border-border-default/80"
       }`}
     >
@@ -281,12 +281,12 @@ function DocumentRow({
               {doc.title}
             </h3>
             {doc.required && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-medium">
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-danger/10 text-danger font-medium">
                 Required
               </span>
             )}
             {blocked && (
-              <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 font-medium">
+              <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-warning/10 text-warning font-medium">
                 <Lock className="h-2.5 w-2.5" />
                 Blocked
               </span>
@@ -345,7 +345,7 @@ function DocumentRow({
                 return (
                   <span
                     key={depId}
-                    className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400"
+                    className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-warning/10 text-warning"
                   >
                     <Lock className="h-2 w-2" />
                     {depDoc?.title ?? depId}

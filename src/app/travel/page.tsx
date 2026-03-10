@@ -31,6 +31,7 @@ import {
 } from "@/lib/engines/travel-calculator";
 import { TRAVEL_ROUTES, TRAVEL_PASSES, STOPOVER_CITIES, type TravelMode } from "@/lib/data/travel-routes";
 import { formatCHF } from "@/lib/utils";
+import { SLIDER_CLASSES } from "@/lib/constants";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -53,9 +54,6 @@ const CATEGORY_COLORS: Record<string, string> = {
   travel: "#3b82f6",
   sleep: "#8b5cf6",
 };
-
-const SLIDER_CLASSES =
-  "w-full h-1.5 py-3 appearance-none rounded-full bg-bg-tertiary cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent-primary [&::-webkit-slider-thumb]:cursor-pointer";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -222,10 +220,10 @@ export default function TravelPage() {
                   <div className="mt-3 space-y-1 text-[11px]">
                     <CostLine label="Ticket" value={a.ticketCostCHF} />
                     <CostLine label="Transit" value={a.transitCostCHF} />
-                    <CostLine label="Dead time" value={a.timeCostCHF} color="text-red-400" />
+                    <CostLine label="Dead time" value={a.timeCostCHF} color="text-danger" />
                     <CostLine label="Carbon" value={a.carbonCostCHF} color="text-orange-400" />
                     {a.productivityValueCHF > 0 && (
-                      <CostLine label="Productivity recovered" value={-a.productivityValueCHF} color="text-emerald-400" />
+                      <CostLine label="Productivity recovered" value={-a.productivityValueCHF} color="text-success" />
                     )}
                   </div>
 
@@ -373,7 +371,7 @@ export default function TravelPage() {
                             {formatDuration(bar.minutes)}
                           </span>
                           {bar.productive && (
-                            <Briefcase className="h-2.5 w-2.5 text-emerald-400" />
+                            <Briefcase className="h-2.5 w-2.5 text-success" />
                           )}
                         </div>
                       ))}
@@ -393,7 +391,7 @@ export default function TravelPage() {
                         </div>
                       ))}
                       <div className="flex items-center gap-1 ml-auto">
-                        <Briefcase className="h-2.5 w-2.5 text-emerald-400" />
+                        <Briefcase className="h-2.5 w-2.5 text-success" />
                         <span className="text-[10px] text-text-muted">Productive</span>
                       </div>
                     </div>
@@ -408,7 +406,7 @@ export default function TravelPage() {
       {/* ── Annual Projection ── */}
       <div className="card elevation-1 p-5">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-4 flex items-center gap-2">
-          <TrendingDown className="h-3.5 w-3.5 text-emerald-400" />
+          <TrendingDown className="h-3.5 w-3.5 text-success" />
           Annual Projection ({tripsPerYear} trips)
         </h2>
 
@@ -569,7 +567,7 @@ export default function TravelPage() {
                 key={pass.id}
                 className={`rounded-lg border p-3 ${
                   pass.worthIt
-                    ? "border-emerald-500/30 bg-emerald-500/5"
+                    ? "border-success/30 bg-success/5"
                     : "border-border-default bg-bg-secondary/30"
                 }`}
               >
@@ -587,7 +585,7 @@ export default function TravelPage() {
                 <p className="text-[11px] text-text-secondary mt-1">{pass.benefit}</p>
                 <p className="text-[10px] text-text-muted mt-1">{pass.note}</p>
                 {pass.worthIt && (
-                  <span className="inline-block mt-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">
+                  <span className="inline-block mt-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-success/20 text-success font-semibold">
                     RECOMMENDED
                   </span>
                 )}
@@ -632,7 +630,7 @@ function CostLine({ label, value, color }: { label: string; value: number; color
   return (
     <div className="flex justify-between items-center">
       <span className="text-text-muted">{label}</span>
-      <span className={`font-data tabular-nums ${color ?? (isNegative ? "text-emerald-400" : "text-text-primary")}`}>
+      <span className={`font-data tabular-nums ${color ?? (isNegative ? "text-success" : "text-text-primary")}`}>
         {isNegative ? "−" : "+"}{formatCHF(Math.abs(value))}
       </span>
     </div>
@@ -676,7 +674,7 @@ function AnnualRow({
         <td
           key={i}
           className={`text-right py-2 px-3 tabular-nums ${
-            i === bestIdx ? "text-emerald-400 font-bold" : "text-text-primary"
+            i === bestIdx ? "text-success font-bold" : "text-text-primary"
           } ${bold ? "font-bold" : ""}`}
         >
           {v}
@@ -730,16 +728,16 @@ function ChronoCard({
       <p className="text-[11px] text-text-secondary leading-relaxed">{rec.reasoning}</p>
       <div className="flex gap-3 mt-2">
         <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-          rec.sleepImpact === "none" ? "bg-emerald-500/15 text-emerald-400" :
-          rec.sleepImpact === "mild" ? "bg-amber-500/15 text-amber-400" :
-          "bg-red-500/15 text-red-400"
+          rec.sleepImpact === "none" ? "bg-success/15 text-success" :
+          rec.sleepImpact === "mild" ? "bg-warning/15 text-warning" :
+          "bg-danger/15 text-danger"
         }`}>
           Sleep: {rec.sleepImpact}
         </span>
         <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-          rec.arrivalEnergy === "high" ? "bg-emerald-500/15 text-emerald-400" :
-          rec.arrivalEnergy === "moderate" ? "bg-amber-500/15 text-amber-400" :
-          "bg-red-500/15 text-red-400"
+          rec.arrivalEnergy === "high" ? "bg-success/15 text-success" :
+          rec.arrivalEnergy === "moderate" ? "bg-warning/15 text-warning" :
+          "bg-danger/15 text-danger"
         }`}>
           Energy: {rec.arrivalEnergy}
         </span>

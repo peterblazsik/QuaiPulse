@@ -38,3 +38,7 @@ export const SCORE_DIMENSIONS = [
   { key: "flightNoise", label: "Flight Noise", color: "var(--chart-flightNoise)", defaultWeight: 4 },
   { key: "parking", label: "Parking", color: "var(--chart-parking)", defaultWeight: 3 },
 ] as const;
+
+/** Shared slider styling — 16px thumb, py-3 for ~40px touch target */
+export const SLIDER_CLASSES =
+  "w-full h-1.5 py-3 appearance-none rounded-full bg-bg-tertiary cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent-primary [&::-webkit-slider-thumb]:cursor-pointer";

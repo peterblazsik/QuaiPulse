@@ -283,13 +283,13 @@ export default function AIPage() {
               className={`shrink-0 h-7 w-7 rounded-lg flex items-center justify-center ${
                 msg.role === "assistant"
                   ? "bg-accent-primary/20"
-                  : "bg-emerald-500/20"
+                  : "bg-success/20"
               }`}
             >
               {msg.role === "assistant" ? (
                 <Bot className="h-3.5 w-3.5 text-accent-primary" />
               ) : (
-                <User className="h-3.5 w-3.5 text-emerald-400" />
+                <User className="h-3.5 w-3.5 text-success" />
               )}
             </div>
 
@@ -321,7 +321,7 @@ export default function AIPage() {
                     title="Copy message"
                   >
                     {copiedId === msg.id ? (
-                      <Check className="h-3 w-3 text-emerald-400" />
+                      <Check className="h-3 w-3 text-success" />
                     ) : (
                       <Copy className="h-3 w-3" />
                     )}

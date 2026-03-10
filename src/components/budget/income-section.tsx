@@ -5,6 +5,7 @@ import { AHV_RATE, ALV_RATE, ALV_CAP } from "@/lib/engines/budget-calculator";
 import { TAX_RATES, getTaxDataByLocationId, taxSavingsVsCity } from "@/lib/data/tax-rates";
 import { ALL_LOCATIONS } from "@/lib/data/neighborhoods";
 import { formatCHF } from "@/lib/utils";
+import { SLIDER_CLASSES } from "@/lib/constants";
 import { useBudgetWithTax } from "@/lib/hooks/use-budget-with-tax";
 import {
   TrendingDown,
@@ -24,9 +25,6 @@ const locationOptions = TAX_RATES.map((t) => {
     steuerfuss: t.steuerfuss,
   };
 }).sort((a, b) => a.name.localeCompare(b.name));
-
-const SLIDER_CLASSES =
-  "w-full h-1.5 py-3 appearance-none rounded-full bg-bg-tertiary cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent-primary [&::-webkit-slider-thumb]:cursor-pointer";
 
 interface SliderRowProps {
   label: string;
@@ -65,7 +63,7 @@ function StatRow({ label, value, negative, muted }: { label: string; value: stri
   return (
     <div className="flex items-center justify-between py-0.5">
       <span className={`text-[11px] ${muted ? "text-text-muted" : "text-text-secondary"}`}>{label}</span>
-      <span className={`font-data text-xs tabular-nums ${negative ? "text-red-400" : "text-text-primary"}`}>
+      <span className={`font-data text-xs tabular-nums ${negative ? "text-danger" : "text-text-primary"}`}>
         {value}
       </span>
     </div>
@@ -186,7 +184,7 @@ export function IncomeSection() {
         <SectionDivider
           label="Total Deductions"
           value={`-${formatCHF(breakdown.totalSocialMonthly)}`}
-          color="text-red-400"
+          color="text-danger"
         />
         <p className="text-[10px] text-text-muted mt-1">
           AHV & ALV are fixed by law. BVG varies by employer pension plan — adjust to match your payslip.
@@ -196,7 +194,7 @@ export function IncomeSection() {
       {/* ── TAX ESTIMATION ── */}
       <div>
         <h4 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2 flex items-center gap-1.5">
-          <Landmark className="h-3 w-3 text-blue-400" />
+          <Landmark className="h-3 w-3 text-info" />
           Tax Municipality
         </h4>
 
@@ -226,7 +224,7 @@ export function IncomeSection() {
               </div>
               <div className="rounded-md bg-bg-tertiary/50 p-1.5">
                 <p className="text-[10px] text-text-muted">Monthly</p>
-                <p className="font-data text-xs font-semibold text-red-400">-{formatCHF(breakdown.monthlyTax)}</p>
+                <p className="font-data text-xs font-semibold text-danger">-{formatCHF(breakdown.monthlyTax)}</p>
               </div>
             </div>
 
@@ -320,7 +318,7 @@ export function IncomeSection() {
         <SectionDivider
           label="Take-home"
           value={formatCHF(breakdown.totalMonthlyIncome)}
-          color="text-emerald-400"
+          color="text-success"
         />
         <p className="text-[10px] text-text-muted mt-1">
           Benefits (expense, insurance, mobility) are tax-free additions. Relocation bonus amortized over 12 months.
@@ -337,7 +335,7 @@ export function IncomeSection() {
             Fixed Costs (Vienna)
           </h4>
           <div className="flex items-center gap-2">
-            <span className="font-data text-xs font-semibold text-red-400 tabular-nums">
+            <span className="font-data text-xs font-semibold text-danger tabular-nums">
               -{formatCHF(breakdown.fixedOutside)}
             </span>
             {showViennaSliders ? (

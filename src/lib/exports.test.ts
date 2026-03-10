@@ -234,9 +234,9 @@ describe("exportBudgetCSV", () => {
     const csv = captureDownload(() =>
       exportBudgetCSV(breakdown, expenses, values)
     );
-    expect(csv).toContain("Net Salary,11450");
+    expect(csv).toContain("Net Monthly Salary,11450");
     expect(csv).toContain("Expense Allowance,700");
-    expect(csv).toContain("Total Income,12150");
+    expect(csv).toContain("Total Take-home,12150");
   });
 
   it("should include expense rows from provided expenses", () => {
@@ -260,7 +260,7 @@ describe("exportBudgetCSV", () => {
     const csv = captureDownload(() =>
       exportBudgetCSV(breakdown, expenses, values)
     );
-    expect(csv).toContain("Vienna Costs,2760");
+    expect(csv).toContain("Total Vienna,\"'-2760\"");
   });
 });
 
