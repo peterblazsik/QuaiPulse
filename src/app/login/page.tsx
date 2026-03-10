@@ -11,7 +11,8 @@ function LoginContent() {
   const callbackUrl = searchParams.get("callbackUrl") ?? "/";
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-bg-primary">
+    <div className="flex min-h-screen items-center justify-center bg-bg-primary relative overflow-hidden">
+      <div className="ambient-glow glow-blue" />
       <div className="w-full max-w-sm space-y-8 px-6">
         {/* Logo & branding */}
         <div className="flex flex-col items-center gap-4">

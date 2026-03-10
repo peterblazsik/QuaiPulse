@@ -84,7 +84,8 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="max-w-2xl space-y-6 relative">
+      <div className="ambient-glow glow-blue" />
       {/* Header */}
       <div>
         <h1 className="font-display text-2xl font-bold text-text-primary">

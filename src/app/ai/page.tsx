@@ -229,7 +229,8 @@ export default function AIPage() {
   }, []);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--header-height)-var(--status-bar-height)-48px)]">
+    <div className="flex flex-col h-[calc(100vh-var(--header-height)-var(--status-bar-height)-48px)] relative">
+      <div className="ambient-glow glow-purple" />
       {/* Header */}
       <div className="shrink-0 mb-4">
         <div className="flex items-center justify-between">
