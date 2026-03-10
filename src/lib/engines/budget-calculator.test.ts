@@ -17,7 +17,11 @@ function makeInputs(overrides?: Partial<BudgetInputs>): BudgetInputs {
   return {
     grossMonthlySalary: 15000,
     has13thSalary: true,
+    annualBonusPct: 0,
     expenseAllowance: 700,
+    employerInsuranceContrib: 0,
+    mobilityAllowance: 0,
+    relocationBonus: 0,
     bvgMonthly: 390,
     pillar3aMonthly: 0,
     taxEffectiveRate: 0,
@@ -75,11 +79,38 @@ describe("calculateBudget — gross to net pipeline", () => {
     expect(result.netMonthlySalary).toBe(Math.round(netAnnual / 12));
   });
 
-  it("take-home = net + expense allowance", () => {
-    const result = calculateBudget(makeInputs());
+  it("take-home = net + expense allowance + benefits + relocation", () => {
+    const result = calculateBudget(makeInputs({
+      employerInsuranceContrib: 100,
+      mobilityAllowance: 50,
+      relocationBonus: 6000,
+    }));
     expect(result.totalMonthlyIncome).toBe(
-      result.netMonthlySalary + result.expenseAllowance
+      result.netMonthlySalary + result.expenseAllowance + 100 + 50 + 500
     );
+  });
+
+  it("annual bonus increases gross annual salary", () => {
+    const noBonus = calculateBudget(makeInputs({ annualBonusPct: 0 }));
+    const withBonus = calculateBudget(makeInputs({ annualBonusPct: 10 }));
+    expect(withBonus.grossAnnualSalary).toBe(Math.round(15000 * 13 * 1.1));
+    expect(withBonus.grossAnnualSalary).toBeGreaterThan(noBonus.grossAnnualSalary);
+  });
+
+  it("relocation bonus amortized over 12 months", () => {
+    const result = calculateBudget(makeInputs({ relocationBonus: 12000 }));
+    expect(result.relocationMonthly).toBe(1000);
+  });
+
+  it("employer benefits are tax-free (don't affect taxable income)", () => {
+    const base = calculateBudget(makeInputs({ taxEffectiveRate: 12.0 }));
+    const withBenefits = calculateBudget(makeInputs({
+      taxEffectiveRate: 12.0,
+      employerInsuranceContrib: 200,
+      mobilityAllowance: 100,
+    }));
+    expect(withBenefits.taxableAnnualIncome).toBe(base.taxableAnnualIncome);
+    expect(withBenefits.totalMonthlyIncome).toBe(base.totalMonthlyIncome + 300);
   });
 });
 

@@ -35,7 +35,11 @@ export function buildStoreContext(): string {
     const breakdown = calculateBudget({
       grossMonthlySalary: budget.grossMonthlySalary,
       has13thSalary: budget.has13thSalary,
+      annualBonusPct: budget.annualBonusPct,
       expenseAllowance: budget.expenseAllowance,
+      employerInsuranceContrib: budget.employerInsuranceContrib,
+      mobilityAllowance: budget.mobilityAllowance,
+      relocationBonus: budget.relocationBonus,
       bvgMonthly: budget.bvgMonthly,
       pillar3aMonthly: budget.pillar3aMonthly,
       taxEffectiveRate: taxData?.effectiveRate ?? 0,

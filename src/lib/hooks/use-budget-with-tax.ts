@@ -13,7 +13,11 @@ export function useBudgetWithTax(): BudgetBreakdown {
   const values = useBudgetStore((s) => s.values);
   const grossMonthlySalary = useBudgetStore((s) => s.grossMonthlySalary);
   const has13thSalary = useBudgetStore((s) => s.has13thSalary);
+  const annualBonusPct = useBudgetStore((s) => s.annualBonusPct);
   const expenseAllowance = useBudgetStore((s) => s.expenseAllowance);
+  const employerInsuranceContrib = useBudgetStore((s) => s.employerInsuranceContrib);
+  const mobilityAllowance = useBudgetStore((s) => s.mobilityAllowance);
+  const relocationBonus = useBudgetStore((s) => s.relocationBonus);
   const bvgMonthly = useBudgetStore((s) => s.bvgMonthly);
   const pillar3aMonthly = useBudgetStore((s) => s.pillar3aMonthly);
   const taxLocationId = useBudgetStore((s) => s.taxLocationId);
@@ -27,7 +31,11 @@ export function useBudgetWithTax(): BudgetBreakdown {
     return calculateBudget({
       grossMonthlySalary,
       has13thSalary,
+      annualBonusPct,
       expenseAllowance,
+      employerInsuranceContrib,
+      mobilityAllowance,
+      relocationBonus,
       bvgMonthly,
       pillar3aMonthly,
       taxEffectiveRate: taxData?.effectiveRate ?? 0,
@@ -38,7 +46,8 @@ export function useBudgetWithTax(): BudgetBreakdown {
       zurichValues: values,
     });
   }, [
-    values, grossMonthlySalary, has13thSalary, expenseAllowance,
+    values, grossMonthlySalary, has13thSalary, annualBonusPct,
+    expenseAllowance, employerInsuranceContrib, mobilityAllowance, relocationBonus,
     bvgMonthly, pillar3aMonthly, taxLocationId,
     viennaRent, childSupport, viennaUtils, carInsurance,
   ]);

@@ -24,7 +24,13 @@ interface BudgetStore {
   // Gross income
   grossMonthlySalary: number;
   has13thSalary: boolean;
+  annualBonusPct: number;
+
+  // Employer benefits (tax-free additions to take-home)
   expenseAllowance: number;
+  employerInsuranceContrib: number;
+  mobilityAllowance: number;
+  relocationBonus: number;
 
   // Deductions
   bvgMonthly: number;
@@ -46,7 +52,11 @@ interface BudgetStore {
   setValue: (key: keyof BudgetValues, value: number) => void;
   setGrossMonthlySalary: (v: number) => void;
   setHas13thSalary: (v: boolean) => void;
+  setAnnualBonusPct: (v: number) => void;
   setExpenseAllowance: (v: number) => void;
+  setEmployerInsuranceContrib: (v: number) => void;
+  setMobilityAllowance: (v: number) => void;
+  setRelocationBonus: (v: number) => void;
   setBvgMonthly: (v: number) => void;
   setPillar3a: (v: number) => void;
   setTaxLocation: (locationId: string) => void;
@@ -76,7 +86,13 @@ export const useBudgetStore = create<BudgetStore>()(
       // Gross income defaults
       grossMonthlySalary: 15000,
       has13thSalary: true,
+      annualBonusPct: 0,
+
+      // Employer benefits
       expenseAllowance: 700,
+      employerInsuranceContrib: 0,
+      mobilityAllowance: 0,
+      relocationBonus: 0,
 
       // Deduction defaults
       bvgMonthly: 390,
@@ -99,7 +115,11 @@ export const useBudgetStore = create<BudgetStore>()(
         set((s) => ({ values: { ...s.values, [key]: value } })),
       setGrossMonthlySalary: (v) => set({ grossMonthlySalary: v }),
       setHas13thSalary: (v) => set({ has13thSalary: v }),
+      setAnnualBonusPct: (v) => set({ annualBonusPct: v }),
       setExpenseAllowance: (v) => set({ expenseAllowance: v }),
+      setEmployerInsuranceContrib: (v) => set({ employerInsuranceContrib: v }),
+      setMobilityAllowance: (v) => set({ mobilityAllowance: v }),
+      setRelocationBonus: (v) => set({ relocationBonus: v }),
       setBvgMonthly: (v) => set({ bvgMonthly: v }),
       setPillar3a: (v) => set({ pillar3aMonthly: Math.min(v, 588) }),
       setTaxLocation: (locationId) => set({ taxLocationId: locationId }),
@@ -111,7 +131,11 @@ export const useBudgetStore = create<BudgetStore>()(
           values: { ...DEFAULT_VALUES },
           grossMonthlySalary: 15000,
           has13thSalary: true,
+          annualBonusPct: 0,
           expenseAllowance: 700,
+          employerInsuranceContrib: 0,
+          mobilityAllowance: 0,
+          relocationBonus: 0,
           bvgMonthly: 390,
           pillar3aMonthly: 0,
           setupCosts: {},
@@ -124,13 +148,11 @@ export const useBudgetStore = create<BudgetStore>()(
     }),
     {
       name: "quaipulse-budget",
-      version: 2,
+      version: 3,
       migrate: (persisted, version) => {
         const state = persisted as Record<string, unknown>;
         if (version < 2) {
-          // Migration from v0/v1: add new fields with defaults
-          return {
-            ...state,
+          Object.assign(state, {
             grossMonthlySalary: state.grossMonthlySalary ?? 15000,
             expenseAllowance: state.expenseAllowance ?? 700,
             bvgMonthly: state.bvgMonthly ?? 390,
@@ -138,7 +160,15 @@ export const useBudgetStore = create<BudgetStore>()(
             childSupport: state.childSupport ?? 915,
             viennaUtils: state.viennaUtils ?? 220,
             carInsurance: state.carInsurance ?? 175,
-          };
+          });
+        }
+        if (version < 3) {
+          Object.assign(state, {
+            annualBonusPct: state.annualBonusPct ?? 0,
+            employerInsuranceContrib: state.employerInsuranceContrib ?? 0,
+            mobilityAllowance: state.mobilityAllowance ?? 0,
+            relocationBonus: state.relocationBonus ?? 0,
+          });
         }
         return state;
       },

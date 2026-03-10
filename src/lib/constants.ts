@@ -14,6 +14,7 @@ export const NAVIGATION = [
   { label: "AI Chat", href: "/ai", icon: "Bot", shortcut: "G I" },
   { label: "Gym Finder", href: "/gym-finder", icon: "Dumbbell", shortcut: "G F" },
   { label: "Sleep Intelligence", href: "/sleep", icon: "Moon", shortcut: "G Z" },
+  { label: "Travel Intel", href: "/travel", icon: "Route", shortcut: "G T" },
   { label: "Flights", href: "/flights", icon: "Plane", shortcut: "G L" },
   { label: "Language Prep", href: "/language", icon: "Languages", shortcut: "G P" },
   { label: "Subscriptions", href: "/subscriptions", icon: "CreditCard", shortcut: "G U" },

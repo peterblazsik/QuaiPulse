@@ -86,8 +86,16 @@ export function IncomeSection() {
   const setGrossMonthlySalary = useBudgetStore((s) => s.setGrossMonthlySalary);
   const has13thSalary = useBudgetStore((s) => s.has13thSalary);
   const setHas13thSalary = useBudgetStore((s) => s.setHas13thSalary);
+  const annualBonusPct = useBudgetStore((s) => s.annualBonusPct);
+  const setAnnualBonusPct = useBudgetStore((s) => s.setAnnualBonusPct);
   const expenseAllowance = useBudgetStore((s) => s.expenseAllowance);
   const setExpenseAllowance = useBudgetStore((s) => s.setExpenseAllowance);
+  const employerInsuranceContrib = useBudgetStore((s) => s.employerInsuranceContrib);
+  const setEmployerInsuranceContrib = useBudgetStore((s) => s.setEmployerInsuranceContrib);
+  const mobilityAllowance = useBudgetStore((s) => s.mobilityAllowance);
+  const setMobilityAllowance = useBudgetStore((s) => s.setMobilityAllowance);
+  const relocationBonus = useBudgetStore((s) => s.relocationBonus);
+  const setRelocationBonus = useBudgetStore((s) => s.setRelocationBonus);
   const bvgMonthly = useBudgetStore((s) => s.bvgMonthly);
   const setBvgMonthly = useBudgetStore((s) => s.setBvgMonthly);
   const pillar3aMonthly = useBudgetStore((s) => s.pillar3aMonthly);
@@ -132,11 +140,21 @@ export function IncomeSection() {
             <span className="text-[11px] text-text-secondary">13th salary</span>
           </label>
           <span className="font-data text-[10px] text-text-muted tabular-nums">
-            ×{has13thSalary ? "13" : "12"} = {formatCHF(breakdown.grossAnnualSalary)}/yr
+            ×{has13thSalary ? "13" : "12"} = {formatCHF(grossMonthlySalary * (has13thSalary ? 13 : 12))}/yr
           </span>
         </div>
+        <SliderRow
+          label="Annual bonus"
+          value={annualBonusPct}
+          min={0}
+          max={30}
+          step={1}
+          onChange={setAnnualBonusPct}
+          format={(v) => `${v}%`}
+          suffix={annualBonusPct > 0 ? ` (+${formatCHF(Math.round(grossMonthlySalary * (has13thSalary ? 13 : 12) * annualBonusPct / 100))}/yr)` : ""}
+        />
         <SectionDivider
-          label="Annual Gross"
+          label="Annual Gross (incl. bonus)"
           value={formatCHF(breakdown.grossAnnualSalary)}
           color="text-text-primary"
         />
@@ -253,10 +271,10 @@ export function IncomeSection() {
         )}
       </div>
 
-      {/* ── NET INCOME ── */}
+      {/* ── NET INCOME + EMPLOYER BENEFITS ── */}
       <div>
         <h4 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
-          Net Monthly Income
+          Net Income + Benefits
         </h4>
         <StatRow label="Net salary" value={formatCHF(breakdown.netMonthlySalary)} />
         <SliderRow
@@ -267,11 +285,46 @@ export function IncomeSection() {
           step={50}
           onChange={setExpenseAllowance}
         />
+        <SliderRow
+          label="Insurance contribution"
+          value={employerInsuranceContrib}
+          min={0}
+          max={500}
+          step={25}
+          onChange={setEmployerInsuranceContrib}
+        />
+        <SliderRow
+          label="Mobility / travel allowance"
+          value={mobilityAllowance}
+          min={0}
+          max={500}
+          step={25}
+          onChange={setMobilityAllowance}
+        />
+        <SliderRow
+          label="Relocation bonus (one-off)"
+          value={relocationBonus}
+          min={0}
+          max={20000}
+          step={500}
+          onChange={setRelocationBonus}
+          suffix=""
+        />
+        {relocationBonus > 0 && (
+          <StatRow
+            label="Relocation amortized"
+            value={`+${formatCHF(breakdown.relocationMonthly)}/mo over 12mo`}
+            muted
+          />
+        )}
         <SectionDivider
           label="Take-home"
           value={formatCHF(breakdown.totalMonthlyIncome)}
           color="text-emerald-400"
         />
+        <p className="text-[10px] text-text-muted mt-1">
+          Benefits (expense, insurance, mobility) are tax-free additions. Relocation bonus amortized over 12 months.
+        </p>
       </div>
 
       {/* ── VIENNA FIXED COSTS ── */}

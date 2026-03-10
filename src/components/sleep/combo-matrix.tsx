@@ -83,11 +83,11 @@ export function ComboMatrixChart({ matrix }: ComboMatrixProps) {
               <th className="w-[100px]" />
               {cols.map((intvId) => {
                 const name = INTERVENTIONS.find((i) => i.id === intvId)?.name ?? intvId;
-                const short = name.length > 10 ? name.slice(0, 8) + "…" : name;
+                const short = name.length > 14 ? name.slice(0, 12) + "…" : name;
                 return (
-                  <th key={`col-${intvId}`} className="pb-1.5 px-[1px]" style={{ width: 36 }}>
-                    <div className="font-data text-[10px] text-text-muted font-normal whitespace-nowrap origin-bottom-left"
-                      style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", height: 56, lineHeight: "36px" }}>
+                  <th key={`col-${intvId}`} className="pb-2 px-[1px] align-bottom" style={{ width: 36 }}>
+                    <div className="font-data text-[10px] text-text-muted font-normal whitespace-nowrap"
+                      style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", height: 90, lineHeight: "36px", display: "flex", alignItems: "center" }}>
                       {short}
                     </div>
                   </th>

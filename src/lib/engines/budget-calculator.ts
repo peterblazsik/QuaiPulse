@@ -30,6 +30,9 @@ export interface BudgetBreakdown {
   // Net income
   netMonthlySalary: number;
   expenseAllowance: number;
+  employerInsuranceContrib: number;
+  mobilityAllowance: number;
+  relocationMonthly: number;
   totalMonthlyIncome: number;
 
   // Fixed costs outside Switzerland
@@ -51,7 +54,11 @@ export interface BudgetBreakdown {
 export interface BudgetInputs {
   grossMonthlySalary: number;
   has13thSalary: boolean;
+  annualBonusPct: number;
   expenseAllowance: number;
+  employerInsuranceContrib: number;
+  mobilityAllowance: number;
+  relocationBonus: number;
   bvgMonthly: number;
   pillar3aMonthly: number;
   /** Effective all-in tax rate (%), 0 = no tax modeled */
@@ -136,7 +143,11 @@ export function calculateBudget(inputs: BudgetInputs): BudgetBreakdown {
   const {
     grossMonthlySalary,
     has13thSalary,
+    annualBonusPct,
     expenseAllowance,
+    employerInsuranceContrib,
+    mobilityAllowance,
+    relocationBonus,
     bvgMonthly,
     pillar3aMonthly,
     taxEffectiveRate,
@@ -147,8 +158,9 @@ export function calculateBudget(inputs: BudgetInputs): BudgetBreakdown {
     zurichValues,
   } = inputs;
 
-  // ── Gross ──
-  const grossAnnualSalary = grossMonthlySalary * (has13thSalary ? 13 : 12);
+  // ── Gross (base + bonus) ──
+  const baseSalary = grossMonthlySalary * (has13thSalary ? 13 : 12);
+  const grossAnnualSalary = Math.round(baseSalary * (1 + annualBonusPct / 100));
 
   // ── Social deductions (annual → monthly) ──
   const annualAHV = grossAnnualSalary * (AHV_RATE / 100);
@@ -172,7 +184,8 @@ export function calculateBudget(inputs: BudgetInputs): BudgetBreakdown {
   // ── Net monthly income ──
   const netAnnual = grossAnnualSalary - totalAnnualSocial - annualTax;
   const netMonthlySalary = Math.round(netAnnual / 12);
-  const totalMonthlyIncome = netMonthlySalary + expenseAllowance;
+  const relocationMonthly = Math.round(relocationBonus / 12);
+  const totalMonthlyIncome = netMonthlySalary + expenseAllowance + employerInsuranceContrib + mobilityAllowance + relocationMonthly;
 
   // ── Fixed outside costs (Vienna) ──
   const viennaBreakdown = [
@@ -208,6 +221,9 @@ export function calculateBudget(inputs: BudgetInputs): BudgetBreakdown {
     annualTax,
     netMonthlySalary,
     expenseAllowance,
+    employerInsuranceContrib,
+    mobilityAllowance,
+    relocationMonthly,
     totalMonthlyIncome,
     fixedOutside,
     viennaBreakdown,
