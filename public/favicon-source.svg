@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Background gradient: deep navy to rich blue -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1929"/>
+      <stop offset="100%" stop-color="#122647"/>
+    </linearGradient>
+    <!-- Q letter gradient: cyan to blue -->
+    <linearGradient id="q" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <!-- Pulse gradient: electric cyan -->
+    <linearGradient id="pulse" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="50%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <!-- Subtle glow filter -->
+    <filter id="glow">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect width="512" height="512" rx="108" ry="108" fill="url(#bg)"/>
+
+  <!-- Subtle border -->
+  <rect x="4" y="4" width="504" height="504" rx="104" ry="104"
+        fill="none" stroke="#1e3a5f" stroke-width="4" opacity="0.6"/>
+
+  <!-- Q circle (bold ring) — the core letterform -->
+  <circle cx="236" cy="232" r="128" fill="none" stroke="url(#q)" stroke-width="48"
+          stroke-linecap="round"/>
+
+  <!-- Pulse line as Q-tail — a sharp heartbeat spike exiting bottom-right -->
+  <polyline
+    points="280,310 320,310 348,190 380,390 412,260 460,260"
+    fill="none"
+    stroke="url(#pulse)"
+    stroke-width="36"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    filter="url(#glow)"
+  />
+
+  <!-- Small dot accent at pulse end -->
+  <circle cx="460" cy="260" r="14" fill="#22d3ee" opacity="0.9"/>
+</svg>
