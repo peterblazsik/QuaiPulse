@@ -6,6 +6,7 @@ import {
   getPhaseLabel,
   type DeadlineAlert,
 } from "@/lib/engines/notification-engine";
+import { getAllChecklistItems, type ChecklistItemData } from "@/lib/data/checklist-items";
 
 const THROTTLE_MS = 4 * 60 * 60 * 1000; // 4 hours
 const STORAGE_KEY = "quaipulse-notif-last-sent";
@@ -15,7 +16,7 @@ type PermissionState = "default" | "granted" | "denied" | "unsupported";
 interface NotificationHook {
   permission: PermissionState;
   requestPermission: () => Promise<void>;
-  checkAndNotify: (completedIds: string[]) => void;
+  checkAndNotify: (completedIds: string[], customItems?: ChecklistItemData[]) => void;
 }
 
 function getLastNotifiedMap(): Record<string, number> {
@@ -78,10 +79,11 @@ export function useNotifications(): NotificationHook {
   }, []);
 
   const checkAndNotify = useCallback(
-    (completedIds: string[]) => {
+    (completedIds: string[], customItems: ChecklistItemData[] = []) => {
       if (permission !== "granted") return;
 
-      const alerts = getUpcomingDeadlines(completedIds);
+      const allItems = getAllChecklistItems(customItems);
+      const alerts = getUpcomingDeadlines(completedIds, allItems);
       const now = Date.now();
       const lastMap = getLastNotifiedMap();
 

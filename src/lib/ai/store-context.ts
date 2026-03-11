@@ -10,7 +10,7 @@ import { useDossierStore } from "@/lib/stores/dossier-store";
 import { useSleepStore } from "@/lib/stores/sleep-store";
 import { useKatieStore } from "@/lib/stores/katie-store";
 
-import { CHECKLIST_ITEMS } from "@/lib/data/checklist-items";
+import { getAllChecklistItems } from "@/lib/data/checklist-items";
 import { ALL_LOCATIONS } from "@/lib/data/neighborhoods";
 import { DEFAULT_SUBSCRIPTIONS } from "@/lib/data/subscriptions";
 import { rankNeighborhoods } from "@/lib/engines/scoring";
@@ -78,14 +78,15 @@ export function buildStoreContext(): string {
   // ─── Checklist ─────────────────────────────────────────────────────────
   try {
     const checklist = useChecklistStore.getState();
-    const total = CHECKLIST_ITEMS.length;
+    const allItems = getAllChecklistItems(checklist.customItems);
+    const total = allItems.length;
     const done = checklist.completedIds.length;
     const pct = Math.round((done / total) * 100);
 
     // Phase breakdown
     const phases = ["mar-apr", "may", "jun", "jul"] as const;
     const phaseProgress = phases.map((p) => {
-      const items = CHECKLIST_ITEMS.filter((i) => i.phase === p);
+      const items = allItems.filter((i) => i.phase === p);
       const completed = items.filter((i) => checklist.completedIds.includes(i.id));
       return `${p}: ${completed.length}/${items.length}`;
     });
@@ -93,7 +94,7 @@ export function buildStoreContext(): string {
     // Upcoming deadlines
     let deadlineInfo = "";
     try {
-      const deadlines = getUpcomingDeadlines(checklist.completedIds);
+      const deadlines = getUpcomingDeadlines(checklist.completedIds, allItems);
       if (deadlines.length > 0) {
         const urgent = deadlines.slice(0, 3).map((d) =>
           `${d.item.title} (${d.urgency}, ${d.daysUntil}d)`

@@ -1,7 +1,4 @@
-import {
-  CHECKLIST_ITEMS,
-  type ChecklistItemData,
-} from "@/lib/data/checklist-items";
+import type { ChecklistItemData } from "@/lib/data/checklist-items";
 import { getDaysUntilDeadline } from "@/lib/engines/checklist-engine";
 
 export type Urgency = "overdue" | "critical" | "warning" | "upcoming";
@@ -28,21 +25,20 @@ export function getPhaseLabel(phase: string): string {
  * Only includes items within a 30-day lookahead window or already overdue.
  */
 export function getUpcomingDeadlines(
-  completedIds: string[]
+  completedIds: string[],
+  items: ChecklistItemData[]
 ): DeadlineAlert[] {
   const completedSet = new Set(completedIds);
 
-  return CHECKLIST_ITEMS.filter(
-    (item) => item.hardDeadline && !completedSet.has(item.id)
-  )
+  return items
+    .filter((item) => item.hardDeadline && !completedSet.has(item.id))
     .map((item) => {
       const daysUntil = getDaysUntilDeadline(item.hardDeadline!);
       const urgency = resolveUrgency(daysUntil);
       return { item, daysUntil, urgency };
     })
     .filter(
-      (alert): alert is DeadlineAlert =>
-        alert.urgency !== null
+      (alert): alert is DeadlineAlert => alert.urgency !== null
     )
     .sort((a, b) => a.daysUntil - b.daysUntil);
 }

@@ -293,4 +293,56 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     sortOrder: 30,
     hardDeadline: "2026-07-01",
   },
+
+  // === CRIMINAL RECORD CERTIFICATES ===
+  {
+    id: "cl-31",
+    phase: "mar-apr",
+    category: "Administration",
+    title: "Request Austrian Strafregisterbescheinigung (criminal record certificate)",
+    description:
+      "Apply online via oesterreich.gv.at (€8.60, instant) — requires ID Austria login. If needed for employer, get apostille from BMEIA. Valid ~3 months.",
+    sortOrder: 31,
+    estimatedDays: 14,
+  },
+  {
+    id: "cl-32",
+    phase: "mar-apr",
+    category: "Administration",
+    title: "Request Dutch VOG (Verklaring Omtrent het Gedrag)",
+    description:
+      "Email non-resident application to vog.np.rni@justis.nl (€41.35). Need: passport copy, application form from justis.nl. Takes 4-8 weeks. Get apostille from Dutch district court for Swiss use.",
+    sortOrder: 32,
+    estimatedDays: 56,
+    hardDeadline: "2026-05-31",
+  },
+  {
+    id: "cl-33",
+    phase: "jul",
+    category: "Setup",
+    title: "Request Swiss Strafregisterauszug",
+    description:
+      "CHF 17 at post office or online via e-service.admin.ch. Apply after Kreisbüro registration.",
+    sortOrder: 33,
+    dependsOn: ["cl-23"],
+    estimatedDays: 7,
+  },
 ];
+
+/**
+ * Merge static items with custom user-added items, sorted by sortOrder.
+ */
+export function getAllChecklistItems(
+  customItems: ChecklistItemData[]
+): ChecklistItemData[] {
+  return [...CHECKLIST_ITEMS, ...customItems].sort(
+    (a, b) => a.sortOrder - b.sortOrder
+  );
+}
+
+/**
+ * Check if an item ID belongs to a user-created custom item.
+ */
+export function isCustomItem(id: string): boolean {
+  return id.startsWith("custom-");
+}

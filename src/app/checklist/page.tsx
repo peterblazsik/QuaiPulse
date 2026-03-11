@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Check,
@@ -13,9 +13,17 @@ import {
   ArrowRight,
   Calendar,
   ExternalLink,
+  Plus,
+  Trash2,
+  Tag,
 } from "lucide-react";
 import { DeadlineAlerts } from "@/components/checklist/deadline-alerts";
-import { CHECKLIST_ITEMS, type ChecklistItemData } from "@/lib/data/checklist-items";
+import { AddItemDialog } from "@/components/checklist/add-item-dialog";
+import {
+  getAllChecklistItems,
+  isCustomItem,
+  type ChecklistItemData,
+} from "@/lib/data/checklist-items";
 import { useChecklistStore } from "@/lib/stores/checklist-store";
 import {
   getBlockedItems,
@@ -33,28 +41,32 @@ const PHASES = [
 ];
 
 export default function ChecklistPage() {
-  const { completedIds, toggle, viewMode, setViewMode } = useChecklistStore();
+  const { completedIds, toggle, viewMode, setViewMode, customItems, deleteCustomItem } =
+    useChecklistStore();
   const completed = useMemo(() => new Set(completedIds), [completedIds]);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+
+  const allItems = useMemo(() => getAllChecklistItems(customItems), [customItems]);
 
   const stats = useMemo(() => {
-    const total = CHECKLIST_ITEMS.length;
+    const total = allItems.length;
     const done = completed.size;
     const pct = total > 0 ? Math.round((done / total) * 100) : 0;
     return { total, done, pct };
-  }, [completed]);
+  }, [completed, allItems]);
 
   const phaseStats = useMemo(() => {
     return PHASES.map((phase) => {
-      const items = CHECKLIST_ITEMS.filter((i) => i.phase === phase.key);
+      const items = allItems.filter((i) => i.phase === phase.key);
       const done = items.filter((i) => completed.has(i.id)).length;
       return { ...phase, total: items.length, done };
     });
-  }, [completed]);
+  }, [completed, allItems]);
 
-  const blockedItems = useMemo(() => getBlockedItems(completed), [completed]);
-  const criticalPath = useMemo(() => getCriticalPath(), []);
+  const blockedItems = useMemo(() => getBlockedItems(completed, allItems), [completed, allItems]);
+  const criticalPath = useMemo(() => getCriticalPath(allItems), [allItems]);
   const criticalIds = useMemo(() => new Set(criticalPath.map((i) => i.id)), [criticalPath]);
-  const depGraph = useMemo(() => buildDependencyGraph(), []);
+  const depGraph = useMemo(() => buildDependencyGraph(allItems), [allItems]);
 
   return (
     <div className="space-y-6 relative">
@@ -63,6 +75,9 @@ export default function ChecklistPage() {
 
       {/* Deadline notifications banner */}
       <DeadlineAlerts />
+
+      {/* Add Item Dialog */}
+      <AddItemDialog open={addDialogOpen} onClose={() => setAddDialogOpen(false)} />
 
       {/* Header */}
       <div className="flex items-start justify-between">
@@ -76,6 +91,15 @@ export default function ChecklistPage() {
         </div>
 
         <div className="shrink-0 flex items-center gap-3">
+          {/* Add task button */}
+          <button
+            onClick={() => setAddDialogOpen(true)}
+            className="flex items-center gap-1.5 rounded-lg bg-accent-primary/15 border border-accent-primary/30 px-3 py-1.5 text-xs font-medium text-accent-primary hover:bg-accent-primary/25 transition-colors"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Add Task
+          </button>
+
           {/* View mode toggle */}
           <div className="flex rounded-lg bg-bg-tertiary p-0.5">
             <button
@@ -144,14 +168,17 @@ export default function ChecklistPage() {
       {/* View content */}
       {viewMode === "list" ? (
         <ListView
+          allItems={allItems}
           completed={completed}
           toggle={toggle}
           blockedItems={blockedItems}
           criticalIds={criticalIds}
           depGraph={depGraph}
+          deleteCustomItem={deleteCustomItem}
         />
       ) : (
         <TimelineView
+          allItems={allItems}
           completed={completed}
           blockedItems={blockedItems}
           criticalIds={criticalIds}
@@ -164,24 +191,28 @@ export default function ChecklistPage() {
 /* ─────────────── List View ─────────────── */
 
 function ListView({
+  allItems,
   completed,
   toggle,
   blockedItems,
   criticalIds,
   depGraph,
+  deleteCustomItem,
 }: {
+  allItems: ChecklistItemData[];
   completed: Set<string>;
   toggle: (id: string) => void;
   blockedItems: Set<string>;
   criticalIds: Set<string>;
   depGraph: Map<string, { item: ChecklistItemData; blockedBy: ChecklistItemData[]; blocks: ChecklistItemData[] }>;
+  deleteCustomItem: (id: string) => void;
 }) {
   return (
     <div className="space-y-8">
       {PHASES.map((phase) => {
-        const items = CHECKLIST_ITEMS.filter((i) => i.phase === phase.key);
+        const items = allItems.filter((i) => i.phase === phase.key);
         const categories = [...new Set(items.map((i) => i.category))];
-        const gateStatus = getPhaseGateStatus(phase.key, completed);
+        const gateStatus = getPhaseGateStatus(phase.key, completed, allItems);
 
         return (
           <div key={phase.key}>
@@ -243,7 +274,13 @@ function ListView({
                           isDone={completed.has(item.id)}
                           isBlocked={blockedItems.has(item.id)}
                           isCritical={criticalIds.has(item.id)}
+                          isCustom={isCustomItem(item.id)}
                           onToggle={() => toggle(item.id)}
+                          onDelete={
+                            isCustomItem(item.id)
+                              ? () => deleteCustomItem(item.id)
+                              : undefined
+                          }
                           phaseColor={phase.color}
                           depGraph={depGraph}
                         />
@@ -267,7 +304,9 @@ function ChecklistRow({
   isDone,
   isBlocked,
   isCritical,
+  isCustom,
   onToggle,
+  onDelete,
   phaseColor,
   depGraph,
 }: {
@@ -275,17 +314,18 @@ function ChecklistRow({
   isDone: boolean;
   isBlocked: boolean;
   isCritical: boolean;
+  isCustom: boolean;
   onToggle: () => void;
+  onDelete?: () => void;
   phaseColor: string;
   depGraph: Map<string, { item: ChecklistItemData; blockedBy: ChecklistItemData[]; blocks: ChecklistItemData[] }>;
 }) {
   const deadlineDays = item.hardDeadline ? getDaysUntilDeadline(item.hardDeadline) : null;
   const depInfo = depGraph.get(item.id);
   return (
-    <motion.button
+    <motion.div
       layout
-      onClick={onToggle}
-      className={`w-full text-left flex items-start gap-3 rounded-lg p-2.5 transition-colors ${
+      className={`group w-full text-left flex items-start gap-3 rounded-lg p-2.5 transition-colors ${
         isCritical && !isDone ? "border-l-2 border-l-warning/70" : ""
       } ${
         isDone
@@ -296,7 +336,7 @@ function ChecklistRow({
       }`}
     >
       {/* Checkbox */}
-      <div className="shrink-0 mt-0.5">
+      <button onClick={onToggle} className="shrink-0 mt-0.5">
         {isDone ? (
           <div
             className="h-4.5 w-4.5 rounded-full flex items-center justify-center"
@@ -309,10 +349,10 @@ function ChecklistRow({
         ) : (
           <Circle className="h-4.5 w-4.5 text-text-muted" />
         )}
-      </div>
+      </button>
 
       {/* Content */}
-      <div className="min-w-0 flex-1">
+      <button onClick={onToggle} className="min-w-0 flex-1 text-left">
         <div className="flex items-center gap-2 flex-wrap">
           <p
             className={`text-xs font-medium ${
@@ -330,6 +370,12 @@ function ChecklistRow({
           {isCritical && !isDone && (
             <span className="inline-flex items-center rounded px-1 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-warning/15 text-warning">
               Critical
+            </span>
+          )}
+          {isCustom && (
+            <span className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-[10px] font-medium uppercase tracking-wider bg-accent-primary/10 text-accent-primary border border-accent-primary/20">
+              <Tag className="h-2 w-2" />
+              Custom
             </span>
           )}
         </div>
@@ -352,7 +398,7 @@ function ChecklistRow({
             ))}
           </div>
         )}
-      </div>
+      </button>
 
       {/* Right side indicators */}
       <div className="shrink-0 flex flex-col items-end gap-1">
@@ -384,32 +430,47 @@ function ChecklistRow({
             ~{item.estimatedDays}d
           </span>
         )}
+        {/* Delete button for custom items */}
+        {isCustom && onDelete && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="opacity-0 group-hover:opacity-100 transition-opacity text-text-muted hover:text-danger"
+            title="Delete custom task"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        )}
       </div>
-    </motion.button>
+    </motion.div>
   );
 }
 
 /* ─────────────── Timeline View ─────────────── */
 
 function TimelineView({
+  allItems,
   completed,
   blockedItems,
   criticalIds,
 }: {
+  allItems: ChecklistItemData[];
   completed: Set<string>;
   blockedItems: Set<string>;
   criticalIds: Set<string>;
 }) {
   // Max estimated days for scaling
   const maxDays = Math.max(
-    ...CHECKLIST_ITEMS.map((i) => i.estimatedDays || 1),
+    ...allItems.map((i) => i.estimatedDays || 1),
     1
   );
 
   return (
     <div className="space-y-8">
       {PHASES.map((phase) => {
-        const items = CHECKLIST_ITEMS.filter((i) => i.phase === phase.key);
+        const items = allItems.filter((i) => i.phase === phase.key);
 
         return (
           <div key={phase.key}>
@@ -451,6 +512,9 @@ function TimelineView({
                         }`}
                         title={item.title}
                       >
+                        {isCustomItem(item.id) && (
+                          <Tag className="inline h-2.5 w-2.5 mr-1 text-accent-primary" />
+                        )}
                         {item.title}
                       </p>
                     </div>

@@ -1,10 +1,15 @@
 import { describe, it, expect } from "vitest";
-import { CHECKLIST_ITEMS, type ChecklistItemData } from "../checklist-items";
+import {
+  CHECKLIST_ITEMS,
+  getAllChecklistItems,
+  isCustomItem,
+  type ChecklistItemData,
+} from "../checklist-items";
 
 describe("CHECKLIST_ITEMS data", () => {
   describe("overall structure", () => {
-    it("should have items defined", () => {
-      expect(CHECKLIST_ITEMS.length).toBeGreaterThan(0);
+    it("should have 33 items defined", () => {
+      expect(CHECKLIST_ITEMS.length).toBe(33);
     });
 
     it("should have no duplicate IDs", () => {
@@ -48,14 +53,9 @@ describe("CHECKLIST_ITEMS data", () => {
 
   describe("url field (new feature)", () => {
     it("should have at least one item with a url field defined", () => {
-      // The new URL rendering feature requires some items to have urls
-      // Check if any items have url fields set
-      // Items with url may not exist yet in the static data, but the interface supports it
       const itemsWithUrl = CHECKLIST_ITEMS.filter(
         (item) => item.url !== undefined
       );
-      // The url field exists on the interface and can be used
-      // Verify the field is typed correctly on items that have it
       for (const item of itemsWithUrl) {
         expect(typeof item.url).toBe("string");
         expect(item.url!.length).toBeGreaterThan(0);
@@ -63,7 +63,6 @@ describe("CHECKLIST_ITEMS data", () => {
     });
 
     it("should have the url field defined in the ChecklistItemData interface", () => {
-      // Verify the type accepts url by creating a compliant object
       const testItem: ChecklistItemData = {
         id: "test",
         phase: "mar-apr",
@@ -97,12 +96,92 @@ describe("CHECKLIST_ITEMS data", () => {
       expect(itemsWithDeadline.length).toBeGreaterThan(0);
 
       for (const item of itemsWithDeadline) {
-        // Should be YYYY-MM-DD format
         expect(item.hardDeadline).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-        // Should be a parseable date
         const date = new Date(item.hardDeadline!);
         expect(date.getTime()).not.toBeNaN();
       }
     });
+  });
+
+  describe("criminal record certificate items", () => {
+    it("should include Austrian Strafregisterbescheinigung (cl-31)", () => {
+      const item = CHECKLIST_ITEMS.find((i) => i.id === "cl-31");
+      expect(item).toBeDefined();
+      expect(item!.phase).toBe("mar-apr");
+      expect(item!.category).toBe("Administration");
+      expect(item!.estimatedDays).toBe(14);
+    });
+
+    it("should include Dutch VOG (cl-32) with hard deadline", () => {
+      const item = CHECKLIST_ITEMS.find((i) => i.id === "cl-32");
+      expect(item).toBeDefined();
+      expect(item!.phase).toBe("mar-apr");
+      expect(item!.hardDeadline).toBe("2026-05-31");
+      expect(item!.estimatedDays).toBe(56);
+    });
+
+    it("should include Swiss Strafregisterauszug (cl-33) depending on cl-23", () => {
+      const item = CHECKLIST_ITEMS.find((i) => i.id === "cl-33");
+      expect(item).toBeDefined();
+      expect(item!.phase).toBe("jul");
+      expect(item!.dependsOn).toContain("cl-23");
+    });
+  });
+});
+
+describe("getAllChecklistItems", () => {
+  it("returns static items when no custom items provided", () => {
+    const result = getAllChecklistItems([]);
+    expect(result.length).toBe(CHECKLIST_ITEMS.length);
+  });
+
+  it("merges custom items with static items", () => {
+    const custom: ChecklistItemData[] = [
+      {
+        id: "custom-test-1",
+        phase: "may",
+        category: "Test",
+        title: "Custom task",
+        sortOrder: 50,
+      },
+    ];
+    const result = getAllChecklistItems(custom);
+    expect(result.length).toBe(CHECKLIST_ITEMS.length + 1);
+    expect(result.find((i) => i.id === "custom-test-1")).toBeDefined();
+  });
+
+  it("sorts merged items by sortOrder", () => {
+    const custom: ChecklistItemData[] = [
+      {
+        id: "custom-early",
+        phase: "mar-apr",
+        category: "Test",
+        title: "Early custom",
+        sortOrder: 0,
+      },
+      {
+        id: "custom-late",
+        phase: "jul",
+        category: "Test",
+        title: "Late custom",
+        sortOrder: 999,
+      },
+    ];
+    const result = getAllChecklistItems(custom);
+    expect(result[0].id).toBe("custom-early");
+    expect(result[result.length - 1].id).toBe("custom-late");
+  });
+});
+
+describe("isCustomItem", () => {
+  it("returns true for IDs starting with 'custom-'", () => {
+    expect(isCustomItem("custom-abc-123")).toBe(true);
+    expect(isCustomItem("custom-")).toBe(true);
+  });
+
+  it("returns false for static item IDs", () => {
+    expect(isCustomItem("cl-01")).toBe(false);
+    expect(isCustomItem("cl-33")).toBe(false);
+    expect(isCustomItem("something-custom-else")).toBe(false);
   });
 });

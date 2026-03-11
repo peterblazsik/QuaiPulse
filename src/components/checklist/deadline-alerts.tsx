@@ -4,6 +4,7 @@ import { useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, BellOff, AlertTriangle, Clock } from "lucide-react";
 import { useChecklistStore } from "@/lib/stores/checklist-store";
+import { getAllChecklistItems } from "@/lib/data/checklist-items";
 import {
   getUpcomingDeadlines,
   getPhaseLabel,
@@ -60,19 +61,22 @@ function formatCountdown(daysUntil: number): string {
 
 export function DeadlineAlerts() {
   const completedIds = useChecklistStore((s) => s.completedIds);
+  const customItems = useChecklistStore((s) => s.customItems);
   const { permission, requestPermission, checkAndNotify } = useNotifications();
   const hasNotified = useRef(false);
 
+  const allItems = useMemo(() => getAllChecklistItems(customItems), [customItems]);
+
   const alerts = useMemo(
-    () => getUpcomingDeadlines(completedIds),
-    [completedIds]
+    () => getUpcomingDeadlines(completedIds, allItems),
+    [completedIds, allItems]
   );
 
   // Fire browser notifications once on mount (or when permission changes to granted)
   useEffect(() => {
     if (permission === "granted" && !hasNotified.current) {
       hasNotified.current = true;
-      checkAndNotify(completedIds);
+      checkAndNotify(completedIds, customItems);
     }
   }, [permission, completedIds, checkAndNotify]);
 
