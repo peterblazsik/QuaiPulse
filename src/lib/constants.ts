@@ -8,6 +8,7 @@ export const NAVIGATION = [
   { label: "AI Chat", href: "/ai", icon: "Bot", shortcut: "G I" },
   { label: "Neighborhoods", href: "/neighborhoods", icon: "MapPin", shortcut: "G N" },
   { label: "Apartments", href: "/apartments", icon: "Building2", shortcut: "G A" },
+  { label: "Rental Intel", href: "/rental-intel", icon: "TrendingUp", shortcut: "G R" },
   { label: "Gym Finder", href: "/gym-finder", icon: "Dumbbell", shortcut: "G F" },
   { label: "Social Map", href: "/social", icon: "Users", shortcut: "G S" },
   { label: "Budget", href: "/budget", icon: "Wallet", shortcut: "G B" },

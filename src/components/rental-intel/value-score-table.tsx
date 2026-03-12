@@ -1,0 +1,159 @@
+"use client";
+
+import { useState } from "react";
+import { ExternalLink, ChevronUp, ChevronDown } from "lucide-react";
+import type { UnifiedListing } from "@/lib/types";
+import { formatCHF } from "@/lib/utils";
+
+interface Props {
+  listings: UnifiedListing[];
+  onSelect: (id: string) => void;
+}
+
+type Column = "valueScore" | "rent" | "pricePerSqm" | "rooms" | "sqm" | "kreis";
+
+export function ValueScoreTable({ listings, onSelect }: Props) {
+  const [sortCol, setSortCol] = useState<Column>("valueScore");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+
+  const toggleSort = (col: Column) => {
+    if (sortCol === col) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortCol(col);
+      setSortDir(col === "rent" || col === "pricePerSqm" ? "asc" : "desc");
+    }
+  };
+
+  const sorted = [...listings].sort((a, b) => {
+    const mul = sortDir === "asc" ? 1 : -1;
+    const av = a[sortCol] ?? 0;
+    const bv = b[sortCol] ?? 0;
+    return (Number(av) - Number(bv)) * mul;
+  });
+
+  const SortIcon = ({ col }: { col: Column }) => {
+    if (sortCol !== col) return null;
+    return sortDir === "asc" ? (
+      <ChevronUp className="h-3 w-3 inline" />
+    ) : (
+      <ChevronDown className="h-3 w-3 inline" />
+    );
+  };
+
+  const scoreColor = (score: number) => {
+    if (score >= 70) return "text-emerald-400";
+    if (score >= 50) return "text-amber-400";
+    return "text-red-400";
+  };
+
+  const budgetBadge = (fit: UnifiedListing["budgetFit"]) => {
+    const styles = {
+      comfortable: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+      stretch: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+      over: "bg-red-500/15 text-red-400 border-red-500/30",
+    };
+    return (
+      <span className={`text-[10px] px-1.5 py-0.5 rounded border ${styles[fit]}`}>
+        {fit}
+      </span>
+    );
+  };
+
+  return (
+    <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] overflow-hidden">
+      <div className="p-4 border-b border-[var(--border-default)]">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+          Top Picks — Value Score Ranking
+        </h3>
+        <p className="text-[11px] text-[var(--text-tertiary)] mt-1">
+          {listings.length} listings · click row for details
+        </p>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-[var(--border-default)] bg-[var(--bg-primary)]">
+              {(
+                [
+                  ["valueScore", "Score"],
+                  ["rent", "Rent"],
+                  ["pricePerSqm", "CHF/m²"],
+                  ["rooms", "Rooms"],
+                  ["sqm", "m²"],
+                  ["kreis", "Kreis"],
+                ] as [Column, string][]
+              ).map(([col, label]) => (
+                <th
+                  key={col}
+                  onClick={() => toggleSort(col)}
+                  className="px-3 py-2.5 text-left font-medium text-[var(--text-tertiary)] cursor-pointer hover:text-[var(--text-primary)] select-none whitespace-nowrap"
+                >
+                  {label} <SortIcon col={col} />
+                </th>
+              ))}
+              <th className="px-3 py-2.5 text-left font-medium text-[var(--text-tertiary)]">
+                Title
+              </th>
+              <th className="px-3 py-2.5 text-left font-medium text-[var(--text-tertiary)]">
+                Budget
+              </th>
+              <th className="px-3 py-2.5" />
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.slice(0, 50).map((listing) => (
+              <tr
+                key={listing.id}
+                onClick={() => onSelect(listing.id)}
+                className="border-b border-[var(--border-subtle)] hover:bg-[var(--bg-tertiary)]/30 cursor-pointer transition-colors"
+              >
+                <td className="px-3 py-2.5">
+                  <span className={`font-mono font-bold ${scoreColor(listing.valueScore)}`}>
+                    {listing.valueScore}
+                  </span>
+                </td>
+                <td className="px-3 py-2.5 font-mono text-[var(--text-primary)]">
+                  {formatCHF(listing.rent)}
+                </td>
+                <td className="px-3 py-2.5 font-mono text-[var(--text-secondary)]">
+                  {listing.pricePerSqm ?? "—"}
+                </td>
+                <td className="px-3 py-2.5 font-mono text-[var(--text-secondary)]">
+                  {listing.rooms ?? "—"}
+                </td>
+                <td className="px-3 py-2.5 font-mono text-[var(--text-secondary)]">
+                  {listing.sqm ?? "—"}
+                </td>
+                <td className="px-3 py-2.5 font-mono text-[var(--text-secondary)]">
+                  {listing.kreis || "—"}
+                </td>
+                <td className="px-3 py-2.5 text-[var(--text-secondary)] max-w-48 truncate">
+                  <span className="text-[10px] text-[var(--text-tertiary)] mr-1.5">
+                    {listing.source === "flatfox" ? "FF" : "HG"}
+                  </span>
+                  {listing.title}
+                </td>
+                <td className="px-3 py-2.5">
+                  {budgetBadge(listing.budgetFit)}
+                </td>
+                <td className="px-3 py-2.5">
+                  <a
+                    href={listing.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-[var(--text-tertiary)] hover:text-[var(--accent-primary)]"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

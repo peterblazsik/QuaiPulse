@@ -63,6 +63,7 @@ const NAV_COMMANDS: SearchResult[] = [
   { id: "nav-dossier", group: "Navigate", icon: FileText, label: "Dossier Tracker", href: "/dossier", keywords: "dossier tracker documents rental application" },
   { id: "nav-currency", group: "Navigate", icon: ArrowLeftRight, label: "Currency Dashboard", href: "/currency", keywords: "currency dashboard eur chf exchange rate" },
   { id: "nav-weather", group: "Navigate", icon: CloudSun, label: "Weather", href: "/weather", keywords: "weather forecast zurich temperature" },
+  { id: "nav-rental-intel", group: "Navigate", icon: Building2, label: "Rental Intelligence", href: "/rental-intel", keywords: "rental intelligence analytics market heatmap value score budget" },
   { id: "nav-settings", group: "Navigate", icon: Settings, label: "Settings", href: "/settings", keywords: "settings preferences theme" },
 ];
 

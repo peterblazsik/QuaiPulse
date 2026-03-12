@@ -96,3 +96,34 @@ export type SubCategory =
 
 export type SubAction = "keep" | "cut" | "replace" | "undecided";
 export type BillingCycle = "monthly" | "yearly";
+
+// Rental Intelligence types
+export type ListingSource = "flatfox" | "homegate";
+
+export interface UnifiedListing {
+  id: string;
+  source: ListingSource;
+  sourceUrl: string;
+  title: string;
+  address: string;
+  zipcode: number;
+  kreis: number;
+  rent: number;
+  rooms: number | null;
+  sqm: number | null;
+  pricePerSqm: number | null;
+  floor: number | null;
+  description: string | null;
+  imageUrl: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  availableDate: string | null;
+  attributes: string[];
+  isFurnished: boolean;
+  isPremium: boolean;
+  publishedAt: string | null;
+  // Computed
+  valueScore: number;
+  budgetFit: "comfortable" | "stretch" | "over";
+  commuteEstimate: number | null;
+}
