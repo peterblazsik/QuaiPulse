@@ -22,6 +22,7 @@ import {
   CloudSun,
   FileText,
   Settings,
+  TrendingUp,
   PanelLeftClose,
   PanelLeft,
   LogOut,
@@ -50,6 +51,7 @@ const ICON_MAP = {
   CloudSun,
   FileText,
   Settings,
+  TrendingUp,
 } as const;
 
 interface NavItem {
@@ -77,6 +79,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: "Neighborhoods", href: "/neighborhoods", icon: "MapPin", shortcut: "G N" },
       { label: "Apartments", href: "/apartments", icon: "Building2", shortcut: "G A" },
+      { label: "Rental Intel", href: "/rental-intel", icon: "TrendingUp", shortcut: "G R" },
       { label: "Gym Finder", href: "/gym-finder", icon: "Dumbbell", shortcut: "G F" },
       { label: "Social Map", href: "/social", icon: "Users", shortcut: "G S" },
     ],
