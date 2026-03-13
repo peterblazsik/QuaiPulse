@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { TrendingUp, Loader2, Map, Table2 } from "lucide-react";
 import { useRentalIntelStore } from "@/lib/stores/rental-intel-store";
@@ -21,6 +22,7 @@ import { ReferenzzinsCalculator } from "@/components/rental-intel/referenzzins-c
 type ViewMode = "table" | "map";
 
 export default function RentalIntelPage() {
+  const searchParams = useSearchParams();
   const [viewMode, setViewMode] = useState<ViewMode>("table");
   const {
     isLoading,
@@ -46,6 +48,18 @@ export default function RentalIntelPage() {
   useEffect(() => {
     initialize();
   }, [initialize]);
+
+  // Apply Kreis filter from URL query param (e.g., from neighborhood detail)
+  useEffect(() => {
+    const kreisParam = searchParams.get("kreis");
+    if (kreisParam) {
+      const kreis = Number(kreisParam);
+      if (kreis > 0 && kreis <= 12) {
+        setFilter("kreise", [kreis]);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filtered = getFiltered();
   const overview = getOverview();

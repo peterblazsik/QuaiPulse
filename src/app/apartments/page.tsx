@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
   Building2,
@@ -56,10 +57,24 @@ export default function ApartmentsPage() {
   const feedDismissedIds = useApartmentFeedStore((s) => s.dismissedIds);
   const filteredFeed = useMemo(() => feed.getFiltered(), [feedApartments, feedSort, feedFilters, feedDismissedIds]);
 
-  const [tab, setTab] = useState<Tab>("feed");
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState<Tab>((searchParams.get("tab") as Tab) || "feed");
   const [showForm, setShowForm] = useState(false);
   const [statusFilter, setStatusFilter] = useState<ApartmentStatus | "all">("all");
   const [showFilters, setShowFilters] = useState(false);
+
+  // Apply Kreis filter from URL query param (e.g., from neighborhood detail page)
+  useEffect(() => {
+    const kreisParam = searchParams.get("kreis");
+    if (kreisParam) {
+      const kreis = Number(kreisParam);
+      if (kreis > 0 && kreis <= 12) {
+        feed.setFilter("kreise", [kreis]);
+        setShowFilters(true);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const topKreise = SEARCH_CRITERIA.targetKreise;
 

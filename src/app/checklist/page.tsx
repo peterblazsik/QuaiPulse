@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import {
   Check,
   Circle,
@@ -366,6 +367,16 @@ function ChecklistRow({
               <ExternalLink className="h-2.5 w-2.5" />
               Link
             </a>
+          )}
+          {item.moduleLink && (
+            <Link
+              href={item.moduleLink}
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-0.5 text-[10px] text-cyan-400 hover:underline"
+            >
+              <ArrowRight className="h-2.5 w-2.5" />
+              {item.moduleLinkLabel || "Open"}
+            </Link>
           )}
           {isCritical && !isDone && (
             <span className="inline-flex items-center rounded px-1 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-warning/15 text-warning">

@@ -6,6 +6,9 @@ export interface ChecklistItemData {
   description?: string;
   dueDate?: string;
   url?: string;
+  /** Internal module link (e.g., "/apartments", "/budget") */
+  moduleLink?: string;
+  moduleLinkLabel?: string;
   sortOrder: number;
   dependsOn?: string[];
   hardDeadline?: string;
@@ -20,6 +23,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     category: "Apartment Search",
     title: "Set up alerts on Homegate, Flatfox, ImmoScout24",
     description: "Pre-filter for Kreis 2,3,4,5,8 — 1-2 rooms, CHF 1,800-2,800",
+    moduleLink: "/apartments",
+    moduleLinkLabel: "Live Feed",
     sortOrder: 1,
   },
   {
@@ -28,6 +33,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     category: "Apartment Search",
     title: "Create rental dossier PDF",
     description: "Employment contract, 3 payslips, debt register extract, passport, intro letter",
+    moduleLink: "/dossier",
+    moduleLinkLabel: "Dossier",
     sortOrder: 2,
     dependsOn: ["cl-03", "cl-04", "cl-05"],
     estimatedDays: 3,
@@ -73,6 +80,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     category: "Administration",
     title: "Research health insurance options (KVG basic)",
     description: "Compare: Helsana, CSS, SWICA, Sanitas. Cheapest basic ~CHF 280-350/mo",
+    moduleLink: "/budget",
+    moduleLinkLabel: "Budget",
     sortOrder: 7,
     estimatedDays: 5,
   },
@@ -81,6 +90,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     phase: "mar-apr",
     category: "Social",
     title: "Join Schachgesellschaft Zurich online / register interest",
+    moduleLink: "/social",
+    moduleLinkLabel: "Social Map",
     sortOrder: 8,
   },
   {
@@ -98,6 +109,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     category: "Apartment Search",
     title: "Schedule apartment viewings (aim for 5-10)",
     description: "Book a long weekend or take a few days off for Zurich apartment hunting trip",
+    moduleLink: "/apartments?tab=pipeline",
+    moduleLinkLabel: "Pipeline",
     sortOrder: 10,
     dependsOn: ["cl-02"],
     estimatedDays: 3,
@@ -257,6 +270,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     category: "Setup",
     title: "Join a gym",
     description: "Based on neighborhood ranking — PureGym (budget), Kieser (rehab), Holmes Place (premium).",
+    moduleLink: "/gym",
+    moduleLinkLabel: "Gym Finder",
     sortOrder: 26,
     dependsOn: ["cl-23"],
     estimatedDays: 1,
@@ -427,6 +442,8 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     title: "Choose Pillar 3a provider and open account",
     description:
       "Investment-based: VIAC, finpension, or frankly (ZKB). At 49, equity-heavy funds appropriate. Max CHF 7,258/yr. Open before July to contribute from first paycheck.",
+    moduleLink: "/budget",
+    moduleLinkLabel: "Budget",
     sortOrder: 42,
     estimatedDays: 7,
   },

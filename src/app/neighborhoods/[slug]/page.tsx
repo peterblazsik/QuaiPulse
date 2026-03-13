@@ -9,6 +9,9 @@ import {
   ArrowLeft,
   ExternalLink,
   ChevronRight,
+  Building2,
+  TrendingUp,
+  Bookmark,
 } from "lucide-react";
 import { ALL_LOCATIONS } from "@/lib/data/neighborhoods";
 import { VENUES } from "@/lib/data/venues";
@@ -24,6 +27,7 @@ import { RentalPriceBreakdown } from "@/components/neighborhoods/rental-price-br
 import { formatCHF } from "@/lib/utils";
 import { VENUE_TYPE_LABELS, VENUE_TYPE_TEXT_COLORS } from "@/lib/data/venue-config";
 import { PORTALS } from "@/lib/data/portal-urls";
+import { useApartmentStore } from "@/lib/stores/apartment-store";
 import type { VenueType } from "@/lib/types";
 
 export default function NeighborhoodDetailPage() {
@@ -31,6 +35,7 @@ export default function NeighborhoodDetailPage() {
   const rawSlug = params.slug;
   const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug ?? "";
   const weights = usePriorityStore((s) => s.weights);
+  const savedApartments = useApartmentStore((s) => s.apartments);
 
   const neighborhood = ALL_LOCATIONS.find((n) => n.slug === slug);
 
@@ -281,15 +286,92 @@ export default function NeighborhoodDetailPage() {
         </motion.div>
       )}
 
+      {/* In-App Apartment Links */}
+      {n.kreis && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="card p-5"
+        >
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-4">
+            Apartments in {n.name}
+          </h2>
+          {(() => {
+            const kreisCount = savedApartments.filter((a) => a.kreis === n.kreis).length;
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <Link
+                  href={`/apartments?kreis=${n.kreis}`}
+                  className="rounded-lg border border-border-subtle bg-bg-secondary/50 p-4 hover:border-accent-primary/50 hover:bg-accent-primary/5 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-blue-500/15 p-2">
+                      <Building2 className="h-4 w-4 text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-text-primary group-hover:text-accent-primary transition-colors">
+                        Live Feed
+                      </p>
+                      <p className="text-[10px] text-text-muted">
+                        Browse Kreis {n.kreis} listings
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+                <Link
+                  href={`/rental-intel?kreis=${n.kreis}`}
+                  className="rounded-lg border border-border-subtle bg-bg-secondary/50 p-4 hover:border-accent-primary/50 hover:bg-accent-primary/5 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-cyan-500/15 p-2">
+                      <TrendingUp className="h-4 w-4 text-cyan-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-text-primary group-hover:text-accent-primary transition-colors">
+                        Market Intel
+                      </p>
+                      <p className="text-[10px] text-text-muted">
+                        Kreis {n.kreis} analytics
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+                {kreisCount > 0 && (
+                  <Link
+                    href="/apartments?tab=pipeline"
+                    className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="rounded-lg bg-emerald-500/15 p-2">
+                        <Bookmark className="h-4 w-4 text-emerald-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-text-primary group-hover:text-emerald-400 transition-colors">
+                          {kreisCount} in Pipeline
+                        </p>
+                        <p className="text-[10px] text-text-muted">
+                          Saved from Kreis {n.kreis}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                )}
+              </div>
+            );
+          })()}
+        </motion.div>
+      )}
+
       {/* Apartment Portal Links */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        transition={{ delay: 0.35 }}
         className="card p-5"
       >
         <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-4">
-          Search Apartments in {n.name}
+          Search on Portals
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {PORTALS.map((portal) => (

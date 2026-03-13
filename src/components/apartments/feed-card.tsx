@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { formatCHF } from "@/lib/utils";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
+import { useBudgetStore } from "@/lib/stores/budget-store";
+import { calculateBudget } from "@/lib/engines/budget-calculator";
 import type { ScrapedApartment } from "@/lib/engines/flatfox-scraper";
 
 const ATTR_LABELS: Record<string, string> = {
@@ -62,6 +64,31 @@ export function FeedCard({ apt, onSave, onDismiss, isSaved }: FeedCardProps) {
     .filter(Boolean)
     .slice(0, 6);
 
+  // Budget impact: compute surplus delta if this rent were used
+  const budgetState = useBudgetStore();
+  const currentRent = budgetState.values.rent;
+  const budgetInputs = {
+    grossMonthlySalary: budgetState.grossMonthlySalary,
+    has13thSalary: budgetState.has13thSalary,
+    annualBonusPct: budgetState.annualBonusPct,
+    expenseAllowance: budgetState.expenseAllowance,
+    employerInsuranceContrib: budgetState.employerInsuranceContrib,
+    mobilityAllowance: budgetState.mobilityAllowance,
+    relocationBonus: budgetState.relocationBonus,
+    bvgMonthly: budgetState.bvgMonthly,
+    pillar3aMonthly: budgetState.pillar3aMonthly,
+    taxEffectiveRate: 0,
+    viennaRent: budgetState.viennaRent,
+    childSupport: budgetState.childSupport,
+    viennaUtils: budgetState.viennaUtils,
+    carInsurance: budgetState.carInsurance,
+    zurichValues: { ...budgetState.values, rent: apt.rentDisplay },
+  };
+  const hypothetical = calculateBudget(budgetInputs);
+  const rentDelta = apt.rentDisplay - currentRent;
+  const budgetFit: "comfortable" | "stretch" | "over" =
+    hypothetical.surplus >= 500 ? "comfortable" : hypothetical.surplus >= 0 ? "stretch" : "over";
+
   return (
     <div className="group rounded-xl border border-border-default bg-bg-secondary overflow-hidden hover:border-accent-primary/30 transition-colors">
       <div className="flex">
@@ -108,6 +135,22 @@ export function FeedCard({ apt, onSave, onDismiss, isSaved }: FeedCardProps) {
                   ? `${formatCHF(apt.rentNet)} + ${formatCHF(apt.rentCharges ?? 0)}`
                   : "gross"}
               </p>
+              <span
+                className={`inline-block mt-1 text-[9px] px-1.5 py-0.5 rounded border font-medium ${
+                  budgetFit === "comfortable"
+                    ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                    : budgetFit === "stretch"
+                      ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+                      : "bg-red-500/15 text-red-400 border-red-500/30"
+                }`}
+                title={`Surplus: ${formatCHF(hypothetical.surplus)}/mo`}
+              >
+                {budgetFit === "comfortable"
+                  ? `+${formatCHF(hypothetical.surplus)} left`
+                  : budgetFit === "stretch"
+                    ? `Tight: ${formatCHF(hypothetical.surplus)} left`
+                    : `Over: ${formatCHF(Math.abs(hypothetical.surplus))} deficit`}
+              </span>
             </div>
           </div>
 

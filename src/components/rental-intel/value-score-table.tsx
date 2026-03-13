@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ExternalLink, ChevronUp, ChevronDown } from "lucide-react";
+import { ExternalLink, ChevronUp, ChevronDown, Bookmark } from "lucide-react";
 import type { UnifiedListing } from "@/lib/types";
 import { formatCHF } from "@/lib/utils";
 import { RENTAL_INTEL_IMAGES } from "@/lib/data/images";
+import { useApartmentStore } from "@/lib/stores/apartment-store";
 
 interface Props {
   listings: UnifiedListing[];
@@ -15,6 +16,25 @@ interface Props {
 type Column = "valueScore" | "rent" | "pricePerSqm" | "rooms" | "sqm" | "kreis";
 
 export function ValueScoreTable({ listings, onSelect }: Props) {
+  const { apartments: savedApartments, add: addToStore } = useApartmentStore();
+  const savedUrls = new Set(savedApartments.map((a) => a.sourceUrl));
+
+  const handleSave = (listing: UnifiedListing, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (savedUrls.has(listing.sourceUrl)) return;
+    addToStore({
+      title: listing.title,
+      address: listing.address,
+      kreis: listing.kreis,
+      rent: listing.rent,
+      rooms: listing.rooms ?? 0,
+      sqm: listing.sqm ?? 0,
+      sourceUrl: listing.sourceUrl,
+      status: "new",
+      notes: `Value score: ${listing.valueScore}. Imported from Rental Intel.`,
+    });
+  };
+
   const [sortCol, setSortCol] = useState<Column>("valueScore");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
@@ -112,6 +132,9 @@ export function ValueScoreTable({ listings, onSelect }: Props) {
               <th className="px-3 py-2.5 text-left font-medium text-[var(--text-tertiary)]">
                 Budget
               </th>
+              <th className="px-3 py-2.5 text-center font-medium text-[var(--text-tertiary)]">
+                Save
+              </th>
               <th className="px-3 py-2.5" />
             </tr>
           </thead>
@@ -150,6 +173,25 @@ export function ValueScoreTable({ listings, onSelect }: Props) {
                 </td>
                 <td className="px-3 py-2.5">
                   {budgetBadge(listing.budgetFit)}
+                </td>
+                <td className="px-3 py-2.5">
+                  {(() => {
+                    const isSaved = savedUrls.has(listing.sourceUrl);
+                    return (
+                      <button
+                        onClick={(e) => handleSave(listing, e)}
+                        disabled={isSaved}
+                        className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded transition-colors ${
+                          isSaved
+                            ? "text-emerald-400 cursor-default"
+                            : "text-[var(--text-tertiary)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/10"
+                        }`}
+                        title={isSaved ? "Saved to pipeline" : "Save to pipeline"}
+                      >
+                        <Bookmark className={`h-3.5 w-3.5 ${isSaved ? "fill-current" : ""}`} />
+                      </button>
+                    );
+                  })()}
                 </td>
                 <td className="px-3 py-2.5">
                   <a
