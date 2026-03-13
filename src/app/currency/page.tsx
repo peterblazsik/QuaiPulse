@@ -74,7 +74,9 @@ export default function CurrencyPage() {
   const viennaCostsTotal = viennaRent + childSupport + viennaUtils + carInsurance;
 
   const chfEurRate = rates["CHF/EUR"]?.rate ?? 0.94;
-  const viennaCostsEur = viennaCostsTotal * chfEurRate;
+  const eurChfRate = rates["EUR/CHF"]?.rate ?? 1 / chfEurRate;
+  // Vienna costs are EUR amounts — convert to CHF to show real cost from salary
+  const viennaCostsChf = viennaCostsTotal * eurChfRate;
 
   return (
     <div className="space-y-6 relative">
@@ -179,30 +181,31 @@ export default function CurrencyPage() {
             Vienna Costs in Real Terms
           </h3>
           <p className="text-xs text-text-tertiary mb-4">
-            Your CHF {formatCHF(viennaCostsTotal)}/mo Vienna costs in EUR at
+            Your {"\u20AC"}{viennaCostsTotal.toLocaleString("de-CH")}/mo Vienna costs in CHF at
             current rate:
           </p>
 
           <div className="text-center py-4">
             <p className="font-data text-4xl font-black text-text-primary">
-              {"\u20AC"}{Math.round(viennaCostsEur).toLocaleString("de-CH")}
+              CHF {Math.round(viennaCostsChf).toLocaleString("de-CH")}
             </p>
             <p className="text-xs text-text-muted mt-1">
-              at CHF/EUR {chfEurRate.toFixed(4)}
+              at EUR/CHF {eurChfRate.toFixed(4)}
             </p>
           </div>
 
           <div className="space-y-2 mt-4">
-            <ImpactRow label="Vienna rent" chf={viennaRent} rate={chfEurRate} />
-            <ImpactRow label="Child support" chf={childSupport} rate={chfEurRate} />
-            <ImpactRow label="Utilities" chf={viennaUtils} rate={chfEurRate} />
-            <ImpactRow label="Car + OAMTC" chf={carInsurance} rate={chfEurRate} />
+            <ImpactRow label="Vienna rent" eur={viennaRent} rate={eurChfRate} />
+            <ImpactRow label="Child support" eur={childSupport} rate={eurChfRate} />
+            <ImpactRow label="Utilities" eur={viennaUtils} rate={eurChfRate} />
+            <ImpactRow label="Car + OAMTC" eur={carInsurance} rate={eurChfRate} />
           </div>
 
-          <div className="mt-4 p-3 rounded-lg bg-warning/10 border border-warning/20">
-            <p className="text-[10px] text-warning">
-              If CHF weakens to 0.90 EUR, your Vienna costs effectively drop by{" "}
-              {formatCHF(Math.round(viennaCostsTotal * (chfEurRate - 0.90)))} /mo in CHF terms.
+          <div className="mt-4 p-3 rounded-lg bg-success/10 border border-success/20">
+            <p className="text-[10px] text-success">
+              CHF is stronger than EUR — your {"\u20AC"}{viennaCostsTotal.toLocaleString("de-CH")} Vienna costs
+              are only CHF {Math.round(viennaCostsChf).toLocaleString("de-CH")} from your salary.
+              {eurChfRate > 1.05 && ` A strong CHF saves you CHF ${Math.round(viennaCostsTotal * (eurChfRate - 1))}/mo vs parity.`}
             </p>
           </div>
         </div>
@@ -292,21 +295,23 @@ function MiniSparkline({ data, color }: { data: number[]; color: string }) {
 
 function ImpactRow({
   label,
-  chf,
+  eur,
   rate,
 }: {
   label: string;
-  chf: number;
+  eur: number;
   rate: number;
 }) {
   return (
     <div className="flex items-center justify-between text-xs">
       <span className="text-text-muted">{label}</span>
       <div className="flex items-center gap-3">
-        <span className="font-data text-text-tertiary">{formatCHF(chf)}</span>
+        <span className="font-data text-text-tertiary">
+          {"\u20AC"}{eur.toLocaleString("de-CH")}
+        </span>
         <ArrowLeftRight className="h-2.5 w-2.5 text-text-muted" />
         <span className="font-data text-text-primary">
-          {"\u20AC"}{Math.round(chf * rate)}
+          {formatCHF(Math.round(eur * rate))}
         </span>
       </div>
     </div>
