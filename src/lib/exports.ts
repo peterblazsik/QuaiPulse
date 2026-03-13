@@ -3,6 +3,7 @@ import type { ScoredNeighborhood } from "@/lib/engines/scoring";
 import type { BudgetBreakdown, ExpenseItem } from "@/lib/engines/budget-calculator";
 import type { BudgetValues } from "@/lib/stores/budget-store";
 import type { KatieVisitData } from "@/lib/data/katie-visits";
+import type { ChecklistItemData } from "@/lib/data/checklist-items";
 
 function csvEscape(value: string): string {
   if (
@@ -121,6 +122,46 @@ export function exportKatieICS(visits: KatieVisitData[]) {
   ].join("\r\n");
 
   downloadFile(ics, "katie-visits.ics", "text/calendar");
+}
+
+// ---- ICS Export (Checklist Deadlines) ----
+
+export function exportChecklistICS(items: ChecklistItemData[]) {
+  const deadlineItems = items.filter((i) => i.hardDeadline || i.dueDate);
+
+  const events = deadlineItems.map((item) => {
+    const date = item.hardDeadline || item.dueDate!;
+    const dtStart = date.replace(/-/g, "");
+    const dtEnd = incrementDate(date).replace(/-/g, "");
+    const description = [
+      `Phase: ${item.phase}`,
+      `Category: ${item.category}`,
+      item.description ?? "",
+    ]
+      .filter(Boolean)
+      .join("\\n");
+
+    return [
+      "BEGIN:VEVENT",
+      `DTSTART;VALUE=DATE:${dtStart}`,
+      `DTEND;VALUE=DATE:${dtEnd}`,
+      `SUMMARY:${icsEscape(`[QuaiPulse] ${item.title}`)}`,
+      `DESCRIPTION:${icsEscape(description)}`,
+      `UID:${item.id}@quaipulse-checklist`,
+      "END:VEVENT",
+    ].join("\r\n");
+  });
+
+  const ics = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//QuaiPulse//Checklist Deadlines//EN",
+    "CALSCALE:GREGORIAN",
+    ...events,
+    "END:VCALENDAR",
+  ].join("\r\n");
+
+  downloadFile(ics, "quaipulse-checklist.ics", "text/calendar");
 }
 
 function incrementDate(dateStr: string): string {

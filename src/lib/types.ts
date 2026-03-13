@@ -34,7 +34,9 @@ export type ApartmentStatus =
   | "rejected"
   | "accepted";
 
-export type ChecklistPhase = "mar-apr" | "may" | "jun" | "jul";
+export type ChecklistPhase = "mar-apr" | "may" | "jun" | "jul" | "aug-sep";
+
+export type ChecklistOwner = "self" | "hr" | "relocation_agent" | "employer" | "partner";
 
 export type VenueType =
   | "gym"
@@ -47,6 +49,15 @@ export type VenueType =
   | "coworking";
 
 export type DossierStatus = "missing" | "in_progress" | "obtained" | "uploaded";
+
+export type InteractionType = "phone" | "email" | "viewing" | "document" | "note";
+
+export interface InteractionLog {
+  id: string;
+  type: InteractionType;
+  date: string;
+  summary: string;
+}
 
 export type TransportMode = "flight" | "train";
 

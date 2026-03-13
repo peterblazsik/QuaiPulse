@@ -5,12 +5,22 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus } from "lucide-react";
 import { useChecklistStore } from "@/lib/stores/checklist-store";
 import { toast } from "sonner";
+import type { ChecklistOwner } from "@/lib/types";
 
 const PHASE_OPTIONS = [
   { value: "mar-apr" as const, label: "March - April" },
   { value: "may" as const, label: "May" },
   { value: "jun" as const, label: "June" },
   { value: "jul" as const, label: "July" },
+  { value: "aug-sep" as const, label: "August - September" },
+];
+
+const OWNER_OPTIONS: { value: ChecklistOwner; label: string }[] = [
+  { value: "self", label: "Self" },
+  { value: "hr", label: "HR" },
+  { value: "employer", label: "Employer" },
+  { value: "relocation_agent", label: "Relocation Agent" },
+  { value: "partner", label: "Partner" },
 ];
 
 const CATEGORY_SUGGESTIONS = [
@@ -33,12 +43,13 @@ export function AddItemDialog({ open, onClose }: AddItemDialogProps) {
   const addCustomItem = useChecklistStore((s) => s.addCustomItem);
 
   const [title, setTitle] = useState("");
-  const [phase, setPhase] = useState<"mar-apr" | "may" | "jun" | "jul">("mar-apr");
+  const [phase, setPhase] = useState<"mar-apr" | "may" | "jun" | "jul" | "aug-sep">("mar-apr");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [estimatedDays, setEstimatedDays] = useState("");
   const [hardDeadline, setHardDeadline] = useState("");
   const [url, setUrl] = useState("");
+  const [owner, setOwner] = useState<ChecklistOwner>("self");
 
   const reset = useCallback(() => {
     setTitle("");
@@ -48,6 +59,7 @@ export function AddItemDialog({ open, onClose }: AddItemDialogProps) {
     setEstimatedDays("");
     setHardDeadline("");
     setUrl("");
+    setOwner("self");
   }, []);
 
   const handleSubmit = useCallback(
@@ -63,13 +75,14 @@ export function AddItemDialog({ open, onClose }: AddItemDialogProps) {
         estimatedDays: estimatedDays ? Number(estimatedDays) : undefined,
         hardDeadline: hardDeadline || undefined,
         url: url.trim() || undefined,
+        owner,
       });
 
       toast.success("Task added", { description: title.trim() });
       reset();
       onClose();
     },
-    [title, phase, category, description, estimatedDays, hardDeadline, url, addCustomItem, onClose, reset]
+    [title, phase, category, description, estimatedDays, hardDeadline, url, owner, addCustomItem, onClose, reset]
   );
 
   return (
@@ -164,6 +177,24 @@ export function AddItemDialog({ open, onClose }: AddItemDialogProps) {
                       ))}
                     </datalist>
                   </div>
+                </div>
+
+                {/* Owner */}
+                <div>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-1">
+                    Owner
+                  </label>
+                  <select
+                    value={owner}
+                    onChange={(e) => setOwner(e.target.value as ChecklistOwner)}
+                    className="w-full rounded-lg border border-border-default bg-bg-primary px-3 py-2 text-xs text-text-primary focus:border-accent-primary focus:outline-none"
+                  >
+                    {OWNER_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Description */}

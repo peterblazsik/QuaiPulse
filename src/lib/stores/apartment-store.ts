@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { ApartmentStatus } from "@/lib/types";
+import type { ApartmentStatus, InteractionLog, InteractionType } from "@/lib/types";
 
 export interface SavedApartment {
   id: string;
@@ -16,14 +16,17 @@ export interface SavedApartment {
   status: ApartmentStatus;
   notes: string;
   createdAt: string;
+  interactions: InteractionLog[];
 }
 
 interface ApartmentStore {
   apartments: SavedApartment[];
-  add: (apt: Omit<SavedApartment, "id" | "createdAt">) => void;
+  add: (apt: Omit<SavedApartment, "id" | "createdAt" | "interactions">) => void;
   remove: (id: string) => void;
   updateStatus: (id: string, status: ApartmentStatus) => void;
   updateNotes: (id: string, notes: string) => void;
+  addInteraction: (apartmentId: string, type: InteractionType, summary: string) => void;
+  removeInteraction: (apartmentId: string, interactionId: string) => void;
 }
 
 const DEMO_APARTMENTS: SavedApartment[] = [
@@ -39,6 +42,9 @@ const DEMO_APARTMENTS: SavedApartment[] = [
     status: "interested",
     notes: "Great location, 10 min walk to office. 3rd floor, no elevator but manageable.",
     createdAt: "2026-03-01T00:00:00Z",
+    interactions: [
+      { id: "int-1", type: "email", date: "2026-03-05", summary: "Sent inquiry to Verwaltung" },
+    ],
   },
   {
     id: "apt-2",
@@ -52,6 +58,7 @@ const DEMO_APARTMENTS: SavedApartment[] = [
     status: "new",
     notes: "Affordable, near PureGym. Small but well-designed. Tram 13 right outside.",
     createdAt: "2026-03-02T00:00:00Z",
+    interactions: [],
   },
   {
     id: "apt-3",
@@ -65,6 +72,10 @@ const DEMO_APARTMENTS: SavedApartment[] = [
     status: "contacted",
     notes: "Stunning lakeside area. Viewing request sent. Dishwasher + balcony.",
     createdAt: "2026-03-03T00:00:00Z",
+    interactions: [
+      { id: "int-2", type: "email", date: "2026-03-07", summary: "Sent dossier and cover letter" },
+      { id: "int-3", type: "phone", date: "2026-03-09", summary: "Called Verwaltung, left voicemail" },
+    ],
   },
 ];
 
@@ -80,6 +91,7 @@ export const useApartmentStore = create<ApartmentStore>()(
               ...apt,
               id: `apt-${Date.now()}`,
               createdAt: new Date().toISOString(),
+              interactions: [],
             },
           ],
         })),
@@ -99,7 +111,54 @@ export const useApartmentStore = create<ApartmentStore>()(
             a.id === id ? { ...a, notes } : a
           ),
         })),
+      addInteraction: (apartmentId, type, summary) =>
+        set((s) => ({
+          apartments: s.apartments.map((a) =>
+            a.id === apartmentId
+              ? {
+                  ...a,
+                  interactions: [
+                    ...a.interactions,
+                    {
+                      id: `int-${Date.now()}`,
+                      type,
+                      date: new Date().toISOString().split("T")[0],
+                      summary,
+                    },
+                  ],
+                }
+              : a
+          ),
+        })),
+      removeInteraction: (apartmentId, interactionId) =>
+        set((s) => ({
+          apartments: s.apartments.map((a) =>
+            a.id === apartmentId
+              ? {
+                  ...a,
+                  interactions: a.interactions.filter((i) => i.id !== interactionId),
+                }
+              : a
+          ),
+        })),
     }),
-    { name: "quaipulse-apartments" }
+    {
+      name: "quaipulse-apartments",
+      version: 2,
+      migrate: (persisted, version) => {
+        const state = persisted as Record<string, unknown>;
+        if (version < 2) {
+          const apartments = state.apartments as Array<Record<string, unknown>> | undefined;
+          if (apartments) {
+            for (const apt of apartments) {
+              if (!apt.interactions) {
+                apt.interactions = [];
+              }
+            }
+          }
+        }
+        return state;
+      },
+    }
   )
 );

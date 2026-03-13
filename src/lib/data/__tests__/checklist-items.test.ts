@@ -8,8 +8,8 @@ import {
 
 describe("CHECKLIST_ITEMS data", () => {
   describe("overall structure", () => {
-    it("should have 48 items defined", () => {
-      expect(CHECKLIST_ITEMS.length).toBe(48);
+    it("should have 64 items defined", () => {
+      expect(CHECKLIST_ITEMS.length).toBe(64);
     });
 
     it("should have no duplicate IDs", () => {
@@ -25,7 +25,7 @@ describe("CHECKLIST_ITEMS data", () => {
         expect(item.id).toBeDefined();
         expect(typeof item.id).toBe("string");
         expect(item.phase).toBeDefined();
-        expect(["mar-apr", "may", "jun", "jul"]).toContain(item.phase);
+        expect(["mar-apr", "may", "jun", "jul", "aug-sep"]).toContain(item.phase);
         expect(item.category).toBeDefined();
         expect(typeof item.category).toBe("string");
         expect(item.title).toBeDefined();
@@ -42,12 +42,13 @@ describe("CHECKLIST_ITEMS data", () => {
   });
 
   describe("phase coverage", () => {
-    it("should have items in all four phases", () => {
+    it("should have items in all five phases", () => {
       const phases = new Set(CHECKLIST_ITEMS.map((item) => item.phase));
       expect(phases).toContain("mar-apr");
       expect(phases).toContain("may");
       expect(phases).toContain("jun");
       expect(phases).toContain("jul");
+      expect(phases).toContain("aug-sep");
     });
   });
 

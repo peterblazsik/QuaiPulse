@@ -75,7 +75,7 @@ export function getPhaseGateStatus(
   completedIds: Set<string>,
   items: ChecklistItemData[]
 ): { canProceed: boolean; blockers: ChecklistItemData[] } {
-  const phaseOrder = ["mar-apr", "may", "jun", "jul"];
+  const phaseOrder = ["mar-apr", "may", "jun", "jul", "aug-sep"];
   const phaseIndex = phaseOrder.indexOf(phase);
 
   if (phaseIndex <= 0) return { canProceed: true, blockers: [] };

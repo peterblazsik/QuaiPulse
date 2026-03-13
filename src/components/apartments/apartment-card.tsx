@@ -6,6 +6,7 @@ import { formatCHF } from "@/lib/utils";
 import { NEIGHBORHOODS } from "@/lib/data/neighborhoods";
 import type { ApartmentStatus } from "@/lib/types";
 import type { SavedApartment } from "@/lib/stores/apartment-store";
+import { InteractionTimeline, InteractionCountBadge } from "./interaction-timeline";
 
 const STATUS_CONFIG: { key: ApartmentStatus; label: string; color: string }[] = [
   { key: "new", label: "New", color: "#64748b" },
@@ -146,6 +147,7 @@ export function ApartmentCard({ apt, onStatusChange, onRemove }: ApartmentCardPr
                 </div>
               )}
             </div>
+            <InteractionCountBadge count={apt.interactions?.length ?? 0} />
           </div>
           <p className="text-[10px] text-text-muted mt-0.5">{apt.address}</p>
         </div>
@@ -192,6 +194,12 @@ export function ApartmentCard({ apt, onStatusChange, onRemove }: ApartmentCardPr
           {apt.notes}
         </p>
       )}
+
+      {/* Interaction Timeline */}
+      <InteractionTimeline
+        apartmentId={apt.id}
+        interactions={apt.interactions ?? []}
+      />
     </div>
   );
 }

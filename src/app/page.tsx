@@ -18,6 +18,7 @@ import { MoveReadinessRing } from "@/components/dashboard/move-readiness-ring";
 import { NextActionsWidget } from "@/components/dashboard/next-actions-widget";
 import { ApartmentPipelineCard } from "@/components/dashboard/apartment-pipeline-card";
 import { HERO_IMAGES, NEIGHBORHOOD_IMAGES } from "@/lib/data/images";
+import { OnboardingWizard } from "@/components/layout/onboarding-wizard";
 
 export default function DashboardPage() {
   const values = useBudgetStore((s) => s.values);
@@ -35,6 +36,9 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6 relative">
+      {/* Onboarding wizard */}
+      <OnboardingWizard />
+
       {/* Ambient glow */}
       <div className="ambient-glow glow-blue" />
 

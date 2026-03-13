@@ -17,6 +17,12 @@ import {
   Plus,
   Trash2,
   Tag,
+  Download,
+  User,
+  Building2,
+  Users,
+  Briefcase,
+  Heart,
 } from "lucide-react";
 import { DeadlineAlerts } from "@/components/checklist/deadline-alerts";
 import { AddItemDialog } from "@/components/checklist/add-item-dialog";
@@ -26,6 +32,8 @@ import {
   type ChecklistItemData,
 } from "@/lib/data/checklist-items";
 import { useChecklistStore } from "@/lib/stores/checklist-store";
+import { exportChecklistICS } from "@/lib/exports";
+import type { ChecklistOwner } from "@/lib/types";
 import {
   getBlockedItems,
   getCriticalPath,
@@ -39,6 +47,15 @@ const PHASES = [
   { key: "may" as const, label: "May", months: "May", color: "#f59e0b" },
   { key: "jun" as const, label: "Jun", months: "June", color: "#f97316" },
   { key: "jul" as const, label: "Jul", months: "July", color: "#22c55e" },
+  { key: "aug-sep" as const, label: "Aug-Sep", months: "August - September", color: "#8b5cf6" },
+];
+
+const OWNER_CONFIG: { key: ChecklistOwner; label: string; color: string; icon: typeof User }[] = [
+  { key: "self", label: "Self", color: "#3b82f6", icon: User },
+  { key: "hr", label: "HR", color: "#a855f7", icon: Building2 },
+  { key: "employer", label: "Employer", color: "#22c55e", icon: Briefcase },
+  { key: "relocation_agent", label: "Relo Agent", color: "#f59e0b", icon: Users },
+  { key: "partner", label: "Partner", color: "#ec4899", icon: Heart },
 ];
 
 export default function ChecklistPage() {
@@ -46,8 +63,14 @@ export default function ChecklistPage() {
     useChecklistStore();
   const completed = useMemo(() => new Set(completedIds), [completedIds]);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [ownerFilter, setOwnerFilter] = useState<ChecklistOwner | null>(null);
 
   const allItems = useMemo(() => getAllChecklistItems(customItems), [customItems]);
+
+  const filteredItems = useMemo(() => {
+    if (!ownerFilter) return allItems;
+    return allItems.filter((i) => i.owner === ownerFilter);
+  }, [allItems, ownerFilter]);
 
   const stats = useMemo(() => {
     const total = allItems.length;
@@ -58,11 +81,11 @@ export default function ChecklistPage() {
 
   const phaseStats = useMemo(() => {
     return PHASES.map((phase) => {
-      const items = allItems.filter((i) => i.phase === phase.key);
+      const items = filteredItems.filter((i) => i.phase === phase.key);
       const done = items.filter((i) => completed.has(i.id)).length;
       return { ...phase, total: items.length, done };
     });
-  }, [completed, allItems]);
+  }, [completed, filteredItems]);
 
   const blockedItems = useMemo(() => getBlockedItems(completed, allItems), [completed, allItems]);
   const criticalPath = useMemo(() => getCriticalPath(allItems), [allItems]);
@@ -87,11 +110,21 @@ export default function ChecklistPage() {
             Move Checklist
           </h1>
           <p className="text-sm text-text-tertiary mt-1">
-            {stats.total} tasks across 4 phases. March to July. No detail left behind.
+            {stats.total} tasks across {PHASES.length} phases. March to September. No detail left behind.
           </p>
         </div>
 
         <div className="shrink-0 flex items-center gap-3">
+          {/* ICS Export */}
+          <button
+            onClick={() => exportChecklistICS(allItems)}
+            className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-lg border border-border-default bg-bg-secondary text-text-muted hover:text-text-secondary hover:border-accent-primary/30 transition-colors"
+            title="Export deadlines to calendar"
+          >
+            <Download className="h-3 w-3" />
+            ICS
+          </button>
+
           {/* Add task button */}
           <button
             onClick={() => setAddDialogOpen(true)}
@@ -138,6 +171,43 @@ export default function ChecklistPage() {
         </div>
       </div>
 
+      {/* Owner filter pills */}
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">Owner:</span>
+        <button
+          onClick={() => setOwnerFilter(null)}
+          className={`rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors ${
+            ownerFilter === null
+              ? "bg-text-primary/15 text-text-primary"
+              : "text-text-muted hover:text-text-secondary"
+          }`}
+        >
+          All
+        </button>
+        {OWNER_CONFIG.map((o) => {
+          const Icon = o.icon;
+          return (
+            <button
+              key={o.key}
+              onClick={() => setOwnerFilter(ownerFilter === o.key ? null : o.key)}
+              className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors ${
+                ownerFilter === o.key
+                  ? "text-white"
+                  : "text-text-muted hover:text-text-secondary"
+              }`}
+              style={
+                ownerFilter === o.key
+                  ? { backgroundColor: `color-mix(in srgb, ${o.color} 30%, transparent)`, color: o.color }
+                  : undefined
+              }
+            >
+              <Icon className="h-2.5 w-2.5" />
+              {o.label}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Phase timeline bar */}
       <div className="flex gap-2">
         {phaseStats.map((phase) => {
@@ -169,7 +239,7 @@ export default function ChecklistPage() {
       {/* View content */}
       {viewMode === "list" ? (
         <ListView
-          allItems={allItems}
+          allItems={filteredItems}
           completed={completed}
           toggle={toggle}
           blockedItems={blockedItems}
@@ -179,7 +249,7 @@ export default function ChecklistPage() {
         />
       ) : (
         <TimelineView
-          allItems={allItems}
+          allItems={filteredItems}
           completed={completed}
           blockedItems={blockedItems}
           criticalIds={criticalIds}
@@ -189,7 +259,28 @@ export default function ChecklistPage() {
   );
 }
 
-/* ─────────────── List View ─────────────── */
+/* ---- Owner Badge ---- */
+
+function OwnerBadge({ owner }: { owner?: ChecklistOwner }) {
+  if (!owner) return null;
+  const conf = OWNER_CONFIG.find((o) => o.key === owner);
+  if (!conf) return null;
+  const Icon = conf.icon;
+  return (
+    <span
+      className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-[10px] font-medium"
+      style={{
+        color: conf.color,
+        backgroundColor: `color-mix(in srgb, ${conf.color} 12%, transparent)`,
+      }}
+    >
+      <Icon className="h-2 w-2" />
+      {conf.label}
+    </span>
+  );
+}
+
+/* ---- List View ---- */
 
 function ListView({
   allItems,
@@ -212,6 +303,7 @@ function ListView({
     <div className="space-y-8">
       {PHASES.map((phase) => {
         const items = allItems.filter((i) => i.phase === phase.key);
+        if (items.length === 0) return null;
         const categories = [...new Set(items.map((i) => i.category))];
         const gateStatus = getPhaseGateStatus(phase.key, completed, allItems);
 
@@ -298,7 +390,7 @@ function ListView({
   );
 }
 
-/* ─────────────── Checklist Row ─────────────── */
+/* ---- Checklist Row ---- */
 
 function ChecklistRow({
   item,
@@ -389,6 +481,7 @@ function ChecklistRow({
               Custom
             </span>
           )}
+          <OwnerBadge owner={item.owner} />
         </div>
         {item.description && !isDone && (
           <p className="text-[10px] text-text-tertiary mt-0.5 leading-snug">
@@ -459,7 +552,7 @@ function ChecklistRow({
   );
 }
 
-/* ─────────────── Timeline View ─────────────── */
+/* ---- Timeline View ---- */
 
 function TimelineView({
   allItems,
@@ -482,6 +575,7 @@ function TimelineView({
     <div className="space-y-8">
       {PHASES.map((phase) => {
         const items = allItems.filter((i) => i.phase === phase.key);
+        if (items.length === 0) return null;
 
         return (
           <div key={phase.key}>
@@ -650,7 +744,7 @@ function TimelineView({
   );
 }
 
-/* ─────────────── Progress Ring ─────────────── */
+/* ---- Progress Ring ---- */
 
 function ProgressRing({ pct }: { pct: number }) {
   const r = 28;

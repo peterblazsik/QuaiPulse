@@ -18,7 +18,7 @@ beforeEach(() => {
 
 function makeApartmentInput(
   overrides: Partial<
-    Omit<Parameters<typeof useApartmentStore.getState>["0"]["add"], "id" | "createdAt">
+    Omit<ReturnType<typeof useApartmentStore.getState>["apartments"][0], "id" | "createdAt" | "interactions">
   > = {}
 ) {
   return {

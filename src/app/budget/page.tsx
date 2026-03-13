@@ -12,6 +12,10 @@ import { StackedBar } from "@/components/budget/stacked-bar";
 import { SavingsProjection } from "@/components/budget/savings-projection";
 import { WhatIfCards } from "@/components/budget/what-if-cards";
 import { SetupCosts } from "@/components/budget/setup-costs";
+import { TaxComparison } from "@/components/budget/tax-comparison";
+import { BvgBuyback } from "@/components/budget/bvg-buyback";
+import { Pillar3aComparison } from "@/components/budget/pillar3a-comparison";
+import { FirstMonthCashflow } from "@/components/budget/first-month-cashflow";
 
 export default function BudgetPage() {
   const values = useBudgetStore((s) => s.values);
@@ -49,11 +53,31 @@ export default function BudgetPage() {
           </div>
         </div>
 
-        {/* Center column: Surplus + Charts */}
+        {/* Center column: Surplus + Charts + Swiss Finance */}
         <div className="lg:col-span-4 space-y-5">
           {/* Surplus hero */}
           <div className="rounded-xl border border-border-default bg-bg-secondary p-5">
             <SurplusDisplay breakdown={breakdown} />
+          </div>
+
+          {/* Tax Comparison — Quellensteuer vs Ordinary */}
+          <div className="rounded-xl border border-accent-primary/20 bg-bg-secondary p-5">
+            <TaxComparison />
+          </div>
+
+          {/* BVG Buyback Calculator */}
+          <div className="rounded-xl border border-warning/20 bg-bg-secondary p-5">
+            <BvgBuyback />
+          </div>
+
+          {/* Pillar 3a Provider Comparison */}
+          <div className="rounded-xl border border-purple-500/20 bg-bg-secondary p-5">
+            <Pillar3aComparison />
+          </div>
+
+          {/* First Month Cashflow */}
+          <div className="rounded-xl border border-warning/20 bg-bg-secondary p-5">
+            <FirstMonthCashflow />
           </div>
 
           {/* Stacked bar */}
