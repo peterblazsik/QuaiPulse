@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { ExternalLink, ChevronUp, ChevronDown } from "lucide-react";
 import type { UnifiedListing } from "@/lib/types";
 import { formatCHF } from "@/lib/utils";
+import { RENTAL_INTEL_IMAGES } from "@/lib/data/images";
 
 interface Props {
   listings: UnifiedListing[];
@@ -62,7 +64,18 @@ export function ValueScoreTable({ listings, onSelect }: Props) {
 
   return (
     <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] overflow-hidden">
-      <div className="p-4 border-b border-[var(--border-default)]">
+      {/* Section image header */}
+      <div className="relative h-24">
+        <Image
+          src={RENTAL_INTEL_IMAGES.facade}
+          alt="Modern Zurich apartment building"
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--bg-secondary)]" />
+      </div>
+
+      <div className="p-4 border-b border-[var(--border-default)] -mt-3 relative">
         <h3 className="text-sm font-semibold text-[var(--text-primary)]">
           Top Picks — Value Score Ranking
         </h3>

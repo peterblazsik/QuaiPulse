@@ -19,6 +19,13 @@ export const HERO_IMAGES = {
 
 export const LOGO = "/images/logo/logo-icon.png";
 
+export const RENTAL_INTEL_IMAGES = {
+  hero: "/images/rental-intel/hero-zurich-rooftops.png",
+  aerial: "/images/rental-intel/aerial-zurich-districts.png",
+  finance: "/images/rental-intel/swiss-franc-finance.png",
+  facade: "/images/rental-intel/modern-apartment-facade.png",
+};
+
 export const SOCIAL_IMAGES: Record<string, string> = {
   gym: "/images/social/gym-header.png",
   chess: "/images/social/chess-header.png",

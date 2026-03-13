@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import type { BudgetAnalysis } from "@/lib/engines/rental-intelligence";
 import { formatCHF } from "@/lib/utils";
+import { RENTAL_INTEL_IMAGES } from "@/lib/data/images";
 
 interface Props {
   data: BudgetAnalysis;
@@ -15,7 +17,19 @@ export function BudgetFitPanel({ data }: Props) {
   ];
 
   return (
-    <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-5">
+    <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] overflow-hidden">
+      {/* Section image header */}
+      <div className="relative h-24">
+        <Image
+          src={RENTAL_INTEL_IMAGES.finance}
+          alt="Swiss franc financial analysis"
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--bg-secondary)]" />
+      </div>
+
+      <div className="px-5 pb-5 -mt-3 relative">
       <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">
         Budget Fit Analysis
       </h3>
@@ -87,6 +101,7 @@ export function BudgetFitPanel({ data }: Props) {
             />
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

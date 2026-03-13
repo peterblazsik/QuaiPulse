@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import { TrendingUp, Loader2 } from "lucide-react";
 import { useRentalIntelStore } from "@/lib/stores/rental-intel-store";
+import { RENTAL_INTEL_IMAGES } from "@/lib/data/images";
 import type { ListingSource } from "@/lib/types";
 import { MarketOverview } from "@/components/rental-intel/market-overview";
 import { PriceDistributionChart } from "@/components/rental-intel/price-distribution-chart";
@@ -112,19 +114,25 @@ export default function RentalIntelPage() {
   return (
     <div className="space-y-6">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-6">
-        <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-cyan-500/5 blur-3xl" />
-        <div className="absolute -bottom-20 -left-20 w-48 h-48 rounded-full bg-blue-500/5 blur-3xl" />
-        <div className="relative">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="rounded-xl bg-cyan-500/10 p-2.5">
+      <div className="relative overflow-hidden rounded-2xl border border-[var(--border-default)] h-48">
+        <Image
+          src={RENTAL_INTEL_IMAGES.hero}
+          alt="Zurich rooftops at twilight"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[rgb(var(--overlay-rgb))/0.85] via-[rgb(var(--overlay-rgb))/0.6] to-transparent" />
+        <div className="relative h-full flex items-end p-6">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-cyan-500/20 backdrop-blur-sm p-2.5 border border-cyan-500/20">
               <TrendingUp className="h-5 w-5 text-cyan-400" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-[var(--text-primary)]">
+              <h1 className="text-xl font-bold text-white drop-shadow-lg">
                 Rental Intelligence
               </h1>
-              <p className="text-xs text-[var(--text-tertiary)]">
+              <p className="text-xs text-white/70">
                 {allListings.length} listings from Flatfox + Homegate · {filtered.length} after filters
               </p>
             </div>

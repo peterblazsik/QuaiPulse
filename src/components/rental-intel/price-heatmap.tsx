@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import type { KreisPricePerSqm } from "@/lib/engines/rental-intelligence";
+import { RENTAL_INTEL_IMAGES } from "@/lib/data/images";
 
 interface Props {
   data: KreisPricePerSqm[];
@@ -19,7 +21,19 @@ export function PriceHeatmap({ data }: Props) {
   const dataMap = new Map(data.map((d) => [d.kreis, d]));
 
   return (
-    <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-5">
+    <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] overflow-hidden">
+      {/* Section image header */}
+      <div className="relative h-28">
+        <Image
+          src={RENTAL_INTEL_IMAGES.aerial}
+          alt="Aerial view of Zurich districts"
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--bg-secondary)]" />
+      </div>
+
+      <div className="px-5 pb-5 -mt-4 relative">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-[var(--text-primary)]">
           Price/m² Heatmap
@@ -57,6 +71,7 @@ export function PriceHeatmap({ data }: Props) {
             </div>
           );
         })}
+      </div>
       </div>
     </div>
   );
