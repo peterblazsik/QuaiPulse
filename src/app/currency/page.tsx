@@ -17,12 +17,12 @@ interface CurrencyData {
   updatedAt: string;
 }
 
-// Fallback mock data in case API fails
+// Fallback rates in case API fails (CHF is stronger than EUR)
 const FALLBACK_RATES: Record<string, RateData> = {
-  "CHF/EUR": { rate: 0.9412, change: -0.0023, trend: "down" },
-  "CHF/HUF": { rate: 421.35, change: 2.15, trend: "up" },
-  "EUR/HUF": { rate: 447.62, change: 1.84, trend: "up" },
-  "EUR/CHF": { rate: 1.0625, change: 0.0026, trend: "up" },
+  "CHF/EUR": { rate: 1.1069, change: 0.0012, trend: "up" },
+  "CHF/HUF": { rate: 466.50, change: 1.80, trend: "up" },
+  "EUR/HUF": { rate: 421.35, change: 1.84, trend: "up" },
+  "EUR/CHF": { rate: 0.9034, change: -0.0010, trend: "down" },
 };
 
 export default function CurrencyPage() {
@@ -55,9 +55,9 @@ export default function CurrencyPage() {
   const sparklines = data?.sparklines ?? {};
 
   const conversions = useMemo(() => {
-    const chfEur = rates["CHF/EUR"]?.rate ?? 0.94;
-    const chfHuf = rates["CHF/HUF"]?.rate ?? 421;
-    const eurHuf = rates["EUR/HUF"]?.rate ?? 447;
+    const chfEur = rates["CHF/EUR"]?.rate ?? 1.10;
+    const chfHuf = rates["CHF/HUF"]?.rate ?? 466;
+    const eurHuf = rates["EUR/HUF"]?.rate ?? 421;
 
     if (fromCurrency === "CHF") {
       return { EUR: amount * chfEur, HUF: amount * chfHuf };
@@ -73,7 +73,7 @@ export default function CurrencyPage() {
   const carInsurance = useBudgetStore((s) => s.carInsurance);
   const viennaCostsTotal = viennaRent + childSupport + viennaUtils + carInsurance;
 
-  const chfEurRate = rates["CHF/EUR"]?.rate ?? 0.94;
+  const chfEurRate = rates["CHF/EUR"]?.rate ?? 1.10;
   const eurChfRate = rates["EUR/CHF"]?.rate ?? 1 / chfEurRate;
   // Vienna costs are EUR amounts — convert to CHF to show real cost from salary
   const viennaCostsChf = viennaCostsTotal * eurChfRate;

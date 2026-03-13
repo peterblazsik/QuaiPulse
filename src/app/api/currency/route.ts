@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const BASE_URL = "https://api.frankfurter.dev";
+const BASE_URL = "https://api.frankfurter.app";
 
 export async function GET() {
   try {
