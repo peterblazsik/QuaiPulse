@@ -1,12 +1,22 @@
 import { type BudgetValues } from "@/lib/stores/budget-store";
 
-// ─── Swiss Payroll Deduction Rates (2025) ────────────────────────────────────
+// ─── Swiss Payroll Deduction Rates (2026) ────────────────────────────────────
 /** AHV/IV/EO employee contribution rate */
 export const AHV_RATE = 5.3;
 /** ALV (unemployment insurance) employee rate */
 export const ALV_RATE = 1.1;
 /** ALV annual salary cap — contributions only on first CHF 148,200 */
 export const ALV_CAP = 148200;
+/** NBUVG (non-occupational accident insurance) employee rate */
+export const NBUVG_RATE = 1.5;
+/** NBUVG insured salary cap (same as UVG) */
+export const NBUVG_CAP = 148200;
+/** Serafe (Swiss radio/TV fee) — CHF 335/year, mandatory per household */
+export const SERAFE_ANNUAL = 335;
+/** Pillar 3a maximum annual contribution (with BVG, 2026) */
+export const PILLAR_3A_MAX_ANNUAL = 7258;
+/** Pillar 3a maximum monthly */
+export const PILLAR_3A_MAX_MONTHLY = 605;
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
 
@@ -18,6 +28,7 @@ export interface BudgetBreakdown {
   // Social deductions (monthly)
   ahvMonthly: number;
   alvMonthly: number;
+  nbuvgMonthly: number;
   bvgMonthly: number;
   totalSocialMonthly: number;
 
@@ -41,6 +52,7 @@ export interface BudgetBreakdown {
 
   // Zurich expenses
   zurichCosts: number;
+  serafeMonthly: number;
   pillar3aMonthly: number;
 
   // Totals
@@ -94,6 +106,7 @@ export const EXPENSE_CONFIG: ExpenseItem[] = [
   { key: "internet", label: "Internet + Mobile", value: 110, min: 80, max: 180, step: 10, color: "#3b82f6" },
   { key: "flights", label: "ZRH-VIE Flights", value: 450, min: 200, max: 700, step: 25, color: "#8b5cf6" },
   { key: "subscriptions", label: "Subscriptions", value: 200, min: 100, max: 400, step: 10, color: "#ec4899" },
+  { key: "serafe", label: "Serafe (Radio/TV)", value: 28, min: 28, max: 28, step: 1, color: "#94a3b8", fixed: true, note: "CHF 335/yr mandatory" },
   { key: "misc", label: "Misc / Unexpected", value: 200, min: 100, max: 500, step: 25, color: "#64748b" },
 ];
 
@@ -166,12 +179,15 @@ export function calculateBudget(inputs: BudgetInputs): BudgetBreakdown {
   const annualAHV = grossAnnualSalary * (AHV_RATE / 100);
   const alvBase = Math.min(grossAnnualSalary, ALV_CAP);
   const annualALV = alvBase * (ALV_RATE / 100);
+  const nbuvgBase = Math.min(grossAnnualSalary, NBUVG_CAP);
+  const annualNBUVG = nbuvgBase * (NBUVG_RATE / 100);
   const annualBVG = bvgMonthly * 12;
-  const totalAnnualSocial = annualAHV + annualALV + annualBVG;
+  const totalAnnualSocial = annualAHV + annualALV + annualNBUVG + annualBVG;
 
   const ahvMonthly = Math.round(annualAHV / 12);
   const alvMonthly = Math.round(annualALV / 12);
-  const totalSocialMonthly = ahvMonthly + alvMonthly + bvgMonthly;
+  const nbuvgMonthly = Math.round(annualNBUVG / 12);
+  const totalSocialMonthly = ahvMonthly + alvMonthly + nbuvgMonthly + bvgMonthly;
 
   // ── Tax ──
   const annualPillar3a = pillar3aMonthly * 12;
@@ -198,8 +214,10 @@ export function calculateBudget(inputs: BudgetInputs): BudgetBreakdown {
 
   // ── Zurich costs ──
   const zurichCosts = Object.values(zurichValues).reduce((a, b) => a + b, 0);
+  const serafeMonthly = Math.round(SERAFE_ANNUAL / 12);
 
   // ── Surplus ──
+  // Note: serafe is included in zurichValues via the store, so not added separately
   const totalExpenses = fixedOutside + zurichCosts + pillar3aMonthly;
   const surplus = totalMonthlyIncome - totalExpenses;
   const savingsRate = totalMonthlyIncome > 0 ? (surplus / totalMonthlyIncome) * 100 : 0;
@@ -213,6 +231,7 @@ export function calculateBudget(inputs: BudgetInputs): BudgetBreakdown {
     grossAnnualSalary,
     ahvMonthly,
     alvMonthly,
+    nbuvgMonthly,
     bvgMonthly,
     totalSocialMonthly,
     taxableAnnualIncome,
@@ -228,6 +247,7 @@ export function calculateBudget(inputs: BudgetInputs): BudgetBreakdown {
     fixedOutside,
     viennaBreakdown,
     zurichCosts,
+    serafeMonthly,
     pillar3aMonthly,
     totalExpenses,
     surplus,

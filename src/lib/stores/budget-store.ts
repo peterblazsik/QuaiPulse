@@ -13,6 +13,7 @@ export interface BudgetValues {
   internet: number;
   flights: number;
   subscriptions: number;
+  serafe: number;
   misc: number;
 }
 
@@ -75,6 +76,7 @@ const DEFAULT_VALUES: BudgetValues = {
   internet: 110,
   flights: 450,
   subscriptions: 200,
+  serafe: 28,
   misc: 200,
 };
 
@@ -121,7 +123,7 @@ export const useBudgetStore = create<BudgetStore>()(
       setMobilityAllowance: (v) => set({ mobilityAllowance: v }),
       setRelocationBonus: (v) => set({ relocationBonus: v }),
       setBvgMonthly: (v) => set({ bvgMonthly: v }),
-      setPillar3a: (v) => set({ pillar3aMonthly: Math.min(v, 588) }),
+      setPillar3a: (v) => set({ pillar3aMonthly: Math.min(v, 605) }),
       setTaxLocation: (locationId) => set({ taxLocationId: locationId }),
       setViennaCost: (key, v) => set({ [key]: v }),
       setSetupCost: (key, value) =>
@@ -148,7 +150,7 @@ export const useBudgetStore = create<BudgetStore>()(
     }),
     {
       name: "quaipulse-budget",
-      version: 3,
+      version: 4,
       migrate: (persisted, version) => {
         const state = persisted as Record<string, unknown>;
         if (version < 2) {
@@ -169,6 +171,12 @@ export const useBudgetStore = create<BudgetStore>()(
             mobilityAllowance: state.mobilityAllowance ?? 0,
             relocationBonus: state.relocationBonus ?? 0,
           });
+        }
+        if (version < 4) {
+          const values = state.values as Record<string, number> | undefined;
+          if (values && !("serafe" in values)) {
+            values.serafe = 28;
+          }
         }
         return state;
       },

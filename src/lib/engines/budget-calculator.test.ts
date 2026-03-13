@@ -5,6 +5,8 @@ import {
   AHV_RATE,
   ALV_RATE,
   ALV_CAP,
+  NBUVG_RATE,
+  NBUVG_CAP,
   type BudgetInputs,
 } from "./budget-calculator";
 
@@ -63,19 +65,24 @@ describe("calculateBudget — gross to net pipeline", () => {
     expect(result.bvgMonthly).toBe(500);
   });
 
-  it("total social deductions = AHV + ALV + BVG", () => {
+  it("total social deductions = AHV + ALV + NBUVG + BVG", () => {
     const result = calculateBudget(makeInputs());
     expect(result.totalSocialMonthly).toBe(
-      result.ahvMonthly + result.alvMonthly + result.bvgMonthly
+      result.ahvMonthly + result.alvMonthly + result.nbuvgMonthly + result.bvgMonthly
     );
   });
 
   it("net = gross - social - tax, all monthly", () => {
-    const result = calculateBudget(makeInputs({ taxEffectiveRate: 12.3 }));
-    const netAnnual =
-      result.grossAnnualSalary -
-      (result.ahvMonthly + result.alvMonthly + result.bvgMonthly) * 12 -
-      result.annualTax;
+    const inputs = makeInputs({ taxEffectiveRate: 12.3 });
+    const result = calculateBudget(inputs);
+    // Calculator uses exact annual social deductions (not rounded monthly × 12)
+    const grossAnnual = result.grossAnnualSalary;
+    const annualAHV = grossAnnual * (AHV_RATE / 100);
+    const annualALV = Math.min(grossAnnual, ALV_CAP) * (ALV_RATE / 100);
+    const annualNBUVG = Math.min(grossAnnual, NBUVG_CAP) * (NBUVG_RATE / 100);
+    const annualBVG = inputs.bvgMonthly * 12;
+    const totalAnnualSocial = annualAHV + annualALV + annualNBUVG + annualBVG;
+    const netAnnual = grossAnnual - totalAnnualSocial - result.annualTax;
     expect(result.netMonthlySalary).toBe(Math.round(netAnnual / 12));
   });
 
@@ -199,8 +206,8 @@ describe("calculateBudget — expenses & surplus", () => {
 });
 
 describe("EXPENSE_CONFIG", () => {
-  it("has 10 expense categories", () => {
-    expect(EXPENSE_CONFIG.length).toBe(10);
+  it("has 11 expense categories", () => {
+    expect(EXPENSE_CONFIG.length).toBe(11);
   });
 
   it("all items have valid min <= value <= max", () => {
@@ -214,6 +221,13 @@ describe("EXPENSE_CONFIG", () => {
     const transport = EXPENSE_CONFIG.find((i) => i.key === "transport");
     expect(transport?.fixed).toBe(true);
     expect(transport?.min).toBe(transport?.max);
+  });
+
+  it("serafe is fixed at CHF 28/mo", () => {
+    const serafe = EXPENSE_CONFIG.find((i) => i.key === "serafe");
+    expect(serafe?.fixed).toBe(true);
+    expect(serafe?.value).toBe(28);
+    expect(serafe?.min).toBe(serafe?.max);
   });
 });
 

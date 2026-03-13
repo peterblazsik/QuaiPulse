@@ -1,7 +1,7 @@
 "use client";
 
 import { useBudgetStore } from "@/lib/stores/budget-store";
-import { AHV_RATE, ALV_RATE, ALV_CAP } from "@/lib/engines/budget-calculator";
+import { AHV_RATE, ALV_RATE, ALV_CAP, NBUVG_RATE, PILLAR_3A_MAX_MONTHLY, PILLAR_3A_MAX_ANNUAL } from "@/lib/engines/budget-calculator";
 import { TAX_RATES, getTaxDataByLocationId, taxSavingsVsCity } from "@/lib/data/tax-rates";
 import { ALL_LOCATIONS } from "@/lib/data/neighborhoods";
 import { formatCHF } from "@/lib/utils";
@@ -173,6 +173,11 @@ export function IncomeSection() {
           value={`-${formatCHF(breakdown.alvMonthly)}`}
           negative
         />
+        <StatRow
+          label={`NBUVG accident (${NBUVG_RATE}%)`}
+          value={`-${formatCHF(breakdown.nbuvgMonthly)}`}
+          negative
+        />
         <SliderRow
           label="BVG / 2nd Pillar"
           value={bvgMonthly}
@@ -249,12 +254,12 @@ export function IncomeSection() {
             label="Pillar 3a (tax deduction)"
             value={pillar3aMonthly}
             min={0}
-            max={588}
+            max={PILLAR_3A_MAX_MONTHLY}
             step={50}
             onChange={setPillar3a}
           />
           <p className="text-[10px] text-text-muted">
-            Max CHF 7,056/yr. Reduces taxable income & saved from surplus.
+            Max CHF {PILLAR_3A_MAX_ANNUAL.toLocaleString()}/yr. Reduces taxable income & saved from surplus.
           </p>
         </div>
 

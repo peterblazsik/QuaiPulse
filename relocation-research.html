@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuaiPulse — Swiss Relocation Intelligence Research</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg-primary:#0a0e17;--bg-secondary:#111827;--bg-card:#1a2035;
+    --border:#1e293b;--border-accent:#2563eb33;
+    --text-primary:#f1f5f9;--text-secondary:#94a3b8;--text-tertiary:#64748b;
+    --accent:#3b82f6;--accent-glow:#3b82f640;
+    --green:#22c55e;--amber:#f59e0b;--red:#ef4444;--cyan:#06b6d4;--purple:#a855f7;--pink:#ec4899;--orange:#f97316;
+  }
+  html{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);scroll-behavior:smooth}
+  body{max-width:1280px;margin:0 auto;padding:2rem 1.5rem 4rem}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:50;background:var(--bg-primary)ee;border-bottom:1px solid var(--border);padding:1rem 0;margin-bottom:2rem;display:flex;gap:.75rem;flex-wrap:wrap;backdrop-filter:blur(12px)}
+  nav a{font-size:.75rem;padding:.4rem .85rem;border-radius:6px;border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;transition:all .2s;white-space:nowrap}
+  nav a:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
+
+  /* HERO */
+  .hero{text-align:center;padding:3rem 1rem 2rem;margin-bottom:2.5rem;border-bottom:1px solid var(--border)}
+  .hero h1{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+  .hero p{color:var(--text-tertiary);font-size:.85rem;max-width:700px;margin:0 auto}
+  .hero .badge{display:inline-block;font-size:.65rem;padding:.25rem .6rem;border-radius:20px;border:1px solid var(--accent);color:var(--accent);margin-top:1rem;letter-spacing:.05em;text-transform:uppercase}
+  .hero .stats{display:flex;gap:2rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap}
+  .hero .stat{text-align:center}
+  .hero .stat .val{font-size:1.8rem;font-weight:800;font-family:ui-monospace,monospace;color:var(--text-primary)}
+  .hero .stat .label{font-size:.7rem;color:var(--text-tertiary);margin-top:.2rem}
+
+  /* SECTIONS */
+  section{margin-bottom:3rem}
+  .section-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+  .section-header .icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+  .section-header h2{font-size:1.1rem;font-weight:700}
+  .section-header p{font-size:.75rem;color:var(--text-tertiary);margin-top:.15rem}
+
+  /* CARDS GRID */
+  .cards{display:grid;gap:1rem}
+  .cards.cols-2{grid-template-columns:repeat(auto-fill,minmax(380px,1fr))}
+  .cards.cols-3{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;transition:border-color .2s,box-shadow .2s}
+  .card:hover{border-color:var(--accent);box-shadow:0 0 20px var(--accent-glow)}
+  .card h3{font-size:.85rem;font-weight:700;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+  .card p,.card li{font-size:.78rem;color:var(--text-secondary);line-height:1.6}
+  .card ul{padding-left:1.1rem;margin-top:.35rem}
+  .card li{margin-bottom:.25rem}
+  .card.highlight{border-color:var(--green)40;background:linear-gradient(135deg,var(--bg-card),#22c55e08)}
+
+  /* TAGS */
+  .tag{display:inline-block;font-size:.6rem;padding:.2rem .5rem;border-radius:4px;margin-right:.35rem;margin-top:.35rem;letter-spacing:.03em;text-transform:uppercase;font-weight:600}
+  .tag.critical{background:#ef444420;color:#ef4444;border:1px solid #ef444440}
+  .tag.high{background:#f59e0b20;color:#f59e0b;border:1px solid #f59e0b40}
+  .tag.medium{background:#3b82f620;color:#3b82f6;border:1px solid #3b82f640}
+  .tag.low{background:#22c55e20;color:#22c55e;border:1px solid #22c55e40}
+  .tag.module{background:#a855f720;color:#a855f7;border:1px solid #a855f740}
+  .tag.new{background:#06b6d420;color:#06b6d4;border:1px solid #06b6d440}
+  .tag.fix{background:#ec489920;color:#ec4899;border:1px solid #ec489940}
+  .tag.ux{background:#f9731620;color:#f97316;border:1px solid #f9731640}
+
+  /* TABLE */
+  table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:.5rem}
+  th{text-align:left;color:var(--text-tertiary);font-weight:600;padding:.5rem .75rem;border-bottom:1px solid var(--border);font-size:.7rem;text-transform:uppercase;letter-spacing:.04em}
+  td{padding:.6rem .75rem;border-bottom:1px solid var(--border)40;color:var(--text-secondary)}
+  tr:hover td{background:var(--accent-glow);color:var(--text-primary)}
+  .mono{font-family:ui-monospace,monospace;font-weight:600}
+  .green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}.cyan{color:var(--cyan)}.purple{color:var(--purple)}
+
+  /* PROGRESS BAR */
+  .progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:.5rem}
+  .progress-bar .fill{height:100%;border-radius:3px;transition:width .3s}
+
+  /* METRIC ROW */
+  .metric-row{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+  .metric{flex:1;min-width:160px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;text-align:center}
+  .metric .val{font-size:1.4rem;font-weight:800;font-family:ui-monospace,monospace}
+  .metric .label{font-size:.7rem;color:var(--text-tertiary);margin-top:.3rem}
+  .metric .sub{font-size:.65rem;color:var(--text-tertiary);margin-top:.15rem}
+
+  /* ALERT BOX */
+  .alert{padding:1rem 1.25rem;border-radius:10px;margin-bottom:1rem;font-size:.78rem;line-height:1.6}
+  .alert.danger{background:#ef444415;border:1px solid #ef444440;color:#fca5a5}
+  .alert.warning{background:#f59e0b15;border:1px solid #f59e0b40;color:#fcd34d}
+  .alert.info{background:#3b82f615;border:1px solid #3b82f640;color:#93c5fd}
+  .alert strong{color:var(--text-primary)}
+
+  /* TIMELINE */
+  .timeline{position:relative;padding-left:2rem}
+  .timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border)}
+  .timeline-item{position:relative;margin-bottom:1.5rem}
+  .timeline-item::before{content:'';position:absolute;left:-2rem;top:.35rem;width:12px;height:12px;border-radius:50%;border:2px solid var(--accent);background:var(--bg-primary)}
+  .timeline-item.done::before{background:var(--green);border-color:var(--green)}
+  .timeline-item h4{font-size:.82rem;font-weight:700;margin-bottom:.25rem}
+  .timeline-item p{font-size:.75rem;color:var(--text-secondary)}
+  .timeline-item .date{font-size:.65rem;color:var(--text-tertiary);font-family:ui-monospace,monospace}
+
+  @media(max-width:768px){
+    .cards.cols-2,.cards.cols-3{grid-template-columns:1fr}
+    .metric-row{flex-direction:column}
+    .hero .stats{flex-direction:column;gap:1rem}
+    body{padding:1rem}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#budget-gap">Budget Gap</a>
+  <a href="#checklist">Checklist Fixes</a>
+  <a href="#pension">Pension & Tax</a>
+  <a href="#insurance">Insurance Intel</a>
+  <a href="#ux-audit">UX Audit</a>
+  <a href="#cross-module">Cross-Module</a>
+  <a href="#dashboard">Dashboard</a>
+  <a href="#accessibility">Accessibility</a>
+  <a href="#implementation">Implementation Plan</a>
+</nav>
+
+<div class="hero">
+  <h1>Swiss Relocation Intelligence</h1>
+  <p>Comprehensive research from 3 Zurich Insurance / Deloitte documents cross-referenced against the QuaiPulse codebase. 5 research agents, 70+ findings, prioritized for implementation.</p>
+  <div class="badge">5 Agent Research Team &middot; March 2026</div>
+  <div class="stats">
+    <div class="stat"><div class="val red">CHF 628</div><div class="label">Monthly Budget Gap</div></div>
+    <div class="stat"><div class="val amber">18</div><div class="label">Critical Missing Items</div></div>
+    <div class="stat"><div class="val green">7</div><div class="label">Tax Optimizations</div></div>
+    <div class="stat"><div class="val cyan">12</div><div class="label">UX Improvements</div></div>
+    <div class="stat"><div class="val purple">110</div><div class="label">Days to Zurich</div></div>
+  </div>
+</div>
+
+<!-- SECTION 1: BUDGET GAP -->
+<section id="budget-gap">
+  <div class="section-header">
+    <div class="icon" style="background:#ef444420;color:var(--red)">$</div>
+    <div>
+      <h2>Budget Calculator Gap Analysis</h2>
+      <p>Current model underestimates costs by CHF 378-628/month. Critical corrections needed.</p>
+    </div>
+  </div>
+
+  <div class="alert danger">
+    <strong>Monthly surplus is overstated by CHF 378-628.</strong> The budget calculator is missing 4 mandatory Swiss cost items. Peter's real disposable income is significantly lower than shown. This is the #1 fix priority.
+  </div>
+
+  <div class="metric-row">
+    <div class="metric">
+      <div class="val red">-CHF 200-400</div>
+      <div class="label">Missing: Quellensteuer</div>
+      <div class="sub">Withholding tax for B-permit</div>
+    </div>
+    <div class="metric">
+      <div class="val red">-CHF 150</div>
+      <div class="label">Missing: UVG Accident</div>
+      <div class="sub">Non-occupational insurance</div>
+    </div>
+    <div class="metric">
+      <div class="val red">-CHF 28</div>
+      <div class="label">Missing: Serafe</div>
+      <div class="sub">Swiss radio/TV fee</div>
+    </div>
+    <div class="metric">
+      <div class="val amber">+CHF 200</div>
+      <div class="label">Pillar 3a Max Wrong</div>
+      <div class="sub">Shows 7,056 vs correct 7,258</div>
+    </div>
+  </div>
+
+  <div class="cards cols-2">
+    <div class="card">
+      <h3><span class="red">1</span> Quellensteuer (Withholding Tax)</h3>
+      <span class="tag critical">Critical</span><span class="tag module">Budget</span>
+      <p>B-permit holders pay tax at source. Peter's CHF 180K gross exceeds the CHF 120K threshold, requiring <strong>mandatory ordinary taxation</strong>. Estimated effective rate: 20-23% on taxable income (~CHF 140-150K after deductions).</p>
+      <ul>
+        <li>Estimated monthly tax: <strong>CHF 2,300-2,800</strong></li>
+        <li>Currently modeled as flat rate &mdash; needs progressive calculation</li>
+        <li>Good news: ordinary taxation enables ALL deductions (3a, BVG buy-in, commuting, child support)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="red">2</span> UVG Accident Insurance</h3>
+      <span class="tag critical">Critical</span><span class="tag module">Budget</span>
+      <p>UVG is mandatory but not in the budget model. Occupational accidents: employer-paid. <strong>Non-occupational (NBUV): employee pays ~1-2% of insured salary.</strong></p>
+      <ul>
+        <li>On CHF 148,200 cap: ~CHF 1,482-2,964/year</li>
+        <li>Monthly deduction: ~CHF 125-250 (varies by insurer)</li>
+        <li>Critical for Peter given knee condition (covers medical costs from any accident)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="amber">3</span> Serafe (Radio/TV Fee)</h3>
+      <span class="tag high">High</span><span class="tag module">Budget</span>
+      <p>Mandatory Swiss household fee: <strong>CHF 335/year</strong> (CHF 28/month). Every Swiss household pays regardless of whether they own a TV/radio. Invoiced quarterly.</p>
+    </div>
+    <div class="card">
+      <h3><span class="amber">4</span> Pillar 3a Maximum Correction</h3>
+      <span class="tag high">High</span><span class="tag module">Budget</span>
+      <p>Current code uses CHF 7,056 (2024 value). The 2026 maximum is <strong>CHF 7,258</strong>. This affects tax savings calculations too &mdash; the deduction is worth ~CHF 1,500/year in saved tax.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: CHECKLIST -->
+<section id="checklist">
+  <div class="section-header">
+    <div class="icon" style="background:#f59e0b20;color:var(--amber)">&#10003;</div>
+    <div>
+      <h2>Checklist Gap Analysis</h2>
+      <p>7 Amsterdam/Dutch references to fix, 6 critical missing items, 1 item to remove</p>
+    </div>
+  </div>
+
+  <div class="alert warning">
+    <strong>The checklist mixes Dutch and Swiss system references.</strong> Amsterdam/Dutch references are correct for departure tasks (deregistration, etc.), but destination tasks incorrectly use Dutch systems (BSN, Gemeente) instead of Swiss equivalents (AHV, Kreisb&uuml;ro). 6 critical Swiss-specific items are missing entirely.
+  </div>
+
+  <div class="cards cols-3">
+    <div class="card">
+      <h3><span class="red">&#9888;</span> Fix: Dutch &rarr; Swiss Systems</h3>
+      <span class="tag fix">Fix</span>
+      <ul>
+        <li>Amsterdam/Dutch references are correct for <strong>departure tasks</strong> (deregistration from Gemeente, etc.)</li>
+        <li>Destination tasks must use Swiss equivalents:</li>
+        <li>"Gemeente" &rarr; "Kreisb&uuml;ro" (for Swiss registration)</li>
+        <li>"BSN number" &rarr; "AHV number" (Swiss social security)</li>
+        <li>cl-32 (Dutch VOG) &rarr; replace with Swiss Strafregisterauszug if needed</li>
+        <li>Ensure departure vs arrival tasks are clearly labeled</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="red">&#10071;</span> Missing: Critical Items</h3>
+      <span class="tag critical">Critical</span>
+      <ul>
+        <li>Biometrics appointment at Kreisb&uuml;ro</li>
+        <li>B-permit card delivery to HR</li>
+        <li>14-day Kreisb&uuml;ro registration deadline</li>
+        <li>Driving license conversion (12-month window)</li>
+        <li>Austrian Abmeldung (deregistration)</li>
+        <li>Tax briefing / Quellensteuer setup</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="amber">+</span> Missing: Important Items</h3>
+      <span class="tag high">High</span>
+      <ul>
+        <li>Pillar 3a account opening</li>
+        <li>BVG Vorsorgereglement request</li>
+        <li>Expatriate tax status application</li>
+        <li>Austrian pension statement (PVA)</li>
+        <li>Serafe registration</li>
+        <li>UVG policy review</li>
+        <li>Multiple Pillar 3a accounts strategy</li>
+        <li>German language course deduction</li>
+        <li>Moving cost receipts collection</li>
+        <li>Health insurance comparison (3-month window)</li>
+        <li>Liability + household insurance</li>
+        <li>Legal protection insurance (knee claims)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: PENSION & TAX -->
+<section id="pension">
+  <div class="section-header">
+    <div class="icon" style="background:#a855f720;color:var(--purple)">&#9878;</div>
+    <div>
+      <h2>Pension & Tax Intelligence</h2>
+      <p>3-pillar system deep dive with specific numbers for Peter's situation</p>
+    </div>
+  </div>
+
+  <div class="cards cols-2">
+    <div class="card highlight">
+      <h3><span class="green">&#9733;</span> Pillar 1: AHV/IV (State Pension)</h3>
+      <span class="tag module">Pension Simulator</span>
+      <ul>
+        <li>Employee contribution: <strong>5.3%</strong> of gross (no cap)</li>
+        <li>Peter's annual: ~CHF 9,540 on CHF 180K</li>
+        <li>Full pension needs 44 contribution years (age 21-65)</li>
+        <li><strong>Peter has ~28 missing Swiss years</strong></li>
+        <li>EU bilateral agreement: Austrian years count toward eligibility</li>
+        <li>Estimated Swiss AHV alone: CHF 890-1,100/mo (pro-rata)</li>
+        <li>Action: Contact Austrian PVA + Swiss AHV for combined projection</li>
+      </ul>
+    </div>
+    <div class="card highlight">
+      <h3><span class="green">&#9733;</span> Pillar 2: BVG (Occupational)</h3>
+      <span class="tag module">Pension Simulator</span>
+      <ul>
+        <li>Coordination deduction: CHF 25,725</li>
+        <li>Max insured salary (mandatory): CHF 88,200</li>
+        <li>Peter's age bracket (45-54): <strong>15% combined rate</strong></li>
+        <li>Zurich Insurance likely runs enveloping plan (covers salary up to CHF 180K+)</li>
+        <li><strong>Voluntary buy-ins fully tax-deductible</strong></li>
+        <li>Newcomer restriction: first 5 years limited to 20% of regulatory contributions</li>
+        <li>Buy-in potential estimated at CHF 200-400K+ over career</li>
+        <li>Action: Request Vorsorgereglement from HR</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="cyan">&#9733;</span> Pillar 3a (Private Pension)</h3>
+      <span class="tag module">Budget</span>
+      <ul>
+        <li>2026 max contribution: <strong>CHF 7,258</strong></li>
+        <li>100% tax-deductible (~CHF 1,500/year tax saving)</li>
+        <li>Recommended: equity-heavy funds (VIAC, finpension)</li>
+        <li>Open 5 accounts for staggered retirement withdrawal</li>
+        <li>New 2025/2026: catch-up contributions for missed years (rules TBD for newcomers)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="purple">&#9878;</span> Tax Optimizations</h3>
+      <span class="tag module">Budget</span>
+      <table>
+        <tr><th>Deduction</th><th>Annual</th><th>Tax Saved</th></tr>
+        <tr><td>Pillar 3a</td><td class="mono">CHF 7,258</td><td class="mono green">~CHF 1,500</td></tr>
+        <tr><td>Child support (Katie)</td><td class="mono">CHF 7,200</td><td class="mono green">~CHF 1,500</td></tr>
+        <tr><td>Commuting (ZVV)</td><td class="mono">CHF 1,020</td><td class="mono green">~CHF 210</td></tr>
+        <tr><td>Moving costs (2026)</td><td class="mono">TBD</td><td class="mono green">~20-23%</td></tr>
+        <tr><td>German courses</td><td class="mono">CHF 2-5K</td><td class="mono green">~CHF 500-1K</td></tr>
+        <tr><td>BVG buy-in (yr 1-5)</td><td class="mono">limited</td><td class="mono green">~23% of amount</td></tr>
+        <tr><td>Expatriate housing</td><td class="mono">CHF 33K?</td><td class="mono green">~CHF 7K</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="alert info">
+    <strong>Expatriate Tax Status:</strong> Peter may qualify as an Expatriate for Swiss tax purposes (foreign specialist, employer-assigned). If approved: housing costs for maintained Amsterdam apartment become deductible during the transition period. <strong>Action: Have Zurich Insurance HR apply for ruling with Zurich cantonal tax office.</strong> Note: CHF 2,760/mo Vienna costs are for Katie's support (deductible as child support), separate from Amsterdam housing.
+  </div>
+</section>
+
+<!-- SECTION 4: INSURANCE -->
+<section id="insurance">
+  <div class="section-header">
+    <div class="icon" style="background:#ec489920;color:var(--pink)">&#9733;</div>
+    <div>
+      <h2>Insurance Intelligence</h2>
+      <p>Swiss insurance landscape with specific relevance for Peter's knee condition</p>
+    </div>
+  </div>
+
+  <div class="cards cols-3">
+    <div class="card">
+      <h3><span class="red">&#9829;</span> KVG (Mandatory Health)</h3>
+      <span class="tag critical">3-Month Deadline</span>
+      <ul>
+        <li>Must enroll within <strong>90 days of arrival</strong> (by Oct 1, 2026)</li>
+        <li>Basic coverage: CHF 300-500/month depending on insurer & deductible</li>
+        <li>Deductible options: CHF 300 (highest premium) to CHF 2,500 (lowest premium)</li>
+        <li><strong>For Peter's knee: choose CHF 300 deductible</strong> &mdash; frequent medical visits expected</li>
+        <li>No pre-existing condition exclusions in KVG (mandatory acceptance)</li>
+        <li>Compare: Comparis.ch, Priminfo.admin.ch</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="amber">+</span> VVG (Supplementary Health)</h3>
+      <span class="tag high">High Priority</span>
+      <ul>
+        <li><strong>Critical for Peter's knee condition</strong></li>
+        <li>Covers: private/semi-private hospital rooms, free choice of doctor, complementary medicine</li>
+        <li>Insurers CAN reject or add exclusions for pre-existing conditions</li>
+        <li><strong>Apply BEFORE moving</strong> if possible (health questionnaire)</li>
+        <li>Typical cost: CHF 100-300/month depending on coverage</li>
+        <li>Key: "Division priv&eacute;e" for hospital stays (own room, chief physician)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="cyan">&#8962;</span> Household & Liability</h3>
+      <span class="tag medium">Medium</span>
+      <ul>
+        <li><strong>Privathaftpflicht</strong> (personal liability): CHF 5-15/month &mdash; covers damages to third parties</li>
+        <li><strong>Hausratversicherung</strong> (household contents): CHF 15-30/month</li>
+        <li>Often bundled: CHF 20-40/month combined</li>
+        <li>Many landlords require liability insurance proof</li>
+        <li>Consider: glass breakage, bicycle theft, water damage riders</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="purple">&#9878;</span> Rechtsschutz (Legal Protection)</h3>
+      <span class="tag medium">Medium</span>
+      <ul>
+        <li>Covers legal fees for disputes: tenant rights, employment, traffic, insurance claims</li>
+        <li><strong>Relevant for Peter:</strong> tenant protection (Swiss rental law is complex), insurance disputes (knee treatment coverage)</li>
+        <li>Cost: CHF 20-40/month</li>
+        <li>Recommended: tenant + health insurance legal coverage</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="green">&#9733;</span> UVG (Accident Insurance)</h3>
+      <span class="tag module">Budget</span>
+      <ul>
+        <li>BU (occupational): employer-paid</li>
+        <li>NBU (non-occupational): <strong>employee pays ~1-2%</strong></li>
+        <li>Covers: all accidents including sports, travel</li>
+        <li>Medical costs 100% covered (no deductible)</li>
+        <li>Daily allowance: 80% of insured salary</li>
+        <li><strong>Peter's knee:</strong> any NEW injury covered; existing condition is not</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="amber">&#9888;</span> Insurance Timeline</h3>
+      <span class="tag critical">Deadlines</span>
+      <ul>
+        <li><strong>Before July 1:</strong> Apply for VVG supplementary (no pre-existing exclusion risk if done early)</li>
+        <li><strong>July 1:</strong> UVG coverage starts automatically via employer</li>
+        <li><strong>By Oct 1:</strong> Enroll in KVG basic health insurance (90-day deadline)</li>
+        <li><strong>Before signing lease:</strong> Get liability insurance (landlord requirement)</li>
+        <li><strong>After arrival:</strong> Compare and purchase household contents insurance</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert warning" style="margin-top:1rem">
+    <strong>Franchise Optimizer (Key Decision):</strong> The KVG franchise (deductible) ranges from CHF 300 to CHF 2,500. Formula: <code>total = (premium &times; 12) + min(medical, franchise) + min((medical - franchise) &times; 10%, 700)</code>. Given Peter's knee and expected physio (~24 sessions/year at CHF 150 = CHF 3,600), <strong>CHF 300 franchise is optimal</strong>. Break-even vs CHF 2,500: ~CHF 2,300 medical spend/year. KVG covers 9 physio sessions per prescription; supplementary needed for remaining 15 sessions = <strong>CHF 2,250/year out-of-pocket gap</strong> without VVG.
+  </div>
+
+  <div class="metric-row" style="margin-top:1rem">
+    <div class="metric">
+      <div class="val" style="color:var(--text-primary)">CHF 417</div>
+      <div class="label">Total Insurance Monthly</div>
+      <div class="sub">KVG 298 + VVG 85 + Others 34</div>
+    </div>
+    <div class="metric">
+      <div class="val amber">3.4%</div>
+      <div class="label">% of Net Income</div>
+      <div class="sub">CHF 417 / CHF 12,150</div>
+    </div>
+    <div class="metric">
+      <div class="val red">CHF 2,250</div>
+      <div class="label">Physio Gap / Year</div>
+      <div class="sub">15 sessions beyond KVG coverage</div>
+    </div>
+    <div class="metric">
+      <div class="val green">CHF 840</div>
+      <div class="label">UVG Accident Exclusion Saves</div>
+      <div class="sub">~7% KVG discount (employer has UVG)</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: UX AUDIT -->
+<section id="ux-audit">
+  <div class="section-header">
+    <div class="icon" style="background:#f9731620;color:var(--orange)">&#9998;</div>
+    <div>
+      <h2>UX Design Audit</h2>
+      <p>Information architecture, cross-module connectivity, and dashboard effectiveness</p>
+    </div>
+  </div>
+
+  <div class="alert info">
+    <strong>Overall assessment:</strong> QuaiPulse has strong visual design, thoughtful data density, and solid keyboard navigation. The Bloomberg Terminal aesthetic is well-executed. Primary weaknesses: <strong>cross-module connectivity</strong> (Neighborhoods &harr; Apartments &harr; Budget disconnected), <strong>dashboard actionability</strong> (shows state not urgency), and <strong>19 nav items</strong> overwhelming.
+  </div>
+
+  <div class="cards cols-2">
+    <div class="card">
+      <h3><span class="red">H1</span> Neighborhoods &rarr; Apartments Link</h3>
+      <span class="tag critical">Critical</span><span class="tag ux">UX</span>
+      <p>When viewing a neighborhood (e.g., Wiedikon K3), there's no "See apartments in K3" button. User must manually navigate and set filters. <strong>This is THE core workflow.</strong></p>
+      <p style="margin-top:.5rem;color:var(--green);font-size:.7rem">FIX: Add "View apartments in Kreis X" button on neighborhood detail pages, pre-filtering the Apartments page.</p>
+    </div>
+    <div class="card">
+      <h3><span class="red">H2</span> Move Readiness Score</h3>
+      <span class="tag critical">Critical</span><span class="tag ux">UX</span>
+      <p>No single "am I on track?" metric. Need composite score: checklist %, apartment secured, budget finalized, documents ready. <strong>"Move Readiness: 42%"</strong> ring chart on dashboard.</p>
+      <p style="margin-top:.5rem;color:var(--green);font-size:.7rem">FIX: Compute composite readiness score and show as progress ring on dashboard.</p>
+    </div>
+    <div class="card">
+      <h3><span class="red">H3</span> Upcoming Deadlines Widget</h3>
+      <span class="tag critical">Critical</span><span class="tag ux">UX</span>
+      <p>Dashboard shows state but not urgency. No "Next 3 deadlines" or "Overdue tasks" widget. A 49-year-old managing a complex move needs <strong>action-oriented prompts</strong>.</p>
+    </div>
+    <div class="card">
+      <h3><span class="red">H4</span> Unify Rental Intel & Apartments</h3>
+      <span class="tag critical">Critical</span><span class="tag ux">UX</span>
+      <p>Two parallel apartment-tracking systems with no connection. Saving from Rental Intel's top picks doesn't add to Apartments pipeline. <strong>Merge or add save-to-pipeline flow.</strong></p>
+    </div>
+    <div class="card">
+      <h3><span class="amber">M1</span> Replace Static "Mission" KPI</h3>
+      <span class="tag high">High</span><span class="tag ux">UX</span>
+      <p>"Peter Blazsik / Finance AI & Innovation Lead" is static and wastes premium real estate. Replace with current relocation phase or next critical action.</p>
+    </div>
+    <div class="card">
+      <h3><span class="amber">M2</span> Apartment Pipeline on Dashboard</h3>
+      <span class="tag high">High</span><span class="tag ux">UX</span>
+      <p>Highest-stakes activity has zero dashboard presence. Show: "3 interested, 1 viewing, 1 applied" with link to Apartments page.</p>
+    </div>
+    <div class="card">
+      <h3><span class="amber">M4</span> Inline Budget Impact on Apartments</h3>
+      <span class="tag high">High</span><span class="tag ux">UX</span>
+      <p>When viewing a CHF 2,400 apartment, show "This rent would leave you CHF X surplus" inline. Closes the cognitive gap between apartment evaluation and budget impact.</p>
+    </div>
+    <div class="card">
+      <h3><span class="amber">M6</span> Next Katie Visit Date</h3>
+      <span class="tag high">High</span><span class="tag ux">UX</span>
+      <p>Katie card shows "X visits planned" but not WHEN. The next visit date is far more actionable than the total count. Show date + days-until.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: CROSS-MODULE -->
+<section id="cross-module">
+  <div class="section-header">
+    <div class="icon" style="background:#06b6d420;color:var(--cyan)">&#8644;</div>
+    <div>
+      <h2>Cross-Module Connectivity</h2>
+      <p>Missing links between modules that should share data</p>
+    </div>
+  </div>
+
+  <div class="cards cols-2">
+    <div class="card">
+      <h3>&#8594; Neighborhoods &rarr; Apartments</h3>
+      <span class="tag critical">Critical</span>
+      <p>Score neighborhood &rarr; "View K3 apartments" &rarr; pre-filtered apartment feed. Currently: zero connection between these two core modules.</p>
+    </div>
+    <div class="card">
+      <h3>&#8594; Apartments &rarr; Budget</h3>
+      <span class="tag high">High</span>
+      <p>Viewing apartment at CHF 2,400 &rarr; show inline budget surplus impact. Currently: user must mentally hold number and switch modules.</p>
+    </div>
+    <div class="card">
+      <h3>&#8594; Checklist &rarr; Modules</h3>
+      <span class="tag medium">Medium</span>
+      <p>"Open Swiss bank account" should link to Currency module. "Choose health insurance" should link to insurance comparison. Tasks are isolated from tools.</p>
+    </div>
+    <div class="card">
+      <h3>&#8594; Rental Intel &rarr; Pipeline</h3>
+      <span class="tag high">High</span>
+      <p>Rental Intel top picks &rarr; "Save to pipeline" &rarr; appears in Apartments module. Currently: two completely parallel systems.</p>
+    </div>
+    <div class="card">
+      <h3>&#8594; Status Bar Enhancement</h3>
+      <span class="tag medium">Medium</span>
+      <p>Currently shows days-to-move + surplus. Could also show: checklist progress "14/42 done", next deadline, apartment pipeline count.</p>
+    </div>
+    <div class="card">
+      <h3>&#8594; Pension &rarr; Budget</h3>
+      <span class="tag new">New Module</span>
+      <p>New pension simulator output should feed into budget calculator. Show total retirement contribution rate, buy-in impact on tax, 3a deduction effect.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: DASHBOARD -->
+<section id="dashboard">
+  <div class="section-header">
+    <div class="icon" style="background:#3b82f620;color:var(--accent)">&#9632;</div>
+    <div>
+      <h2>Dashboard Improvements</h2>
+      <p>Making the home page actionable, not just informational</p>
+    </div>
+  </div>
+
+  <div class="cards cols-3">
+    <div class="card">
+      <h3>Move Readiness Ring</h3>
+      <span class="tag new">New Widget</span>
+      <p>Composite score: checklist % (40w) + apartment secured (25w) + budget finalized (20w) + documents ready (15w). Single "42%" answer to "am I on track?"</p>
+    </div>
+    <div class="card">
+      <h3>Next Actions Widget</h3>
+      <span class="tag new">New Widget</span>
+      <p>3-5 most urgent items across ALL modules. Pulls from checklist deadlines, Katie visits, apartment viewings, document expirations.</p>
+    </div>
+    <div class="card">
+      <h3>Apartment Pipeline Card</h3>
+      <span class="tag new">New Widget</span>
+      <p>Pipeline status counts with mini chart. "3 interested &bull; 1 viewing &bull; 1 applied" with link to Apartments module.</p>
+    </div>
+    <div class="card">
+      <h3>Replace Mission Card</h3>
+      <span class="tag ux">Improve</span>
+      <p>Swap static identity card for dynamic: current phase, next milestone, or phase completion bar.</p>
+    </div>
+    <div class="card">
+      <h3>Reduce Hero Height</h3>
+      <span class="tag ux">Improve</span>
+      <p>192px hero pushes KPIs below fold on laptops. Make collapsible or reduce to 100px. Countdown is duplicated in hero + KPI row.</p>
+    </div>
+    <div class="card">
+      <h3>Katie Next Visit</h3>
+      <span class="tag ux">Improve</span>
+      <p>Show specific date + days-until instead of just total count. More actionable for a dad planning around visits.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 8: ACCESSIBILITY -->
+<section id="accessibility">
+  <div class="section-header">
+    <div class="icon" style="background:#22c55e20;color:var(--green)">&#9855;</div>
+    <div>
+      <h2>Accessibility & Mobile</h2>
+      <p>Key gaps identified in the UX audit</p>
+    </div>
+  </div>
+
+  <div class="cards cols-2">
+    <div class="card">
+      <h3>Checklist Checkbox Semantics</h3>
+      <span class="tag critical">Critical</span>
+      <p>Checklist uses <code>&lt;button&gt;</code> not <code>&lt;input type="checkbox"&gt;</code>. Missing <code>role="checkbox"</code> and <code>aria-checked</code>. Screen readers can't determine checked state.</p>
+    </div>
+    <div class="card">
+      <h3>Skip-to-Content Link</h3>
+      <span class="tag high">High</span>
+      <p>No skip link. Keyboard users must tab through 19+ sidebar items to reach content. Add hidden skip-to-content link in layout.</p>
+    </div>
+    <div class="card">
+      <h3>Color-Only Indicators</h3>
+      <span class="tag medium">Medium</span>
+      <p>Apartment pipeline status and value scores use color-only encoding (red/amber/green). Color-blind users can't distinguish. Add text labels or pattern differentiation.</p>
+    </div>
+    <div class="card">
+      <h3>Mobile Bottom Navigation</h3>
+      <span class="tag low">Low</span>
+      <p>No bottom tab bar. One-handed mobile use requires reaching top-left hamburger. Add bottom tabs for 5 most-used modules: Dashboard, Neighborhoods, Apartments, Budget, Checklist.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 9: IMPLEMENTATION PLAN -->
+<section id="implementation">
+  <div class="section-header">
+    <div class="icon" style="background:#3b82f620;color:var(--accent)">&#9654;</div>
+    <div>
+      <h2>Implementation Roadmap</h2>
+      <p>Prioritized by impact and effort, organized into implementation sprints</p>
+    </div>
+  </div>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="date">Sprint 1: Budget & Checklist Fixes (Highest Impact)</div>
+      <h4>Fix the Foundation</h4>
+      <p>
+        <span class="tag critical">Critical</span>
+        1. Add Quellensteuer progressive tax model to budget calculator<br>
+        2. Add UVG non-occupational insurance deduction<br>
+        3. Add Serafe fee as fixed expense<br>
+        4. Fix Pillar 3a max to CHF 7,258<br>
+        5. Fix Amsterdam &rarr; Vienna references in checklist<br>
+        6. Add 6 critical missing checklist items<br>
+        7. Remove cl-32 (Dutch VOG)
+      </p>
+    </div>
+    <div class="timeline-item">
+      <div class="date">Sprint 2: Cross-Module Connectivity</div>
+      <h4>Connect the Workflow</h4>
+      <p>
+        <span class="tag high">High</span>
+        1. Add "View apartments in Kreis X" to neighborhood detail pages<br>
+        2. Add inline budget impact to apartment cards<br>
+        3. Add save-to-pipeline from Rental Intel top picks<br>
+        4. Link checklist tasks to relevant modules
+      </p>
+    </div>
+    <div class="timeline-item">
+      <div class="date">Sprint 3: Dashboard Overhaul</div>
+      <h4>Make It Actionable</h4>
+      <p>
+        <span class="tag high">High</span>
+        1. Add Move Readiness composite score ring<br>
+        2. Add Next Actions / Upcoming Deadlines widget<br>
+        3. Add Apartment Pipeline summary card<br>
+        4. Replace static Mission card with dynamic phase indicator<br>
+        5. Add next Katie visit date to Katie card
+      </p>
+    </div>
+    <div class="timeline-item">
+      <div class="date">Sprint 4: Swiss Intelligence Modules</div>
+      <h4>New Capabilities</h4>
+      <p>
+        <span class="tag new">New</span>
+        1. Insurance Intelligence module (comparison, deadlines, knee-specific recommendations)<br>
+        2. Pension Simulator (3-pillar projections, buy-in planning, gap analysis)<br>
+        3. Tax Deduction Optimizer (visualize all deductions, show savings)<br>
+        4. Add 12+ important checklist items (pension, tax, insurance)
+      </p>
+    </div>
+    <div class="timeline-item">
+      <div class="date">Sprint 5: UX Polish</div>
+      <h4>Refinement</h4>
+      <p>
+        <span class="tag ux">UX</span>
+        1. Accessibility fixes (checkbox semantics, skip link, aria labels)<br>
+        2. Reduce hero banner height<br>
+        3. Complete ROUTE_TITLES map in header<br>
+        4. Add breadcrumbs to nested pages<br>
+        5. Status bar enhancements (checklist progress, next deadline)
+      </p>
+    </div>
+  </div>
+
+  <div class="alert info" style="margin-top:2rem">
+    <strong>Key Financial Numbers for Peter's Budget Model:</strong><br>
+    Gross salary: CHF 180,000/yr &bull; AHV/IV/EO (5.3%): CHF 9,540/yr &bull; ALV (1.1% capped): CHF 1,630/yr &bull; BVG (estimated): CHF 6-9K/yr &bull; Pillar 3a (max): CHF 7,258/yr &bull; Estimated tax: CHF 28-34K/yr &bull; Child support (deductible): CHF 7,200/yr &bull; <span class="green">Tax savings from 3a: ~CHF 1,500/yr</span> &bull; <span class="green">Tax savings from child support: ~CHF 1,500/yr</span>
+  </div>
+
+  <div style="text-align:center;margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);color:var(--text-tertiary);font-size:.7rem">
+    <p>Generated by QuaiPulse Research Team &bull; 5 Specialized Agents &bull; March 13, 2026</p>
+    <p style="margin-top:.3rem">Sources: Zurich Insurance Registration PDF &bull; Zurich Insurance Relocation Checklist &bull; Deloitte "Living and Working in Switzerland 2026-2027"</p>
+  </div>
+</section>
+
+</body>
+</html>

@@ -327,6 +327,174 @@ export const CHECKLIST_ITEMS: ChecklistItemData[] = [
     dependsOn: ["cl-23"],
     estimatedDays: 7,
   },
+
+  // === REGISTRATION & PERMITS (Post-Arrival) ===
+  {
+    id: "cl-34",
+    phase: "jul",
+    category: "Setup",
+    title: "Book biometrics appointment at Migrationsamt",
+    description:
+      "After Kreisbüro registration, book via kanton website for biometric data capture. ~1-2 weeks wait. Required for B-permit card.",
+    sortOrder: 34,
+    dependsOn: ["cl-23"],
+    estimatedDays: 14,
+  },
+  {
+    id: "cl-35",
+    phase: "jul",
+    category: "Setup",
+    title: "Collect B-permit card and deliver copy to HR",
+    description:
+      "Pick up residence permit card from Migrationsamt after biometrics. Provide copy to Zurich Insurance HR immediately.",
+    sortOrder: 35,
+    dependsOn: ["cl-34"],
+    estimatedDays: 7,
+  },
+  {
+    id: "cl-36",
+    phase: "jul",
+    category: "Administration",
+    title: "Convert driving license to Swiss license",
+    description:
+      "Must convert within 12 months of arrival. Need: eye exam (CHF 25 from certified optician), passport photo, Dutch license, Swiss permit copy. Visit Strassenverkehrsamt.",
+    sortOrder: 36,
+    dependsOn: ["cl-23"],
+    estimatedDays: 30,
+    hardDeadline: "2027-06-30",
+  },
+
+  // === INSURANCE ===
+  {
+    id: "cl-37",
+    phase: "mar-apr",
+    category: "Insurance",
+    title: "Apply for VVG supplementary health insurance (before move!)",
+    description:
+      "Apply BEFORE moving to avoid pre-existing knee condition exclusions. Compare SWICA, Helsana, CSS for physio coverage. Health questionnaire applies.",
+    sortOrder: 37,
+    estimatedDays: 14,
+  },
+  {
+    id: "cl-38",
+    phase: "jun",
+    category: "Insurance",
+    title: "Get Privathaftpflicht (personal liability insurance)",
+    description:
+      "CHF 10-20/mo. Many landlords require proof before lease signing. Compare Mobiliar, AXA, Zurich, Baloise.",
+    sortOrder: 38,
+    dependsOn: ["cl-16"],
+    estimatedDays: 3,
+  },
+  {
+    id: "cl-39",
+    phase: "jul",
+    category: "Insurance",
+    title: "Arrange Hausratversicherung (household contents insurance)",
+    description:
+      "CHF 15-40/mo. Covers theft, fire, water damage. Often bundled with liability. Activate on lease start date.",
+    sortOrder: 39,
+    dependsOn: ["cl-16"],
+    estimatedDays: 3,
+  },
+  {
+    id: "cl-40",
+    phase: "jul",
+    category: "Insurance",
+    title: "Confirm UVG coverage details with Zurich Insurance HR",
+    description:
+      "Verify non-occupational accident (NBUVG) coverage starts on day 1. Check deduction rate on payslip. UVG covers medical costs 100% for accidents.",
+    sortOrder: 40,
+    dependsOn: ["cl-30"],
+    estimatedDays: 2,
+  },
+
+  // === PENSION & TAX ===
+  {
+    id: "cl-41",
+    phase: "mar-apr",
+    category: "Finance",
+    title: "Request Vorsorgereglement from Zurich Insurance HR",
+    description:
+      "Pension plan rules document — defines BVG contribution rates, risk benefits, conversion rate, and buy-in potential. Critical for financial planning.",
+    sortOrder: 41,
+    estimatedDays: 7,
+  },
+  {
+    id: "cl-42",
+    phase: "may",
+    category: "Finance",
+    title: "Choose Pillar 3a provider and open account",
+    description:
+      "Investment-based: VIAC, finpension, or frankly (ZKB). At 49, equity-heavy funds appropriate. Max CHF 7,258/yr. Open before July to contribute from first paycheck.",
+    sortOrder: 42,
+    estimatedDays: 7,
+  },
+  {
+    id: "cl-43",
+    phase: "may",
+    category: "Finance",
+    title: "Request Austrian pension statement (Pensionskonto) from PVA",
+    description:
+      "Contact Austrian PVA for contribution years summary. Under EU bilateral agreement, Austrian years count toward Swiss eligibility. Needed for combined projection.",
+    sortOrder: 43,
+    estimatedDays: 21,
+  },
+  {
+    id: "cl-44",
+    phase: "jun",
+    category: "Finance",
+    title: "Discuss Expatriate tax status with employer",
+    description:
+      "Foreign specialist assigned by employer may qualify for Expatriate ruling with Zurich cantonal tax office. If approved: Amsterdam housing costs during transition become deductible.",
+    sortOrder: 44,
+    estimatedDays: 14,
+  },
+  {
+    id: "cl-45",
+    phase: "jul",
+    category: "Finance",
+    title: "Review Quellensteuer tariff code on first payslip",
+    description:
+      "Verify correct code (B0 or B1 depending on Katie's recognition as dependent). Income >CHF 120K = mandatory ordinary taxation. Quellensteuer is credited against final tax.",
+    sortOrder: 45,
+    dependsOn: ["cl-30"],
+    estimatedDays: 1,
+  },
+  {
+    id: "cl-46",
+    phase: "jul",
+    category: "Finance",
+    title: "Request BVG Einkaufspotenzial (buy-in potential) calculation",
+    description:
+      "After 6 months at employer, request from pension fund. Late start at 49 = large buy-in potential (CHF 200-400K+). Buy-ins are fully tax-deductible. First 5 years: limited to 20% of regulatory contributions.",
+    sortOrder: 46,
+    dependsOn: ["cl-41"],
+    estimatedDays: 14,
+  },
+
+  // === MOVE PREPARATION ===
+  {
+    id: "cl-47",
+    phase: "jun",
+    category: "Move",
+    title: "Collect moving cost receipts for tax deduction",
+    description:
+      "Relocation costs are deductible in the year of move (2026). Keep all receipts: shipping, travel, temporary accommodation. Especially important if Expatriate status is approved.",
+    sortOrder: 47,
+    estimatedDays: 1,
+  },
+  {
+    id: "cl-48",
+    phase: "jul",
+    category: "Setup",
+    title: "Register with a GP (Hausarzt) for physio referrals",
+    description:
+      "Not legally required but practically essential. KVG covers 9 physio sessions per doctor's prescription (renewable). Knee rehab needs ongoing referrals.",
+    sortOrder: 48,
+    dependsOn: ["cl-12"],
+    estimatedDays: 7,
+  },
 ];
 
 /**
