@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import {
   Building2,
@@ -50,7 +50,11 @@ const KREIS_OPTIONS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 export default function ApartmentsPage() {
   const { apartments, add, remove, updateStatus } = useApartmentStore();
   const feed = useApartmentFeedStore();
-  const filteredFeed = useApartmentFeedStore((s) => s.getFiltered());
+  const feedApartments = useApartmentFeedStore((s) => s.apartments);
+  const feedSort = useApartmentFeedStore((s) => s.sort);
+  const feedFilters = useApartmentFeedStore((s) => s.filters);
+  const feedDismissedIds = useApartmentFeedStore((s) => s.dismissedIds);
+  const filteredFeed = useMemo(() => feed.getFiltered(), [feedApartments, feedSort, feedFilters, feedDismissedIds]);
 
   const [tab, setTab] = useState<Tab>("feed");
   const [showForm, setShowForm] = useState(false);
