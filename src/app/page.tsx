@@ -14,6 +14,9 @@ import { rankNeighborhoods, formatScore, scoreTextClass } from "@/lib/engines/sc
 import { EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
 import { useBudgetWithTax } from "@/lib/hooks/use-budget-with-tax";
 import { RadarChart } from "@/components/neighborhoods/radar-chart";
+import { MoveReadinessRing } from "@/components/dashboard/move-readiness-ring";
+import { NextActionsWidget } from "@/components/dashboard/next-actions-widget";
+import { ApartmentPipelineCard } from "@/components/dashboard/apartment-pipeline-card";
 import { HERO_IMAGES, NEIGHBORHOOD_IMAGES } from "@/lib/data/images";
 
 export default function DashboardPage() {
@@ -170,6 +173,13 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* Move Readiness + Next Actions + Pipeline */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <MoveReadinessRing />
+        <ApartmentPipelineCard />
+      </div>
+      <NextActionsWidget />
 
       {/* Budget snapshot */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
