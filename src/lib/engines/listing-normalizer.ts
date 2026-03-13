@@ -3,7 +3,7 @@
  * Handles deduplication by (zipcode, rooms, sqm, rent within 5%).
  */
 
-import type { UnifiedListing, ListingSource } from "@/lib/types";
+import type { UnifiedListing, ListingSource, ValueScoreBreakdown } from "@/lib/types";
 import type { ScrapedApartment } from "@/lib/engines/flatfox-scraper";
 import { extractKreis } from "@/lib/engines/flatfox-scraper";
 
@@ -74,6 +74,7 @@ export function normalizeFlatfox(apt: ScrapedApartment): UnifiedListing {
     isPremium: false,
     publishedAt: apt.publishedAt,
     valueScore: 0, // computed later
+    valueScoreBreakdown: null, // computed later
     budgetFit: computeBudgetFitCategory(rent),
     commuteEstimate: KREIS_COMMUTE[apt.kreis] ?? null,
   };
@@ -106,6 +107,7 @@ export function normalizeHomegate(raw: HomegateRaw): UnifiedListing {
     isPremium: raw.isPremium,
     publishedAt: raw.timestamp,
     valueScore: 0,
+    valueScoreBreakdown: null,
     budgetFit: computeBudgetFitCategory(raw.price),
     commuteEstimate: KREIS_COMMUTE[kreis] ?? null,
   };
@@ -126,18 +128,19 @@ function isDuplicate(a: UnifiedListing, b: UnifiedListing): boolean {
 
 /**
  * Compute value score (0-100) based on weighted composite.
+ * Returns both the final score and a breakdown of each dimension.
  */
 export function computeValueScore(
   listing: UnifiedListing,
   medianPricePerSqm: number
-): number {
+): { score: number; breakdown: ValueScoreBreakdown } {
   let score = 50; // base
 
   // Price/m² vs median (30% weight) — lower is better
+  let priceScore = 50;
   if (listing.pricePerSqm && medianPricePerSqm > 0) {
     const ratio = listing.pricePerSqm / medianPricePerSqm;
-    // ratio < 1 = cheaper than median = good
-    const priceScore = Math.max(0, Math.min(100, (2 - ratio) * 50));
+    priceScore = Math.max(0, Math.min(100, (2 - ratio) * 50));
     score = score * 0.7 + priceScore * 0.3;
   }
 
@@ -146,14 +149,16 @@ export function computeValueScore(
   score = score * 0.8 + kreisScore * 0.2;
 
   // Commute (20% weight) — shorter is better
+  let commuteScore = 50;
   if (listing.commuteEstimate != null) {
-    const commuteScore = Math.max(0, 100 - listing.commuteEstimate * 3);
+    commuteScore = Math.max(0, 100 - listing.commuteEstimate * 3);
     score = score * 0.8 + commuteScore * 0.2;
   }
 
   // Room fit (15% weight) — 2-3 rooms ideal
+  let roomScore = 50;
   if (listing.rooms != null) {
-    const roomScore =
+    roomScore =
       listing.rooms >= 2 && listing.rooms <= 3
         ? 100
         : listing.rooms >= 1.5 && listing.rooms <= 3.5
@@ -168,7 +173,24 @@ export function computeValueScore(
     listing.budgetFit === "stretch" ? 60 : 20;
   score = score * 0.85 + budgetScore * 0.15;
 
-  return Math.round(Math.max(0, Math.min(100, score)));
+  const finalScore = Math.round(Math.max(0, Math.min(100, score)));
+
+  return {
+    score: finalScore,
+    breakdown: {
+      priceScore: Math.round(priceScore),
+      kreisScore,
+      commuteScore: Math.round(commuteScore),
+      roomScore,
+      budgetScore,
+      priceWeight: 0.30,
+      kreisWeight: 0.20,
+      commuteWeight: 0.20,
+      roomWeight: 0.15,
+      budgetWeight: 0.15,
+      medianPricePerSqm,
+    },
+  };
 }
 
 /**
@@ -202,7 +224,9 @@ export function mergeListings(
 
   // Score each listing
   for (const listing of merged) {
-    listing.valueScore = computeValueScore(listing, medianPricePerSqm);
+    const { score, breakdown } = computeValueScore(listing, medianPricePerSqm);
+    listing.valueScore = score;
+    listing.valueScoreBreakdown = breakdown;
   }
 
   return merged;

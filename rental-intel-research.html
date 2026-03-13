@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rental Intelligence — Research Findings</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg-primary:#0a0e17;--bg-secondary:#111827;--bg-card:#1a2035;
+    --border:#1e293b;--border-accent:#2563eb33;
+    --text-primary:#f1f5f9;--text-secondary:#94a3b8;--text-tertiary:#64748b;
+    --accent:#3b82f6;--accent-glow:#3b82f640;
+    --green:#22c55e;--amber:#f59e0b;--red:#ef4444;--cyan:#06b6d4;--purple:#a855f7;
+  }
+  html{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);scroll-behavior:smooth}
+  body{max-width:1200px;margin:0 auto;padding:2rem 1.5rem 4rem}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:50;background:var(--bg-primary);border-bottom:1px solid var(--border);padding:1rem 0;margin-bottom:2rem;display:flex;gap:.75rem;flex-wrap:wrap;backdrop-filter:blur(12px)}
+  nav a{font-size:.75rem;padding:.4rem .85rem;border-radius:6px;border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;transition:all .2s;white-space:nowrap}
+  nav a:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
+
+  /* HERO */
+  .hero{text-align:center;padding:3rem 1rem 2rem;margin-bottom:2.5rem;border-bottom:1px solid var(--border)}
+  .hero h1{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+  .hero p{color:var(--text-tertiary);font-size:.85rem;max-width:600px;margin:0 auto}
+  .hero .badge{display:inline-block;font-size:.65rem;padding:.25rem .6rem;border-radius:20px;border:1px solid var(--accent);color:var(--accent);margin-top:1rem;letter-spacing:.05em;text-transform:uppercase}
+
+  /* SECTIONS */
+  section{margin-bottom:3rem}
+  .section-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+  .section-header .icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+  .section-header h2{font-size:1.1rem;font-weight:700}
+  .section-header p{font-size:.75rem;color:var(--text-tertiary);margin-top:.15rem}
+
+  /* CARDS GRID */
+  .cards{display:grid;gap:1rem}
+  .cards.cols-2{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+  .cards.cols-3{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;transition:border-color .2s,box-shadow .2s}
+  .card:hover{border-color:var(--accent);box-shadow:0 0 20px var(--accent-glow)}
+  .card h3{font-size:.85rem;font-weight:700;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+  .card p,.card li{font-size:.78rem;color:var(--text-secondary);line-height:1.6}
+  .card ul{padding-left:1.1rem;margin-top:.35rem}
+  .card li{margin-bottom:.25rem}
+
+  /* TAGS */
+  .tag{display:inline-block;font-size:.6rem;padding:.2rem .5rem;border-radius:4px;margin-right:.35rem;margin-top:.35rem;letter-spacing:.03em;text-transform:uppercase;font-weight:600}
+  .tag-green{background:#22c55e20;color:var(--green);border:1px solid #22c55e40}
+  .tag-amber{background:#f59e0b20;color:var(--amber);border:1px solid #f59e0b40}
+  .tag-red{background:#ef444420;color:var(--red);border:1px solid #ef444440}
+  .tag-cyan{background:#06b6d420;color:var(--cyan);border:1px solid #06b6d440}
+  .tag-purple{background:#a855f720;color:var(--purple);border:1px solid #a855f740}
+  .tag-blue{background:#3b82f620;color:var(--accent);border:1px solid #3b82f640}
+
+  /* PRIORITY */
+  .priority{display:flex;align-items:center;gap:.4rem;margin-top:.65rem;font-size:.65rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.05em}
+  .priority .dot{width:8px;height:8px;border-radius:50%}
+  .p-high .dot{background:var(--green)}
+  .p-med .dot{background:var(--amber)}
+  .p-low .dot{background:var(--text-tertiary)}
+
+  /* DATA TABLE */
+  .data-table{width:100%;border-collapse:collapse;font-size:.75rem;margin-top:.75rem}
+  .data-table th{text-align:left;padding:.6rem .75rem;background:var(--bg-secondary);border-bottom:1px solid var(--border);color:var(--text-tertiary);font-weight:600;text-transform:uppercase;font-size:.65rem;letter-spacing:.05em}
+  .data-table td{padding:.6rem .75rem;border-bottom:1px solid var(--border);color:var(--text-secondary)}
+  .data-table tr:hover td{background:var(--bg-card)}
+  .data-table .mono{font-family:'JetBrains Mono',monospace;color:var(--text-primary)}
+
+  /* STAT ROW */
+  .stat-row{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+  .stat{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;flex:1;min-width:140px}
+  .stat .label{font-size:.65rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.35rem}
+  .stat .value{font-size:1.4rem;font-weight:800;font-family:'JetBrains Mono',monospace}
+  .stat .sub{font-size:.65rem;color:var(--text-tertiary);margin-top:.2rem}
+
+  /* HIGHLIGHT BOX */
+  .highlight{background:linear-gradient(135deg,#3b82f610,#06b6d410);border:1px solid var(--accent);border-radius:12px;padding:1.25rem;margin:1rem 0}
+  .highlight h4{font-size:.8rem;color:var(--accent);margin-bottom:.4rem}
+  .highlight p{font-size:.75rem;color:var(--text-secondary);line-height:1.6}
+
+  @media(max-width:640px){
+    body{padding:1rem}
+    .cards.cols-2,.cards.cols-3{grid-template-columns:1fr}
+    .stat-row{flex-direction:column}
+    nav{gap:.5rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Rental Intelligence Research</h1>
+  <p>Multi-agent analysis of feature opportunities for the Rental Intel and Apartments modules. 4 specialized agents, 6 research dimensions.</p>
+  <span class="badge">QuaiPulse — March 2026</span>
+</div>
+
+<nav>
+  <a href="#quick-wins">Quick Wins</a>
+  <a href="#cross-module">Cross-Module</a>
+  <a href="#swiss-intel">Swiss Intelligence</a>
+  <a href="#bloomberg">Bloomberg Analytics</a>
+  <a href="#data-sources">Data Sources</a>
+  <a href="#expat">Expat Features</a>
+</nav>
+
+<!-- ============ SECTION 1: QUICK WINS ============ -->
+<section id="quick-wins">
+  <div class="section-header">
+    <div class="icon" style="background:#22c55e20;border:1px solid #22c55e40">&#9889;</div>
+    <div>
+      <h2>Quick Wins — Ship This Week</h2>
+      <p>Low-effort, high-impact features already supported by existing data</p>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat">
+      <div class="label">Unused Fields</div>
+      <div class="value" style="color:var(--amber)">7</div>
+      <div class="sub">Already in UnifiedListing, not displayed</div>
+    </div>
+    <div class="stat">
+      <div class="label">Missing UI Features</div>
+      <div class="value" style="color:var(--red)">5</div>
+      <div class="sub">Map view, amenity filters, save, deep link, explainability</div>
+    </div>
+    <div class="stat">
+      <div class="label">Estimated Effort</div>
+      <div class="value" style="color:var(--green)">2-3d</div>
+      <div class="sub">For all quick wins combined</div>
+    </div>
+  </div>
+
+  <div class="cards cols-2">
+    <div class="card">
+      <h3>&#128506; Surface Hidden Data</h3>
+      <p>Fields already computed but never rendered in the UI:</p>
+      <ul>
+        <li><strong>competitionLevel</strong> — per-Kreis competition (low/medium/high/extreme)</li>
+        <li><strong>commuteMinutes</strong> — estimated commute to Mythenquai</li>
+        <li><strong>availableDate</strong> — move-in date filtering</li>
+        <li><strong>isFurnished</strong> — furniture filter toggle</li>
+        <li><strong>latitude/longitude</strong> — map view ready</li>
+        <li><strong>imageUrl</strong> — thumbnail in table rows</li>
+      </ul>
+      <div class="priority p-high"><span class="dot"></span> High — Zero new data needed</div>
+    </div>
+
+    <div class="card">
+      <h3>&#128270; Value Score Explainability</h3>
+      <p>Show users WHY a listing scored 78 vs 45. Break down the weighted composite:</p>
+      <ul>
+        <li>Price/m² vs median (30%) — show delta</li>
+        <li>Kreis desirability (20%) — show score</li>
+        <li>Commute to Mythenquai (20%) — show minutes</li>
+        <li>Room fit (15%) — vs target 2.5-3.5</li>
+        <li>Budget fit (15%) — comfortable/stretch/over</li>
+      </ul>
+      <span class="tag tag-green">UI Only</span>
+      <div class="priority p-high"><span class="dot"></span> High — Builds trust in scoring</div>
+    </div>
+
+    <div class="card">
+      <h3>&#128205; MapLibre Listing Map</h3>
+      <p>lat/lng already exists on listings. Add a toggle between table view and map view with clustered markers, color-coded by value score tier.</p>
+      <span class="tag tag-cyan">MapLibre GL</span><span class="tag tag-green">Data Ready</span>
+      <div class="priority p-high"><span class="dot"></span> High — Visual differentiation</div>
+    </div>
+
+    <div class="card">
+      <h3>&#128278; Deep Linking & Sharing</h3>
+      <p>URL params for filters: <code>/rental-intel?kreis=2,3&max=2500</code>. Shareable filtered views, bookmark support, browser back/forward navigation.</p>
+      <span class="tag tag-green">URL State</span>
+      <div class="priority p-med"><span class="dot"></span> Medium</div>
+    </div>
+
+    <div class="card">
+      <h3>&#128190; Save to Pipeline</h3>
+      <p>Let users bookmark interesting listings from the table into a personal shortlist. Store in localStorage or SQLite. Add "Saved" tab to filter bar.</p>
+      <span class="tag tag-blue">Zustand</span><span class="tag tag-green">Quick</span>
+      <div class="priority p-med"><span class="dot"></span> Medium</div>
+    </div>
+
+    <div class="card">
+      <h3>&#127993; Amenity Filters</h3>
+      <p>Filter by: balcony, dishwasher, elevator, parking, pets allowed. Data exists in <code>attributes[]</code> array from Flatfox. Homegate attributes available via Firecrawl enrichment.</p>
+      <span class="tag tag-amber">Partial Data</span>
+      <div class="priority p-med"><span class="dot"></span> Medium</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION 2: CROSS-MODULE ============ -->
+<section id="cross-module">
+  <div class="section-header">
+    <div class="icon" style="background:#a855f720;border:1px solid #a855f740">&#128279;</div>
+    <div>
+      <h2>Cross-Module Integrations</h2>
+      <p>Connect Rental Intel with existing QuaiPulse modules for compound value</p>
+    </div>
+  </div>
+
+  <div class="cards cols-2">
+    <div class="card">
+      <h3>&#127968; Neighborhoods &#8596; Listings</h3>
+      <p>The neighborhood scoring engine (Kreis desirability, gym proximity, social score) exists but is NOT connected to rental listings. Integration would:</p>
+      <ul>
+        <li>Show neighborhood score on each listing card</li>
+        <li>Filter by neighborhood rating thresholds</li>
+        <li>Auto-surface listings in top-scored neighborhoods</li>
+        <li>Cross-link: click Kreis in heatmap → neighborhood detail</li>
+      </ul>
+      <span class="tag tag-purple">Architecture</span><span class="tag tag-amber">Medium Effort</span>
+      <div class="priority p-high"><span class="dot"></span> High — Core value proposition</div>
+    </div>
+
+    <div class="card">
+      <h3>&#128176; Budget Simulator &#8596; Rental Intel</h3>
+      <p>Zero integration today. The budget simulator and rental intel both compute budget fit independently. Should share:</p>
+      <ul>
+        <li>Single source of truth for income/expenses</li>
+        <li>"What if I pick this apartment?" scenario in budget sim</li>
+        <li>Budget sim auto-updates when rent filter changes</li>
+        <li>Show remaining disposable income per listing</li>
+      </ul>
+      <span class="tag tag-purple">Architecture</span><span class="tag tag-red">Requires Refactor</span>
+      <div class="priority p-high"><span class="dot"></span> High — Prevents data drift</div>
+    </div>
+
+    <div class="card">
+      <h3>&#128102; Katie Visit Planner &#8596; Apartments</h3>
+      <p>Apartment proximity to kid-friendly amenities, parks, playgrounds. Factor into value score for "family-friendliness" dimension. Show Katie-specific POIs on map view.</p>
+      <span class="tag tag-cyan">Enhancement</span>
+      <div class="priority p-med"><span class="dot"></span> Medium</div>
+    </div>
+
+    <div class="card">
+      <h3>&#128203; Move Checklist &#8596; Apartment Selection</h3>
+      <p>When user "selects" a final apartment, auto-populate checklist with address-specific tasks: register at Kreisbuero, Serafe registration, electricity provider for that address.</p>
+      <span class="tag tag-cyan">Enhancement</span>
+      <div class="priority p-low"><span class="dot"></span> Low — Post-decision feature</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION 3: SWISS INTELLIGENCE ============ -->
+<section id="swiss-intel">
+  <div class="section-header">
+    <div class="icon" style="background:#ef444420;border:1px solid #ef444440">&#127464;&#127469;</div>
+    <div>
+      <h2>Swiss-Specific Intelligence</h2>
+      <p>Legal frameworks, hidden costs, and market mechanics unique to Switzerland</p>
+    </div>
+  </div>
+
+  <div class="highlight">
+    <h4>Key Insight: Referenzzinssatz Calculator</h4>
+    <p>The Swiss reference interest rate (Referenzzinssatz) is currently <strong>1.25%</strong> (as of March 2026). Many existing leases were set at higher rates. A built-in calculator could show tenants they're entitled to up to <strong>6% rent reduction</strong> — a feature no competitor offers. This is publicly available data from the BWO (Bundesamt fur Wohnungswesen).</p>
+  </div>
+
+  <div class="cards cols-3">
+    <div class="card">
+      <h3>&#128200; Anfangsmiete Contest</h3>
+      <p>Swiss law allows contesting initial rent within <strong>30 days</strong> of move-in if it exceeds the previous tenant's rent by >10% or local median.</p>
+      <ul>
+        <li>Flag listings where rent exceeds Kreis median</li>
+        <li>Show estimated contestable amount</li>
+        <li>Link to Schlichtungsbehorde info</li>
+      </ul>
+      <span class="tag tag-red">Legal</span><span class="tag tag-green">High Value</span>
+    </div>
+
+    <div class="card">
+      <h3>&#128176; True Total Cost</h3>
+      <p>Gap of CHF 300-500/mo between advertised rent and actual cost:</p>
+      <ul>
+        <li>Nebenkosten (utilities): ~CHF 150-250</li>
+        <li>Serafe (TV/radio tax): CHF 28/mo</li>
+        <li>Internet: CHF 50-80</li>
+        <li>Building insurance: varies</li>
+        <li>Parking (if needed): CHF 100-250</li>
+      </ul>
+      <span class="tag tag-amber">Calculator</span>
+    </div>
+
+    <div class="card">
+      <h3>&#128197; Seasonal Timing</h3>
+      <p>Swiss rental market has strong seasonality. Best months for apartment hunting: January-February and September-October. Worst: June-August (low supply, high demand from university intake).</p>
+      <span class="tag tag-cyan">Advisory</span>
+    </div>
+
+    <div class="card">
+      <h3>&#128176; Deposit Calculator</h3>
+      <p>Swiss law caps deposits at 3 months rent. For CHF 2,400/mo = CHF 7,200 locked. Show: deposit insurance (Firstcaution/SmartCaution) as alternative at ~5% annual fee.</p>
+      <span class="tag tag-green">Calculator</span>
+    </div>
+
+    <div class="card">
+      <h3>&#128200; Kreis Tax Comparison</h3>
+      <p>Municipal tax rates vary by Kreis/Gemeinde. Show effective tax rate impact on net income per Kreis — a CHF 200 cheaper apartment in a higher-tax Kreis might cost more overall.</p>
+      <span class="tag tag-purple">Advanced</span>
+    </div>
+
+    <div class="card">
+      <h3>&#128683; Scam Detection</h3>
+      <p>270 rental scam cases reported to NCSC in 2024. Red flags to auto-detect:</p>
+      <ul>
+        <li>Rent >30% below Kreis median</li>
+        <li>Advance payment requests</li>
+        <li>No in-person viewing offered</li>
+        <li>Foreign bank details</li>
+      </ul>
+      <span class="tag tag-red">Safety</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION 4: BLOOMBERG ANALYTICS ============ -->
+<section id="bloomberg">
+  <div class="section-header">
+    <div class="icon" style="background:#3b82f620;border:1px solid #3b82f640">&#128200;</div>
+    <div>
+      <h2>Bloomberg-Grade Analytics</h2>
+      <p>Advanced market analysis features inspired by financial terminal UX</p>
+    </div>
+  </div>
+
+  <div class="cards cols-2">
+    <div class="card">
+      <h3>&#128200; Price Momentum</h3>
+      <p>Track listing price changes over time. Show: new listings vs delistings per day, median rent trend (7d/30d moving average), price velocity by Kreis.</p>
+      <p style="margin-top:.5rem">Requires: periodic scraping snapshots stored in SQLite. Run daily cron to capture market state.</p>
+      <span class="tag tag-blue">Time Series</span><span class="tag tag-amber">Needs Infra</span>
+      <div class="priority p-high"><span class="dot"></span> High — Core Bloomberg feature</div>
+    </div>
+
+    <div class="card">
+      <h3>&#128202; Listing Velocity</h3>
+      <p>How fast do apartments get taken? Measure days-on-market by Kreis, room count, price tier. Show: "Apartments in Kreis 2 with 3+ rooms last 3.2 days on average."</p>
+      <p style="margin-top:.5rem">Tracks: first-seen date → delisted date. Urgency indicator on active listings.</p>
+      <span class="tag tag-blue">Time Series</span><span class="tag tag-cyan">Engagement</span>
+      <div class="priority p-high"><span class="dot"></span> High — Decision urgency</div>
+    </div>
+
+    <div class="card">
+      <h3>&#128202; Candlestick Charts</h3>
+      <p>Weekly OHLC (Open/High/Low/Close) for rent prices per Kreis. Bloomberg-style candlestick visualization showing price volatility and trend direction.</p>
+      <span class="tag tag-purple">Advanced Viz</span>
+      <div class="priority p-med"><span class="dot"></span> Medium — Visual impact</div>
+    </div>
+
+    <div class="card">
+      <h3>&#128202; Market Breadth</h3>
+      <p>Ratio of new listings to delistings. Above 1.0 = buyer's market (more supply). Below 1.0 = seller's market. Show as daily breadth indicator with 30d trend.</p>
+      <span class="tag tag-blue">Indicator</span>
+      <div class="priority p-med"><span class="dot"></span> Medium</div>
+    </div>
+
+    <div class="card">
+      <h3>&#129302; AI Smart Match</h3>
+      <p>Claude-powered listing analysis: "This 3.5-room in Kreis 3 scores 82 because it's 12% below median CHF/m², 8 min commute, has a gym within 200m, and fits your budget comfortably."</p>
+      <span class="tag tag-purple">Claude API</span><span class="tag tag-cyan">Differentiation</span>
+      <div class="priority p-high"><span class="dot"></span> High — AI value-add</div>
+    </div>
+
+    <div class="card">
+      <h3>&#128236; Application Letter Generator</h3>
+      <p>Claude generates a personalized German application letter for each listing. Incorporates: user profile, employer (Zurich Insurance), income, move date, personal statement.</p>
+      <span class="tag tag-purple">Claude API</span><span class="tag tag-green">High Value</span>
+      <div class="priority p-high"><span class="dot"></span> High — Direct action</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION 5: DATA SOURCES ============ -->
+<section id="data-sources">
+  <div class="section-header">
+    <div class="icon" style="background:#06b6d420;border:1px solid #06b6d440">&#128451;</div>
+    <div>
+      <h2>Public Data Enrichment Sources</h2>
+      <p>Free Swiss government and open data APIs to enrich listings</p>
+    </div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Source</th>
+        <th>Data</th>
+        <th>API Type</th>
+        <th>Use Case</th>
+        <th>Effort</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="mono">GWR (Gebauderegister)</td>
+        <td>Building age, renovation year, energy class</td>
+        <td>REST API</td>
+        <td>Building quality score, energy cost estimate</td>
+        <td><span class="tag tag-green">Low</span></td>
+      </tr>
+      <tr>
+        <td class="mono">BAFU Noise Maps</td>
+        <td>Street noise dB, railway noise, aircraft noise</td>
+        <td>WMS/WFS</td>
+        <td>Noise score per address, quiet street filter</td>
+        <td><span class="tag tag-amber">Medium</span></td>
+      </tr>
+      <tr>
+        <td class="mono">SBB GTFS</td>
+        <td>Transit schedules, stop locations</td>
+        <td>GTFS Static</td>
+        <td>Precise commute time to Mythenquai</td>
+        <td><span class="tag tag-amber">Medium</span></td>
+      </tr>
+      <tr>
+        <td class="mono">BFS Census</td>
+        <td>Population density, age distribution, foreigner %</td>
+        <td>STAT-TAB API</td>
+        <td>Neighborhood demographics, expat-friendliness</td>
+        <td><span class="tag tag-green">Low</span></td>
+      </tr>
+      <tr>
+        <td class="mono">Bau516od5161</td>
+        <td>Historical rent data by district</td>
+        <td>CSV Download</td>
+        <td>Rent fairness benchmark, Anfangsmiete check</td>
+        <td><span class="tag tag-green">Low</span></td>
+      </tr>
+      <tr>
+        <td class="mono">Zurich Open Data</td>
+        <td>Parks, playgrounds, schools, public facilities</td>
+        <td>REST/GeoJSON</td>
+        <td>Katie-friendliness score, amenity proximity</td>
+        <td><span class="tag tag-green">Low</span></td>
+      </tr>
+      <tr>
+        <td class="mono">Steuerverwaltung ZH</td>
+        <td>Tax rates by Gemeinde</td>
+        <td>PDF/Static</td>
+        <td>Net income impact per location</td>
+        <td><span class="tag tag-amber">Medium</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="highlight" style="margin-top:1.5rem">
+    <h4>Recommended First Integration: BAFU Noise Maps</h4>
+    <p>Noise is the #1 complaint from Zurich expats. The BAFU provides address-level noise data (road, rail, aircraft) as WMS layers. Showing a "quiet score" on each listing is a massive differentiator that no Swiss rental portal currently offers.</p>
+  </div>
+</section>
+
+<!-- ============ SECTION 6: EXPAT FEATURES ============ -->
+<section id="expat">
+  <div class="section-header">
+    <div class="icon" style="background:#f59e0b20;border:1px solid #f59e0b40">&#127758;</div>
+    <div>
+      <h2>Expat-Specific Features</h2>
+      <p>Pain points and opportunities unique to foreign apartment seekers in Zurich</p>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat">
+      <div class="label">Acceptance Rate (Kreis 2)</div>
+      <div class="value" style="color:var(--red)">3-8%</div>
+      <div class="sub">Applications to viewings ratio</div>
+    </div>
+    <div class="stat">
+      <div class="label">Avg Listing Duration</div>
+      <div class="value" style="color:var(--amber)">3-7d</div>
+      <div class="sub">In desirable Kreise</div>
+    </div>
+    <div class="stat">
+      <div class="label">Best Posting Days</div>
+      <div class="value" style="color:var(--green)">Tue/Wed</div>
+      <div class="sub">8-10am, highest new listing volume</div>
+    </div>
+    <div class="stat">
+      <div class="label">Scam Cases (2024)</div>
+      <div class="value" style="color:var(--red)">270</div>
+      <div class="sub">Reported to NCSC</div>
+    </div>
+  </div>
+
+  <div class="cards cols-2">
+    <div class="card">
+      <h3>&#128196; Dossier Optimizer</h3>
+      <p>Swiss landlords expect a complete Bewerbungsdossier. Guide the user through assembling:</p>
+      <ul>
+        <li>Betreibungsauskunft (debt extract)</li>
+        <li>Strafregisterauszug (criminal record)</li>
+        <li>Last 3 salary slips</li>
+        <li>Employer reference letter</li>
+        <li>Copy of Aufenthaltsbewilligung (B permit)</li>
+        <li>Personal cover letter (German)</li>
+      </ul>
+      <p style="margin-top:.5rem">Score dossier completeness, flag missing items, generate German cover letter via Claude.</p>
+      <span class="tag tag-green">High Value</span><span class="tag tag-purple">Claude API</span>
+      <div class="priority p-high"><span class="dot"></span> High — Direct impact on success rate</div>
+    </div>
+
+    <div class="card">
+      <h3>&#9200; Speed Alert System</h3>
+      <p>Apartments in Kreis 2-3 last 3-7 days. Push notifications or email alerts when a listing matching criteria appears. Best posting times: Tuesday/Wednesday 8-10am.</p>
+      <ul>
+        <li>Set up saved searches with notification preferences</li>
+        <li>Priority score: notify immediately for >75 value score</li>
+        <li>Timing guidance: "Apply within 24h for best chances"</li>
+        <li>Auto-generate application from saved dossier</li>
+      </ul>
+      <span class="tag tag-cyan">Notifications</span><span class="tag tag-amber">Needs Backend</span>
+      <div class="priority p-high"><span class="dot"></span> High — Time-sensitive market</div>
+    </div>
+
+    <div class="card">
+      <h3>&#128483; Viewing Scheduler</h3>
+      <p>Track viewing appointments, rate apartments after visiting, compare notes across viewings. Calendar integration to block time for Besichtigungen.</p>
+      <span class="tag tag-cyan">Workflow</span>
+      <div class="priority p-med"><span class="dot"></span> Medium</div>
+    </div>
+
+    <div class="card">
+      <h3>&#127891; Landlord Communication Templates</h3>
+      <p>Pre-written German email templates for: initial inquiry, viewing request, follow-up, acceptance confirmation, rejection handling. Culturally appropriate tone for Swiss German context.</p>
+      <span class="tag tag-purple">Claude API</span><span class="tag tag-green">Quick Win</span>
+      <div class="priority p-med"><span class="dot"></span> Medium</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div style="text-align:center;padding:3rem 0 1rem;border-top:1px solid var(--border);margin-top:3rem">
+  <p style="font-size:.7rem;color:var(--text-tertiary)">Generated by QuaiPulse Research Team — 4 Agents, 6 Dimensions</p>
+  <p style="font-size:.65rem;color:var(--text-tertiary);margin-top:.25rem">Codebase Audit &middot; Competitor Analysis &middot; Expat Pain Points &middot; Zurich Market Intel</p>
+</div>
+
+</body>
+</html>

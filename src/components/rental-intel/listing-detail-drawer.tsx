@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, ExternalLink, MapPin, Ruler, DoorOpen, Layers, Zap, Loader2 } from "lucide-react";
+import { X, ExternalLink, MapPin, Ruler, DoorOpen, Layers, Zap, Loader2, FileText } from "lucide-react";
 import type { UnifiedListing } from "@/lib/types";
 import { formatCHF } from "@/lib/utils";
+import { ValueScoreBreakdownPanel } from "./value-score-breakdown";
+import { ApplicationLetterModal } from "./application-letter-modal";
 
 interface Props {
   listing: UnifiedListing | null;
@@ -14,6 +16,7 @@ interface Props {
 
 export function ListingDetailDrawer({ listing, enrichment, onClose, onEnrich }: Props) {
   const [isEnriching, setIsEnriching] = useState(false);
+  const [showLetterModal, setShowLetterModal] = useState(false);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -98,6 +101,14 @@ export function ListingDetailDrawer({ listing, enrichment, onClose, onEnrich }: 
             </div>
           </div>
 
+          {/* Value Score Breakdown */}
+          {listing.valueScoreBreakdown && (
+            <ValueScoreBreakdownPanel
+              breakdown={listing.valueScoreBreakdown}
+              finalScore={listing.valueScore}
+            />
+          )}
+
           {/* Address */}
           <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-secondary)] p-4">
             <div className="text-xs text-[var(--text-tertiary)] mb-1">Address</div>
@@ -175,8 +186,25 @@ export function ListingDetailDrawer({ listing, enrichment, onClose, onEnrich }: 
               </button>
             )}
           </div>
+
+          {/* Application Letter */}
+          <button
+            onClick={() => setShowLetterModal(true)}
+            className="w-full flex items-center justify-center gap-2 rounded-lg border border-purple-500/30 bg-purple-500/10 px-4 py-2.5 text-xs font-medium text-purple-400 hover:bg-purple-500/20 transition-colors"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            Generate Bewerbungsschreiben
+          </button>
         </div>
       </div>
+
+      {/* Application Letter Modal */}
+      {showLetterModal && (
+        <ApplicationLetterModal
+          listing={listing}
+          onClose={() => setShowLetterModal(false)}
+        />
+      )}
     </>
   );
 }

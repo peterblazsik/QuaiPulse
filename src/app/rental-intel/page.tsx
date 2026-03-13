@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { TrendingUp, Loader2 } from "lucide-react";
+import { TrendingUp, Loader2, Map, Table2 } from "lucide-react";
 import { useRentalIntelStore } from "@/lib/stores/rental-intel-store";
 import { RENTAL_INTEL_IMAGES } from "@/lib/data/images";
 import type { ListingSource } from "@/lib/types";
@@ -15,8 +15,13 @@ import { BudgetFitPanel } from "@/components/rental-intel/budget-fit-panel";
 import { ValueScoreTable } from "@/components/rental-intel/value-score-table";
 import { ListingDetailDrawer } from "@/components/rental-intel/listing-detail-drawer";
 import { FilterBar } from "@/components/rental-intel/filter-bar";
+import { ListingMap } from "@/components/rental-intel/listing-map";
+import { ReferenzzinsCalculator } from "@/components/rental-intel/referenzzins-calculator";
+
+type ViewMode = "table" | "map";
 
 export default function RentalIntelPage() {
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
   const {
     isLoading,
     error,
@@ -169,14 +174,54 @@ export default function RentalIntelPage() {
       {/* Supply & Demand */}
       <SupplyDemandChart data={supply} />
 
-      {/* Budget Fit */}
-      <BudgetFitPanel data={budgetAnalysis} />
+      {/* Budget Fit + Referenzzins */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <BudgetFitPanel data={budgetAnalysis} />
+        <ReferenzzinsCalculator />
+      </div>
 
-      {/* Top Picks Table */}
-      <ValueScoreTable
-        listings={topPicks}
-        onSelect={(id) => selectListing(id)}
-      />
+      {/* View Toggle + Top Picks */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-[var(--text-primary)]">
+          {viewMode === "table" ? "Top Picks — Value Score Ranking" : "Listing Map"}
+        </h2>
+        <div className="flex rounded-lg border border-[var(--border-default)] overflow-hidden">
+          <button
+            onClick={() => setViewMode("table")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors ${
+              viewMode === "table"
+                ? "bg-[var(--accent-primary)] text-white"
+                : "bg-[var(--bg-secondary)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
+            }`}
+          >
+            <Table2 className="h-3.5 w-3.5" />
+            Table
+          </button>
+          <button
+            onClick={() => setViewMode("map")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors ${
+              viewMode === "map"
+                ? "bg-[var(--accent-primary)] text-white"
+                : "bg-[var(--bg-secondary)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
+            }`}
+          >
+            <Map className="h-3.5 w-3.5" />
+            Map
+          </button>
+        </div>
+      </div>
+
+      {viewMode === "table" ? (
+        <ValueScoreTable
+          listings={topPicks}
+          onSelect={(id) => selectListing(id)}
+        />
+      ) : (
+        <ListingMap
+          listings={filtered}
+          onSelect={(id) => selectListing(id)}
+        />
+      )}
 
       {/* Detail Drawer */}
       <ListingDetailDrawer

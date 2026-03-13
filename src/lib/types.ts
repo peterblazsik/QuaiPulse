@@ -124,6 +124,21 @@ export interface UnifiedListing {
   publishedAt: string | null;
   // Computed
   valueScore: number;
+  valueScoreBreakdown: ValueScoreBreakdown | null;
   budgetFit: "comfortable" | "stretch" | "over";
   commuteEstimate: number | null;
+}
+
+export interface ValueScoreBreakdown {
+  priceScore: number;       // 0-100 raw score for price/m² dimension
+  kreisScore: number;       // 0-100 raw score for Kreis desirability
+  commuteScore: number;     // 0-100 raw score for commute
+  roomScore: number;        // 0-100 raw score for room fit
+  budgetScore: number;      // 0-100 raw score for budget fit
+  priceWeight: number;      // 0.30
+  kreisWeight: number;      // 0.20
+  commuteWeight: number;    // 0.20
+  roomWeight: number;       // 0.15
+  budgetWeight: number;     // 0.15
+  medianPricePerSqm: number;
 }
