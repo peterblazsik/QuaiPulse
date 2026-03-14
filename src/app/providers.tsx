@@ -6,6 +6,7 @@ import { MotionConfig } from "framer-motion";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { trpc, getTRPCClient } from "@/lib/trpc/client";
 import { SyncProvider } from "@/components/sync-provider";
+import { OnboardingGate } from "@/components/onboarding-gate";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -26,9 +27,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <SessionProvider>
           <SyncProvider>
-            <MotionConfig reducedMotion="user">
-              {children}
-            </MotionConfig>
+            <OnboardingGate>
+              <MotionConfig reducedMotion="user">
+                {children}
+              </MotionConfig>
+            </OnboardingGate>
           </SyncProvider>
         </SessionProvider>
       </QueryClientProvider>

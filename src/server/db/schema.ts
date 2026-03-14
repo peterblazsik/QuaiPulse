@@ -158,6 +158,46 @@ export const languageCardStates = pgTable("language_card_states", (t) => ({
   uniqueIndex("language_card_user_phrase_idx").on(table.userId, table.phraseId),
 ]);
 
+// ─── User Profile (multi-user support) ──────────────────────────────────────
+
+export const userProfile = pgTable("user_profile", {
+  userId: text("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  // Identity
+  displayName: text("display_name").notNull().default(""),
+  // Relocation
+  originCity: text("origin_city").notNull().default(""),
+  originCountry: text("origin_country").notNull().default(""),
+  destinationCity: text("destination_city").notNull().default("Zurich"),
+  moveDate: text("move_date"), // ISO date string, e.g. "2026-07-01"
+  // Employment
+  employerName: text("employer_name").notNull().default(""),
+  officeName: text("office_name").notNull().default(""),
+  officeAddress: text("office_address").notNull().default(""),
+  officeLat: real("office_lat"),
+  officeLng: real("office_lng"),
+  jobTitle: text("job_title").notNull().default(""),
+  // Family
+  hasChildren: boolean("has_children").notNull().default(false),
+  childName: text("child_name"),
+  childAge: integer("child_age"),
+  childCity: text("child_city"),
+  childCountry: text("child_country"),
+  // Financial
+  grossMonthlySalary: real("gross_monthly_salary"),
+  has13thSalary: boolean("has_13th_salary").notNull().default(false),
+  targetRentMin: real("target_rent_min"),
+  targetRentMax: real("target_rent_max"),
+  // Health
+  healthNotes: text("health_notes"), // e.g. "bilateral meniscus damage, torn ACL"
+  // Languages
+  primaryLanguages: text("primary_languages").notNull().default(""), // e.g. "EN, HU"
+  germanLevel: text("german_level").notNull().default("none"), // none, basic, intermediate, fluent
+  // Meta
+  onboardingComplete: boolean("onboarding_complete").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const userLanguageMeta = pgTable("user_language_meta", {
   userId: text("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
   reviewStreak: integer("review_streak").notNull().default(0),

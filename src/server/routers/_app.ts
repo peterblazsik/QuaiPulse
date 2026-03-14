@@ -11,6 +11,7 @@ import { katieRouter } from "./katie";
 import { sleepRouter } from "./sleep";
 import { chatRouter } from "./chat";
 import { languageRouter } from "./language";
+import { profileRouter } from "./profile";
 
 export const appRouter = router({
   budget: budgetRouter,
@@ -25,6 +26,7 @@ export const appRouter = router({
   sleep: sleepRouter,
   chat: chatRouter,
   language: languageRouter,
+  profile: profileRouter,
 });
 
 export type AppRouter = typeof appRouter;
