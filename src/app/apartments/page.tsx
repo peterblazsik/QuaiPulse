@@ -180,7 +180,7 @@ export default function ApartmentsPage() {
             <t.icon className="h-3.5 w-3.5" />
             {t.label}
             <span
-              className={`text-[9px] px-1.5 py-0.5 rounded-full ${
+              className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                 tab === t.key
                   ? "bg-accent-primary/15 text-accent-primary"
                   : "bg-bg-tertiary text-text-muted"
@@ -220,7 +220,7 @@ export default function ApartmentsPage() {
                 Filters
               </button>
               {feed.lastScrapedAt && (
-                <span className="flex items-center gap-1 text-[9px] text-text-muted">
+                <span className="flex items-center gap-1 text-[10px] text-text-muted">
                   <Clock className="h-2.5 w-2.5" />
                   Updated{" "}
                   {new Date(feed.lastScrapedAt).toLocaleTimeString("en-CH", {
@@ -271,7 +271,7 @@ export default function ApartmentsPage() {
                   step={5}
                 />
                 <div className="col-span-2">
-                  <label className="text-[9px] uppercase tracking-wider text-text-muted block mb-1.5">
+                  <label className="text-[10px] uppercase tracking-wider text-text-muted block mb-1.5">
                     Kreis
                   </label>
                   <div className="flex flex-wrap gap-1">
@@ -307,7 +307,7 @@ export default function ApartmentsPage() {
                             : [...KREIS_OPTIONS]
                         )
                       }
-                      className="text-[9px] px-2 py-1 text-text-muted hover:text-accent-primary transition-colors"
+                      className="text-[10px] px-2 py-1 text-text-muted hover:text-accent-primary transition-colors"
                     >
                       {feed.filters.kreise.length === KREIS_OPTIONS.length
                         ? "Reset"
@@ -512,7 +512,7 @@ function FilterRange({
 }) {
   return (
     <div>
-      <label className="text-[9px] uppercase tracking-wider text-text-muted block mb-1.5">
+      <label className="text-[10px] uppercase tracking-wider text-text-muted block mb-1.5">
         {label}
       </label>
       <div className="flex items-center gap-1.5">

@@ -151,7 +151,7 @@ export function ApartmentPipelineCard() {
                       opacity: count > 0 ? 1 : 0.3,
                     }}
                   />
-                  <span className="text-[9px] text-text-muted">
+                  <span className="text-[10px] text-text-muted">
                     {s.shortLabel}
                   </span>
                 </div>

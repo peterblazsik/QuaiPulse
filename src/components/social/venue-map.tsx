@@ -109,7 +109,7 @@ export function VenueMap({ venues, activeFilter, className = "" }: VenueMapProps
     // Add neighborhood label markers
     NEIGHBORHOODS.forEach((n) => {
       const el = document.createElement("div");
-      el.style.cssText = "font-size:9px;color:#64748b;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;pointer-events:none;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,0.8);";
+      el.style.cssText = "font-size:10px;color:#64748b;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;pointer-events:none;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,0.8);";
       el.textContent = n.name;
 
       new maplibregl.Marker({ element: el, anchor: "center" })

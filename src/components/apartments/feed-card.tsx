@@ -101,7 +101,7 @@ export function FeedCard({ apt, onSave, onDismiss, isSaved }: FeedCardProps) {
               className="absolute inset-0 w-full h-full object-cover"
               loading="lazy"
             />
-            <div className="absolute bottom-1 left-1 text-[9px] font-medium bg-black/60 text-white px-1.5 py-0.5 rounded">
+            <div className="absolute bottom-1 left-1 text-[10px] font-medium bg-black/60 text-white px-1.5 py-0.5 rounded">
               {apt.source}
             </div>
           </div>
@@ -130,13 +130,13 @@ export function FeedCard({ apt, onSave, onDismiss, isSaved }: FeedCardProps) {
               <p className="font-data text-lg font-bold text-text-primary leading-tight">
                 {formatCHF(apt.rentDisplay)}
               </p>
-              <p className="text-[9px] text-text-muted">
+              <p className="text-[10px] text-text-muted">
                 {apt.rentNet
                   ? `${formatCHF(apt.rentNet)} + ${formatCHF(apt.rentCharges ?? 0)}`
                   : "gross"}
               </p>
               <span
-                className={`inline-block mt-1 text-[9px] px-1.5 py-0.5 rounded border font-medium ${
+                className={`inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded border font-medium ${
                   budgetFit === "comfortable"
                     ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
                     : budgetFit === "stretch"
@@ -182,7 +182,7 @@ export function FeedCard({ apt, onSave, onDismiss, isSaved }: FeedCardProps) {
               {visibleAttrs.map((attr) => (
                 <span
                   key={attr}
-                  className="text-[9px] px-1.5 py-0.5 rounded border border-border-default bg-bg-primary/50 text-text-muted"
+                  className="text-[10px] px-1.5 py-0.5 rounded border border-border-default bg-bg-primary/50 text-text-muted"
                 >
                   {attr}
                 </span>
@@ -192,7 +192,7 @@ export function FeedCard({ apt, onSave, onDismiss, isSaved }: FeedCardProps) {
 
           {/* Actions */}
           <div className="flex items-center justify-between mt-2.5">
-            <span className="text-[9px] text-text-muted">
+            <span className="text-[10px] text-text-muted">
               {timeAgo(apt.publishedAt)}
             </span>
             <div className="flex items-center gap-1.5">
