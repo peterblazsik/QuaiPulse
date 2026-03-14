@@ -5,9 +5,16 @@ import { db } from "@/server/db";
 import { headers } from "next/headers";
 
 const handler = async (req: Request) => {
-  // Force Next.js to treat this as a dynamic route by reading headers
   await headers();
   const session = await auth();
+
+  // Debug log to help diagnose 401s
+  console.log("[tRPC] session:", JSON.stringify({
+    hasSession: !!session,
+    userId: session?.user?.id,
+    email: session?.user?.email,
+    name: session?.user?.name,
+  }));
 
   return fetchRequestHandler({
     endpoint: "/api/trpc",
