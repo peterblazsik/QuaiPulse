@@ -6,6 +6,7 @@ export default auth((req) => {
   // Allow auth routes, login page, static assets, and API routes
   if (
     pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/api/trpc") ||
     pathname === "/login" ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/images") ||
