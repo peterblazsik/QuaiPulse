@@ -15,6 +15,7 @@ export const NAVIGATION = [
   { label: "Budget", href: "/budget", icon: "Wallet", shortcut: "G B" },
   { label: "Subscriptions", href: "/subscriptions", icon: "CreditCard", shortcut: "G U" },
   { label: "Currency", href: "/currency", icon: "ArrowLeftRight", shortcut: "" },
+  { label: "Price Compare", href: "/prices", icon: "ShoppingCart", shortcut: "" },
   { label: "Travel Intel", href: "/travel", icon: "Route", shortcut: "G T" },
   { label: "Flights", href: "/flights", icon: "Plane", shortcut: "G L" },
   { label: "Katie Planner", href: "/katie", icon: "Heart", shortcut: "G K" },

@@ -19,6 +19,7 @@ import {
   Languages,
   CreditCard,
   ArrowLeftRight,
+  ShoppingCart,
   CloudSun,
   FileText,
   Settings,
@@ -48,6 +49,7 @@ const ICON_MAP = {
   Languages,
   CreditCard,
   ArrowLeftRight,
+  ShoppingCart,
   CloudSun,
   FileText,
   Settings,
@@ -90,6 +92,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: "Budget", href: "/budget", icon: "Wallet", shortcut: "G B" },
       { label: "Subscriptions", href: "/subscriptions", icon: "CreditCard", shortcut: "G U" },
       { label: "Currency", href: "/currency", icon: "ArrowLeftRight" },
+      { label: "Price Compare", href: "/prices", icon: "ShoppingCart" },
     ],
   },
   {
