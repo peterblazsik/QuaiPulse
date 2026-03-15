@@ -214,14 +214,14 @@ export default function PricesPage() {
                 {/* Difference badge */}
                 {pctDiff > 0 && (
                   <div className="mt-2">
-                    <span className="inline-flex items-center font-data text-[10px] px-1.5 py-0.5 rounded bg-danger/10 text-danger">
+                    <span className="inline-flex items-center font-data text-[11px] px-1.5 py-0.5 rounded bg-danger/10 text-danger">
                       +{pctDiff.toFixed(1)}% vs cheapest
                     </span>
                   </div>
                 )}
                 {pctDiff === 0 && (
                   <div className="mt-2">
-                    <span className="inline-flex items-center font-data text-[10px] px-1.5 py-0.5 rounded bg-success/10 text-success">
+                    <span className="inline-flex items-center font-data text-[11px] px-1.5 py-0.5 rounded bg-success/10 text-success">
                       Baseline
                     </span>
                   </div>
@@ -596,17 +596,17 @@ function PriceRow({ item }: { item: PriceItem }) {
 
   return (
     <tr className="border-b border-border-subtle/50 hover:bg-bg-tertiary/20 transition-colors">
-      <td className="text-[11px] text-text-secondary py-1.5 px-1">
+      <td className="text-xs text-text-secondary py-1.5 px-1">
         {item.name}
       </td>
-      <td className="text-[10px] text-text-muted py-1.5 px-1">{item.unit}</td>
+      <td className="text-[11px] text-text-muted py-1.5 px-1">{item.unit}</td>
       {STORE_KEYS.map((key) => {
         const isCheapest = key === cheapest;
         const isExpensive = key === expensive;
         return (
           <td
             key={key}
-            className={`text-right font-data text-[11px] py-1.5 px-1 tabular-nums ${
+            className={`text-right font-data text-xs py-1.5 px-1 tabular-nums ${
               isCheapest
                 ? "text-success font-semibold"
                 : isExpensive
