@@ -329,6 +329,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Minimum font size: 11px (override Tailwind text-[10px] globally) */
+.text-\[10px\] {
+  font-size: 11px !important;
+}
+
 /* Monospace numbers */
 .font-data {
   font-family: var(--font-jetbrains), "JetBrains Mono", monospace;

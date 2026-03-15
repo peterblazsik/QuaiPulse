@@ -48,3 +48,9 @@ local.db
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# reference documents
+*.xlsx
+*.docx
+*.pdf
+EXPERT-EVALUATION.md
