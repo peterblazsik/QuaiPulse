@@ -8,8 +8,8 @@ import {
 
 describe("CHECKLIST_ITEMS data", () => {
   describe("overall structure", () => {
-    it("should have 64 items defined", () => {
-      expect(CHECKLIST_ITEMS.length).toBe(64);
+    it("should have 78 items defined", () => {
+      expect(CHECKLIST_ITEMS.length).toBe(78);
     });
 
     it("should have no duplicate IDs", () => {
