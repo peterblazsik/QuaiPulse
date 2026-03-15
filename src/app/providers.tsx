@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { trpc, getTRPCClient } from "@/lib/trpc/client";
 import { SyncProvider } from "@/components/sync-provider";
 import { OnboardingGate } from "@/components/onboarding-gate";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -28,9 +29,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <SessionProvider>
           <SyncProvider>
             <OnboardingGate>
+              <TooltipProvider delayDuration={300} skipDelayDuration={100}>
               <MotionConfig reducedMotion="user">
                 {children}
               </MotionConfig>
+            </TooltipProvider>
             </OnboardingGate>
           </SyncProvider>
         </SessionProvider>

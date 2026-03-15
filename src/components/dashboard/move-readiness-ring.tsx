@@ -7,6 +7,15 @@ import { useApartmentStore } from "@/lib/stores/apartment-store";
 import { useBudgetWithTax } from "@/lib/hooks/use-budget-with-tax";
 import { CHECKLIST_ITEMS } from "@/lib/data/checklist-items";
 import { getCriticalPath } from "@/lib/engines/checklist-engine";
+import { Tip } from "@/components/ui/tooltip";
+
+const READINESS_TIPS: Record<string, string> = {
+  Checklist: "Percentage of all relocation checklist items completed",
+  "Critical Path": "Completion of deadline-sensitive items that block other tasks",
+  "Budget Health": "Based on monthly surplus and savings rate",
+  Apartment: "Progress in apartment search pipeline (saved \u2192 contacted \u2192 viewing \u2192 applied)",
+  "Finance Setup": "Budget configuration completeness (income, expenses, deductions, tax)",
+};
 
 interface Dimension {
   label: string;
@@ -91,9 +100,11 @@ function DimensionBar({
       href={dimension.href}
       className="group flex items-center gap-3 py-1.5 hover:bg-bg-tertiary/50 rounded px-2 -mx-2 transition-colors"
     >
-      <span className="text-xs text-text-secondary w-24 shrink-0 group-hover:text-text-primary transition-colors">
-        {dimension.label}
-      </span>
+      <Tip content={READINESS_TIPS[dimension.label]}>
+        <span className="text-xs text-text-secondary w-24 shrink-0 group-hover:text-text-primary transition-colors" tabIndex={0}>
+          {dimension.label}
+        </span>
+      </Tip>
       <div className="flex-1 h-2 rounded-full bg-bg-tertiary overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-700 ease-out"
@@ -231,9 +242,11 @@ export function MoveReadinessRing() {
             <span className="font-data text-3xl font-bold text-text-primary">
               {Math.round(overallScore)}
             </span>
-            <span className="text-[10px] text-text-muted uppercase tracking-wider">
-              {scoreLabel}
-            </span>
+            <Tip content="Overall move readiness based on weighted dimensions: Checklist 30%, Critical Path 25%, Budget 20%, Apartment 15%, Finance 10%">
+              <span className="text-[10px] text-text-muted uppercase tracking-wider" tabIndex={0}>
+                {scoreLabel}
+              </span>
+            </Tip>
           </div>
         </div>
 

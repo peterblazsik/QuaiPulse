@@ -4,6 +4,7 @@ import { useBudgetStore } from "@/lib/stores/budget-store";
 import { TAX_RATES, getTaxDataByLocationId, taxSavingsVsCity } from "@/lib/data/tax-rates";
 import { ALL_LOCATIONS } from "@/lib/data/neighborhoods";
 import { formatCHF } from "@/lib/utils";
+import { Tip } from "@/components/ui/tooltip";
 import { Landmark, TrendingDown, Info } from "lucide-react";
 
 const locationOptions = TAX_RATES.map((t) => {
@@ -61,19 +62,19 @@ export function TaxEstimation() {
         <div className="space-y-2">
           <div className="grid grid-cols-3 gap-2 text-center">
             <div className="rounded-lg bg-bg-tertiary/50 p-2">
-              <p className="text-[10px] text-text-muted">Steuerfuss</p>
+              <Tip content="Municipal tax multiplier (Gemeindesteuerfuss). Each municipality sets its own rate"><p tabIndex={0} className="text-[10px] text-text-muted">Steuerfuss</p></Tip>
               <p className="font-data text-sm font-semibold text-text-primary">
                 {taxData.steuerfuss}%
               </p>
             </div>
             <div className="rounded-lg bg-bg-tertiary/50 p-2">
-              <p className="text-[10px] text-text-muted">Effective Rate</p>
+              <Tip content="Combined cantonal + municipal + federal tax as % of taxable income"><p tabIndex={0} className="text-[10px] text-text-muted">Effective Rate</p></Tip>
               <p className="font-data text-sm font-semibold text-text-primary">
                 {taxData.effectiveRate}%
               </p>
             </div>
             <div className="rounded-lg bg-bg-tertiary/50 p-2">
-              <p className="text-[10px] text-text-muted">Annual Tax</p>
+              <Tip content="Estimated total income tax per year based on your gross salary and deductions"><p tabIndex={0} className="text-[10px] text-text-muted">Annual Tax</p></Tip>
               <p className="font-data text-sm font-semibold text-text-primary">
                 {formatCHF(taxData.estimatedAnnualTax)}
               </p>

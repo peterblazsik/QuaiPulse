@@ -1,6 +1,7 @@
 "use client";
 
 import { scoreColor, formatScore } from "@/lib/engines/scoring";
+import { Tip } from "@/components/ui/tooltip";
 
 interface ScoreBadgeProps {
   score: number;
@@ -23,7 +24,8 @@ export function ScoreBadge({
   };
 
   return (
-    <div className="flex flex-col items-center gap-1">
+    <Tip content="Score out of 10. Red (0-3) = poor, Amber (4-6) = moderate, Green (7-10) = excellent">
+    <div className="flex flex-col items-center gap-1" tabIndex={0}>
       <div
         className={`font-data font-bold flex items-center justify-center rounded-md px-2 ${sizes[size]}`}
         style={{ color, backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)` }}
@@ -44,5 +46,6 @@ export function ScoreBadge({
         </div>
       )}
     </div>
+    </Tip>
   );
 }

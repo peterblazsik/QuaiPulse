@@ -11,6 +11,14 @@ import {
   type Urgency,
 } from "@/lib/engines/notification-engine";
 import { useNotifications } from "@/lib/hooks/use-notifications";
+import { Tip } from "@/components/ui/tooltip";
+
+const URGENCY_TIPS: Record<string, string> = {
+  overdue: "Past the deadline \u2014 needs immediate action",
+  critical: "Due within 7 days \u2014 act now",
+  warning: "Due within 14 days \u2014 start planning",
+  upcoming: "Due within 30 days \u2014 on your radar",
+};
 
 const URGENCY_STYLES: Record<
   Urgency,
@@ -111,6 +119,15 @@ export function DeadlineAlerts() {
 
         {/* Notification permission toggle */}
         {permission !== "unsupported" && (
+          <Tip
+            content={
+              permission === "granted"
+                ? "Browser notifications enabled"
+                : permission === "denied"
+                  ? "Notifications blocked \u2014 enable in browser settings"
+                  : "Enable browser notifications for deadline alerts"
+            }
+          >
           <button
             onClick={requestPermission}
             className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] font-medium transition-colors ${
@@ -121,13 +138,6 @@ export function DeadlineAlerts() {
                   : "bg-bg-tertiary text-text-muted hover:text-text-secondary border border-border-subtle hover:border-border-default"
             }`}
             disabled={permission === "denied"}
-            title={
-              permission === "granted"
-                ? "Browser notifications enabled"
-                : permission === "denied"
-                  ? "Notifications blocked -- enable in browser settings"
-                  : "Enable browser notifications for deadline alerts"
-            }
           >
             {permission === "granted" ? (
               <>
@@ -146,6 +156,7 @@ export function DeadlineAlerts() {
               </>
             )}
           </button>
+          </Tip>
         )}
       </div>
 
@@ -165,11 +176,14 @@ export function DeadlineAlerts() {
                 className={`flex items-center gap-3 rounded-lg border px-3 py-2 ${style.border} ${style.bg}`}
               >
                 {/* Urgency badge */}
-                <span
-                  className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${style.badgeBg} ${style.badge}`}
-                >
-                  {URGENCY_LABELS[alert.urgency]}
-                </span>
+                <Tip content={URGENCY_TIPS[alert.urgency]}>
+                  <span
+                    className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${style.badgeBg} ${style.badge}`}
+                    tabIndex={0}
+                  >
+                    {URGENCY_LABELS[alert.urgency]}
+                  </span>
+                </Tip>
 
                 {/* Item info */}
                 <div className="min-w-0 flex-1">

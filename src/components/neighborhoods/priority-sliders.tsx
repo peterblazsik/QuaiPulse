@@ -5,6 +5,22 @@ import { usePriorityStore, BUILT_IN_PROFILES } from "@/lib/stores/priority-store
 import { SCORE_DIMENSIONS } from "@/lib/constants";
 import type { ScoreDimension } from "@/lib/types";
 import { RotateCcw, Save, Trash2 } from "lucide-react";
+import { Tip } from "@/components/ui/tooltip";
+
+const DIMENSION_TIPS: Record<string, string> = {
+  commute: "Minutes to Quai Zurich Campus (Mythenquai) by public transit",
+  gym: "Number and proximity of quality gyms within walking distance",
+  social: "Bars, restaurants, and nightlife density",
+  lake: "Walking distance to Lake Zurich shore access",
+  airport: "Travel time to Zurich Airport (ZRH)",
+  food: "Grocery stores, restaurants, and food variety",
+  quiet: "Noise levels — traffic, nightlife, flight paths",
+  transit: "Public transit connections (tram, bus, S-Bahn frequency)",
+  cost: "Average rent and cost of living relative to city average",
+  safety: "Crime statistics and perceived safety",
+  flightNoise: "Aircraft noise exposure from Zurich Airport approaches",
+  parking: "On-street and garage parking availability",
+};
 
 export function PrioritySliders() {
   const weights = usePriorityStore((s) => s.weights);
@@ -34,16 +50,17 @@ export function PrioritySliders() {
         <h3 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
           Priority Weights
         </h3>
+        <Tip content="Reset to defaults">
         <button
           onClick={() => {
             if (window.confirm("Reset priority weights to defaults?")) resetWeights();
           }}
           className="flex items-center gap-1 rounded px-2 py-1 text-[10px] text-text-tertiary hover:bg-bg-tertiary hover:text-text-secondary transition-colors"
-          title="Reset to defaults"
         >
           <RotateCcw className="h-3 w-3" />
           Reset
         </button>
+        </Tip>
       </div>
 
       {/* Profile selector */}
@@ -71,13 +88,14 @@ export function PrioritySliders() {
               </optgroup>
             )}
           </select>
+          <Tip content="Save current as profile">
           <button
             onClick={() => setShowSaveInput(!showSaveInput)}
             className="shrink-0 rounded p-1.5 text-[10px] text-text-tertiary hover:bg-bg-tertiary hover:text-text-secondary transition-colors"
-            title="Save current as profile"
           >
             <Save className="h-3 w-3" />
           </button>
+          </Tip>
         </div>
 
         {showSaveInput && (
@@ -134,12 +152,14 @@ export function PrioritySliders() {
               style={{ backgroundColor: dim.color }}
             />
             {/* Label */}
+            <Tip content={DIMENSION_TIPS[key] ?? dim.label}>
             <span
               className="w-20 text-xs text-text-secondary truncate group-hover:overflow-visible group-hover:whitespace-nowrap group-hover:relative group-hover:z-10"
-              title={dim.label}
+              tabIndex={0}
             >
               {dim.label}
             </span>
+            </Tip>
             {/* Slider */}
             <input
               type="range"
@@ -160,9 +180,11 @@ export function PrioritySliders() {
               }}
             />
             {/* Value */}
-            <span className="w-5 text-right font-data text-xs text-text-secondary tabular-nums">
+            <Tip content="Weight 0 = ignored, 10 = maximum priority">
+            <span className="w-5 text-right font-data text-xs text-text-secondary tabular-nums" tabIndex={0}>
               {value}
             </span>
+            </Tip>
           </div>
         );
       })}

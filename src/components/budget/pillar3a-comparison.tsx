@@ -8,6 +8,7 @@ import {
 } from "@/lib/data/pillar3a-providers";
 import { formatCHF } from "@/lib/utils";
 import { Award, Star, TrendingUp, Percent } from "lucide-react";
+import { Tip } from "@/components/ui/tooltip";
 
 export function Pillar3aComparison() {
   const taxBenefit = useMemo(
@@ -21,7 +22,9 @@ export function Pillar3aComparison() {
         <div>
           <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
             <Award className="h-4 w-4 text-purple-400" />
-            Pillar 3a Providers
+            <Tip content="Pillar 3a (Säule 3a) = Private retirement savings. Tax-deductible contributions, locked until age 60. Max CHF 7,258/yr for employed persons (2026)">
+              <span tabIndex={0}>Pillar 3a Providers</span>
+            </Tip>
           </h3>
           <p className="text-[10px] text-text-muted mt-0.5">
             Investment-based retirement savings comparison
@@ -92,7 +95,9 @@ export function Pillar3aComparison() {
                     {provider.ter}%
                   </p>
                 </div>
-                <p className="text-[10px] text-text-muted">TER</p>
+                <Tip content="Total Expense Ratio — annual fund management fee. Lower = more of your returns kept. Under 0.5% is excellent">
+                  <p className="text-[10px] text-text-muted" tabIndex={0}>TER</p>
+                </Tip>
 
                 <div className="flex items-center gap-1 justify-end mt-2">
                   <TrendingUp className="h-2.5 w-2.5 text-success" />
@@ -100,11 +105,15 @@ export function Pillar3aComparison() {
                     {provider.avgReturn5yr !== null ? `${provider.avgReturn5yr}%` : "N/A"}
                   </p>
                 </div>
-                <p className="text-[10px] text-text-muted">5yr avg</p>
+                <Tip content="Average annual return over the last 5 years. Past performance doesn't guarantee future results">
+                  <p className="text-[10px] text-text-muted" tabIndex={0}>5yr avg</p>
+                </Tip>
 
-                <p className="text-[10px] text-text-muted mt-1">
-                  Max equity: {provider.maxEquityPct}%
-                </p>
+                <Tip content="Maximum percentage invested in stocks. Higher equity = more growth potential but more volatility">
+                  <p className="text-[10px] text-text-muted mt-1" tabIndex={0}>
+                    Max equity: {provider.maxEquityPct}%
+                  </p>
+                </Tip>
               </div>
             </div>
           </div>

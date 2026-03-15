@@ -9,6 +9,7 @@ import {
 } from "@/lib/engines/bvg-buyback";
 import { formatCHF } from "@/lib/utils";
 import { PiggyBank, TrendingUp, AlertTriangle } from "lucide-react";
+import { Tip } from "@/components/ui/tooltip";
 
 export function BvgBuyback() {
   const grossMonthlySalary = useBudgetStore((s) => s.grossMonthlySalary);
@@ -42,7 +43,9 @@ export function BvgBuyback() {
         <div>
           <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
             <PiggyBank className="h-4 w-4 text-warning" />
-            BVG Buyback Potential
+            <Tip content="BVG (Berufliche Vorsorge) = Swiss occupational pension (Pillar 2). Voluntary buybacks reduce taxable income and boost retirement capital">
+              <span tabIndex={0}>BVG Buyback Potential</span>
+            </Tip>
           </h3>
           <p className="text-[10px] text-text-muted mt-0.5">
             Pillar 2 voluntary purchase-in — 100% tax deductible
@@ -95,21 +98,27 @@ export function BvgBuyback() {
 
       {/* Key metrics */}
       <div className="grid grid-cols-2 gap-2 mb-4">
-        <div className="rounded-lg bg-bg-primary/30 border border-border-subtle p-2.5">
-          <p className="text-[10px] text-text-muted">Target Capital</p>
-          <p className="font-data text-sm font-bold text-text-primary">{formatCHF(result.targetCapital)}</p>
-          <p className="text-[10px] text-text-muted">full career from age 25</p>
-        </div>
-        <div className="rounded-lg bg-success/5 border border-success/20 p-2.5">
-          <p className="text-[10px] text-text-muted">Tax Savings</p>
-          <p className="font-data text-sm font-bold text-success">{formatCHF(result.taxSavings)}</p>
-          <p className="text-[10px] text-text-muted">at ~28% marginal rate</p>
-        </div>
+        <Tip content="What your BVG balance would be if you'd been in Swiss pension system since age 25. The gap = your buyback opportunity">
+          <div className="rounded-lg bg-bg-primary/30 border border-border-subtle p-2.5" tabIndex={0}>
+            <p className="text-[10px] text-text-muted">Target Capital</p>
+            <p className="font-data text-sm font-bold text-text-primary">{formatCHF(result.targetCapital)}</p>
+            <p className="text-[10px] text-text-muted">full career from age 25</p>
+          </div>
+        </Tip>
+        <Tip content="Estimated tax reduction from the buyback. Buyback amount is deducted from taxable income at your marginal rate">
+          <div className="rounded-lg bg-success/5 border border-success/20 p-2.5" tabIndex={0}>
+            <p className="text-[10px] text-text-muted">Tax Savings</p>
+            <p className="font-data text-sm font-bold text-success">{formatCHF(result.taxSavings)}</p>
+            <p className="text-[10px] text-text-muted">at ~28% marginal rate</p>
+          </div>
+        </Tip>
       </div>
 
       {/* Current rate info */}
       <div className="flex items-center justify-between text-xs mb-3 py-2 border-y border-border-subtle">
-        <span className="text-text-muted">Current age credit rate</span>
+        <Tip content="BVG contribution rate increases with age: 25-34 = 7%, 35-44 = 10%, 45-54 = 15%, 55-65 = 18%">
+          <span className="text-text-muted" tabIndex={0}>Current age credit rate</span>
+        </Tip>
         <span className="font-data font-bold text-text-primary">{(creditRate * 100).toFixed(0)}%</span>
       </div>
       <div className="flex items-center justify-between text-xs mb-4">

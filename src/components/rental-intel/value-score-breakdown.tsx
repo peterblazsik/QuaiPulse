@@ -1,6 +1,15 @@
 "use client";
 
 import type { ValueScoreBreakdown } from "@/lib/types";
+import { Tip } from "@/components/ui/tooltip";
+
+const DIMENSION_TIPS: Record<string, string> = {
+  priceScore: "How the price per m\u00B2 compares to market median. Higher = better deal",
+  kreisScore: "Desirability of the Kreis (district). Based on neighborhood rankings",
+  commuteScore: "Commute time to Quai Zurich Campus at Mythenquai. Shorter = higher score",
+  roomScore: "Room count fit for your target (2-3 rooms). Exact match = 100",
+  budgetScore: "How well the rent fits within your monthly budget. Under budget = higher score",
+};
 
 interface Props {
   breakdown: ValueScoreBreakdown;
@@ -32,9 +41,11 @@ export function ValueScoreBreakdownPanel({ breakdown, finalScore }: Props) {
     <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-secondary)] p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="text-xs text-[var(--text-tertiary)]">Score Breakdown</div>
-        <div className={`text-lg font-bold font-mono ${textColor(finalScore)}`}>
-          {finalScore}
-        </div>
+        <Tip content="Composite value score (0-100). Weighted sum of all dimensions below">
+          <div className={`text-lg font-bold font-mono ${textColor(finalScore)}`} tabIndex={0}>
+            {finalScore}
+          </div>
+        </Tip>
       </div>
 
       <div className="space-y-2.5">
@@ -47,9 +58,11 @@ export function ValueScoreBreakdownPanel({ breakdown, finalScore }: Props) {
             <div key={key}>
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] font-medium text-[var(--text-secondary)]">
-                    {label}
-                  </span>
+                  <Tip content={DIMENSION_TIPS[key]}>
+                    <span className="text-[11px] font-medium text-[var(--text-secondary)]" tabIndex={0}>
+                      {label}
+                    </span>
+                  </Tip>
                   <span className="text-[10px] text-[var(--text-tertiary)]">
                     {desc} ({Math.round(weight * 100)}%)
                   </span>
@@ -75,7 +88,9 @@ export function ValueScoreBreakdownPanel({ breakdown, finalScore }: Props) {
       </div>
 
       <div className="mt-3 pt-3 border-t border-[var(--border-default)] text-[10px] text-[var(--text-tertiary)]">
-        Market median: {breakdown.medianPricePerSqm} CHF/m²
+        <Tip content="Median price per square meter across all tracked Zurich listings">
+          <span tabIndex={0}>Market median: {breakdown.medianPricePerSqm} CHF/m²</span>
+        </Tip>
       </div>
     </div>
   );

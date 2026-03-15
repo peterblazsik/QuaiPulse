@@ -4,6 +4,7 @@ import { useBudgetStore } from "@/lib/stores/budget-store";
 import { EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
 import { useBudgetWithTax } from "@/lib/hooks/use-budget-with-tax";
 import { formatCHF } from "@/lib/utils";
+import { Tip } from "@/components/ui/tooltip";
 
 export function StackedBar() {
   const values = useBudgetStore((s) => s.values);
@@ -48,18 +49,19 @@ export function StackedBar() {
           const pct = (seg.value / barTotal) * 100;
           if (pct < 0.5) return null;
           return (
-            <div
-              key={seg.label}
-              className="h-full relative group/seg transition-all duration-300"
-              style={{ width: `${pct}%`, backgroundColor: seg.color }}
-              title={`${seg.label}: ${formatCHF(seg.value)}`}
-            >
-              {pct > 6 && (
-                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-data text-white/90 font-medium">
-                  {formatCHF(seg.value)}
-                </span>
-              )}
-            </div>
+            <Tip key={seg.label} content={`${seg.label}: ${formatCHF(seg.value)} (${pct.toFixed(1)}% of income)`}>
+              <div
+                className="h-full relative group/seg transition-all duration-300"
+                style={{ width: `${pct}%`, backgroundColor: seg.color }}
+                tabIndex={0}
+              >
+                {pct > 6 && (
+                  <span className="absolute inset-0 flex items-center justify-center text-[10px] font-data text-white/90 font-medium">
+                    {formatCHF(seg.value)}
+                  </span>
+                )}
+              </div>
+            </Tip>
           );
         })}
       </div>

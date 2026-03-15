@@ -11,6 +11,7 @@ import {
 } from "@/lib/engines/tax-comparison";
 import { formatCHF } from "@/lib/utils";
 import { Scale, AlertTriangle, ChevronDown, ChevronUp, Info } from "lucide-react";
+import { Tip } from "@/components/ui/tooltip";
 
 export function TaxComparison() {
   const grossMonthlySalary = useBudgetStore((s) => s.grossMonthlySalary);
@@ -56,7 +57,9 @@ export function TaxComparison() {
             Tax Method Comparison
           </h3>
           <p className="text-[10px] text-text-muted mt-0.5">
-            Quellensteuer vs Ordinary Taxation
+            <Tip content="Quellensteuer = withholding tax (deducted at source by employer). Ordinary = annual self-assessment like most Swiss residents. Above CHF 120k gross, ordinary taxation is mandatory">
+              <span tabIndex={0}>Quellensteuer vs Ordinary Taxation</span>
+            </Tip>
           </p>
         </div>
         <select
@@ -87,9 +90,11 @@ export function TaxComparison() {
       <div className="grid grid-cols-2 gap-3 mb-3">
         {/* Quellensteuer */}
         <div className={`rounded-lg p-3 border ${result.betterMethod === "quellensteuer" ? "border-success/30 bg-success/5" : "border-border-subtle bg-bg-primary/30"}`}>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-1">
-            Quellensteuer
-          </p>
+          <Tip content="Withholding tax deducted directly from salary. Simple — no annual tax return needed. Limited deductions available">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-1" tabIndex={0}>
+              Quellensteuer
+            </p>
+          </Tip>
           <p className="font-data text-xl font-bold text-text-primary">
             {formatCHF(result.quellensteuer.annual)}
           </p>
@@ -100,9 +105,11 @@ export function TaxComparison() {
 
         {/* Ordinary */}
         <div className={`rounded-lg p-3 border ${result.betterMethod === "ordinary" ? "border-success/30 bg-success/5" : "border-border-subtle bg-bg-primary/30"}`}>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-1">
-            Ordinary Tax
-          </p>
+          <Tip content="Annual self-assessment with full deductions (commute, meals, insurance, BVG buyback, Pillar 3a). More paperwork but often lower total tax">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-1" tabIndex={0}>
+              Ordinary Tax
+            </p>
+          </Tip>
           <p className="font-data text-xl font-bold text-text-primary">
             {formatCHF(result.ordinary.annual)}
           </p>

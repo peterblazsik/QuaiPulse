@@ -7,6 +7,7 @@ import { ALL_LOCATIONS } from "@/lib/data/neighborhoods";
 import { formatCHF } from "@/lib/utils";
 import { SLIDER_CLASSES } from "@/lib/constants";
 import { useBudgetWithTax } from "@/lib/hooks/use-budget-with-tax";
+import { Tip } from "@/components/ui/tooltip";
 import {
   TrendingDown,
   Landmark,
@@ -27,7 +28,7 @@ const locationOptions = TAX_RATES.map((t) => {
 }).sort((a, b) => a.name.localeCompare(b.name));
 
 interface SliderRowProps {
-  label: string;
+  label: React.ReactNode;
   value: number;
   min: number;
   max: number;
@@ -59,7 +60,7 @@ function SliderRow({ label, value, min, max, step, onChange, format, suffix = "/
   );
 }
 
-function StatRow({ label, value, negative, muted }: { label: string; value: string; negative?: boolean; muted?: boolean }) {
+function StatRow({ label, value, negative, muted }: { label: React.ReactNode; value: string; negative?: boolean; muted?: boolean }) {
   return (
     <div className="flex items-center justify-between py-0.5">
       <span className={`text-[11px] ${muted ? "text-text-muted" : "text-text-secondary"}`}>{label}</span>
@@ -135,7 +136,7 @@ export function IncomeSection() {
               onChange={(e) => setHas13thSalary(e.target.checked)}
               className="h-3 w-3 rounded border-border-default bg-bg-tertiary accent-accent-primary"
             />
-            <span className="text-[11px] text-text-secondary">13th salary</span>
+            <Tip content="Standard in Switzerland — your annual salary is split into 13 monthly payments instead of 12"><span tabIndex={0} className="text-[11px] text-text-secondary">13th salary</span></Tip>
           </label>
           <span className="font-data text-[10px] text-text-muted tabular-nums">
             ×{has13thSalary ? "13" : "12"} = {formatCHF(grossMonthlySalary * (has13thSalary ? 13 : 12))}/yr
@@ -164,22 +165,22 @@ export function IncomeSection() {
           Payroll Deductions
         </h4>
         <StatRow
-          label={`AHV/IV/EO (${AHV_RATE}%)`}
+          label={<Tip content="AHV = Old-age insurance, IV = Disability, EO = Loss of earnings. Mandatory Swiss social security (employee pays half)"><span tabIndex={0}>{`AHV/IV/EO (${AHV_RATE}%)`}</span></Tip>}
           value={`-${formatCHF(breakdown.ahvMonthly)}`}
           negative
         />
         <StatRow
-          label={`ALV (${ALV_RATE}%${breakdown.grossAnnualSalary > ALV_CAP ? ", capped" : ""})`}
+          label={<Tip content="Unemployment insurance (Arbeitslosenversicherung). Capped at CHF 148,200/yr income"><span tabIndex={0}>{`ALV (${ALV_RATE}%${breakdown.grossAnnualSalary > ALV_CAP ? ", capped" : ""})`}</span></Tip>}
           value={`-${formatCHF(breakdown.alvMonthly)}`}
           negative
         />
         <StatRow
-          label={`NBUVG accident (${NBUVG_RATE}%)`}
+          label={<Tip content="Non-occupational accident insurance (Nichtberufsunfallversicherung). Covers accidents outside work"><span tabIndex={0}>{`NBUVG accident (${NBUVG_RATE}%)`}</span></Tip>}
           value={`-${formatCHF(breakdown.nbuvgMonthly)}`}
           negative
         />
         <SliderRow
-          label="BVG / 2nd Pillar"
+          label={<Tip content="Occupational pension (Berufliche Vorsorge). Employer matches your contribution. Amount varies by plan"><span tabIndex={0}>BVG / 2nd Pillar</span></Tip>}
           value={bvgMonthly}
           min={200}
           max={1200}
@@ -220,11 +221,11 @@ export function IncomeSection() {
           <div className="space-y-1.5">
             <div className="grid grid-cols-3 gap-1.5 text-center">
               <div className="rounded-md bg-bg-tertiary/50 p-1.5">
-                <p className="text-[10px] text-text-muted">Steuerfuss</p>
+                <Tip content="Municipal tax multiplier. Applied on top of cantonal base rate. Lower = less tax"><p tabIndex={0} className="text-[10px] text-text-muted">Steuerfuss</p></Tip>
                 <p className="font-data text-xs font-semibold text-text-primary">{taxData.steuerfuss}%</p>
               </div>
               <div className="rounded-md bg-bg-tertiary/50 p-1.5">
-                <p className="text-[10px] text-text-muted">Eff. Rate</p>
+                <Tip content="Your effective income tax rate after all deductions. This is what you actually pay as % of gross"><p tabIndex={0} className="text-[10px] text-text-muted">Eff. Rate</p></Tip>
                 <p className="font-data text-xs font-semibold text-text-primary">{taxData.effectiveRate}%</p>
               </div>
               <div className="rounded-md bg-bg-tertiary/50 p-1.5">
@@ -251,7 +252,7 @@ export function IncomeSection() {
         {/* Pillar 3a */}
         <div className="mt-2 pt-2 border-t border-border-subtle">
           <SliderRow
-            label="Pillar 3a (tax deduction)"
+            label={<Tip content="Private retirement savings (säule 3a). Fully tax-deductible. Locked until age 60 (or 5 years before retirement)"><span tabIndex={0}>Pillar 3a (tax deduction)</span></Tip>}
             value={pillar3aMonthly}
             min={0}
             max={PILLAR_3A_MAX_MONTHLY}
@@ -281,7 +282,7 @@ export function IncomeSection() {
         </h4>
         <StatRow label="Net salary" value={formatCHF(breakdown.netMonthlySalary)} />
         <SliderRow
-          label="Expense allowance"
+          label={<Tip content="Tax-free lump sum from employer for work-related expenses (Spesen). Common in Swiss contracts"><span tabIndex={0}>Expense allowance</span></Tip>}
           value={expenseAllowance}
           min={0}
           max={1500}
@@ -305,7 +306,7 @@ export function IncomeSection() {
           onChange={setMobilityAllowance}
         />
         <SliderRow
-          label="Relocation bonus (one-off)"
+          label={<Tip content="One-time employer payment to cover moving costs. Amortized over 12 months in budget calculations"><span tabIndex={0}>Relocation bonus (one-off)</span></Tip>}
           value={relocationBonus}
           min={0}
           max={20000}
@@ -369,9 +370,9 @@ export function IncomeSection() {
 
       {/* ── AVAILABLE FOR ZURICH ── */}
       <div className="rounded-lg bg-accent-primary/10 border border-accent-primary/20 p-3 text-center">
-        <p className="text-[10px] uppercase tracking-wider text-text-muted">
+        <Tip content="Your monthly budget for all Zurich living costs: rent, food, transport, health insurance, and discretionary spending"><p tabIndex={0} className="text-[10px] uppercase tracking-wider text-text-muted">
           Available for Zurich
-        </p>
+        </p></Tip>
         <p className="font-data text-xl font-bold text-accent-primary mt-1">
           {formatCHF(breakdown.totalMonthlyIncome - breakdown.fixedOutside)}
         </p>

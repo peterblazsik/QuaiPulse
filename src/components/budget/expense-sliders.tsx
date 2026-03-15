@@ -5,6 +5,7 @@ import { EXPENSE_CONFIG } from "@/lib/engines/budget-calculator";
 import { useSubscriptionTotal } from "@/lib/hooks/use-subscription-total";
 import { formatCHF } from "@/lib/utils";
 import { RotateCcw, Lock, RefreshCw } from "lucide-react";
+import { Tip } from "@/components/ui/tooltip";
 
 export function ExpenseSliders() {
   const values = useBudgetStore((s) => s.values);
@@ -48,14 +49,16 @@ export function ExpenseSliders() {
                 <span className="text-success"> (saving {formatCHF(subTotal.savings)})</span>
               )}
             </p>
-            <button
-              type="button"
-              onClick={() => setValue("subscriptions", subTotal.total)}
-              className="inline-flex items-center gap-1 rounded-md bg-warning/10 border border-warning/30 px-2 py-1 text-[10px] font-medium text-warning hover:bg-warning/20 transition-colors shrink-0"
-            >
-              <RefreshCw className="h-3 w-3" />
-              Sync
-            </button>
+            <Tip content="Update budget subscriptions slider to match your decisions on the Subscriptions page">
+              <button
+                type="button"
+                onClick={() => setValue("subscriptions", subTotal.total)}
+                className="inline-flex items-center gap-1 rounded-md bg-warning/10 border border-warning/30 px-2 py-1 text-[10px] font-medium text-warning hover:bg-warning/20 transition-colors shrink-0"
+              >
+                <RefreshCw className="h-3 w-3" />
+                Sync
+              </button>
+            </Tip>
           </div>
         </div>
       )}
@@ -77,7 +80,9 @@ export function ExpenseSliders() {
                   {item.label}
                 </span>
                 {item.fixed && (
-                  <Lock className="h-2.5 w-2.5 text-text-muted" />
+                  <Tip content="Fixed cost — pulled from Vienna obligations. Adjust in the Income section">
+                    <span tabIndex={0}><Lock className="h-2.5 w-2.5 text-text-muted" /></span>
+                  </Tip>
                 )}
               </div>
               <div className="flex items-center gap-2">

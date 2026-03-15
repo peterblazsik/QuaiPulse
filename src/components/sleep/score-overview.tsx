@@ -2,6 +2,7 @@
 
 import { ScoreRing } from "./score-ring";
 import { DeltaBadge } from "./delta-badge";
+import { Tip } from "@/components/ui/tooltip";
 import { getScoreLabel, getScoreColor } from "@/lib/engines/sleep-score";
 import type { SleepScoreBreakdown } from "@/lib/engines/sleep-score";
 import type { SleepEntry } from "@/lib/stores/sleep-store";
@@ -37,7 +38,9 @@ export function ScoreOverview({ breakdown, scoreDelta, avgHours, avgQuality, avg
           {scoreDelta !== null && (
             <DeltaBadge value={scoreDelta} suffix="pts" invertColor={false} />
           )}
-          <p className="text-[11px] text-text-muted mt-0.5">14-day composite</p>
+          <Tip content="Weighted average of duration, quality, latency, and awakenings over the last 14 nights">
+            <p className="text-[11px] text-text-muted mt-0.5" tabIndex={0}>14-day composite</p>
+          </Tip>
         </div>
       </div>
 
@@ -71,10 +74,19 @@ export function ScoreOverview({ breakdown, scoreDelta, avgHours, avgQuality, avg
   );
 }
 
+const SLEEP_TIPS: Record<string, string> = {
+  Hours: "Average hours of sleep per night. Target: 7-9 hours for adults",
+  Quality: "Self-rated quality (1-5 scale). 4+ is good, 3 is average, below 3 needs attention",
+  Latency: "Average time to fall asleep. Under 15 min is ideal, over 30 min may indicate issues",
+  Wakeups: "Average night-time awakenings. 0-1 is normal, 2+ may affect sleep quality",
+};
+
 function MicroKpi({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div className="flex items-baseline justify-between">
-      <span className="text-xs text-text-muted">{label}</span>
+      <Tip content={SLEEP_TIPS[label] ?? label}>
+        <span className="text-xs text-text-muted" tabIndex={0}>{label}</span>
+      </Tip>
       <span className="font-data text-sm font-semibold" style={{ color }}>{value}</span>
     </div>
   );

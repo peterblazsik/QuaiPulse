@@ -1,6 +1,8 @@
 "use client";
 
+import type React from "react";
 import { formatCHF } from "@/lib/utils";
+import { Tip } from "@/components/ui/tooltip";
 import type { BudgetBreakdown } from "@/lib/engines/budget-calculator";
 
 interface SurplusDisplayProps {
@@ -63,12 +65,12 @@ export function SurplusDisplay({ breakdown }: SurplusDisplayProps) {
       {/* Stats row */}
       <div className="grid grid-cols-2 gap-3">
         <MiniStat
-          label="Savings Rate"
+          label={<Tip content="Surplus ÷ take-home income. 20%+ is healthy, 10-20% is adequate, <10% is tight"><span tabIndex={0}>Savings Rate</span></Tip>}
           value={`${savingsRate.toFixed(1)}%`}
           color={savingsRate >= 20 ? "text-success" : savingsRate >= 10 ? "text-warning" : "text-danger"}
         />
         <MiniStat
-          label="Burn Rate"
+          label={<Tip content="Total expenses ÷ take-home income. Lower is better — below 70% means strong financial health"><span tabIndex={0}>Burn Rate</span></Tip>}
           value={`${ratioUsed.toFixed(1)}%`}
           color={ratioUsed <= 70 ? "text-success" : ratioUsed <= 85 ? "text-warning" : "text-danger"}
         />
@@ -82,15 +84,15 @@ function MiniStat({
   value,
   color,
 }: {
-  label: string;
+  label: React.ReactNode;
   value: string;
   color: string;
 }) {
   return (
     <div className="rounded-lg bg-bg-primary/50 border border-border-subtle p-3 text-center">
-      <p className="text-[10px] uppercase tracking-wider text-text-muted">
+      <div className="text-[10px] uppercase tracking-wider text-text-muted">
         {label}
-      </p>
+      </div>
       <p className={`font-data text-xl font-bold mt-1 ${color}`}>{value}</p>
     </div>
   );

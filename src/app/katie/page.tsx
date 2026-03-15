@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { Heart, Plane, Train, Calendar, Trash2, Plus, X, Sparkles } from "lucide-react";
+import { Tip } from "@/components/ui/tooltip";
 import { CalendarGrid } from "@/components/katie/calendar-grid";
 import { formatCHF } from "@/lib/utils";
 import { COST_DEFAULTS, KEY_DATES } from "@/lib/data/katie-visits";
@@ -133,17 +134,19 @@ export default function KatiePage() {
               <p className="text-[10px] text-text-muted uppercase">visits planned</p>
             </div>
             <div className="space-y-2 text-xs">
-              <StatRow label="Total days together" value={`${visitStats.totalDays} days`} />
-              <StatRow label="Avg interval" value={`${visitStats.avgInterval} days`} />
+              <StatRow label="Total days together" value={`${visitStats.totalDays} days`} tooltip="Combined duration of all planned visits" />
+              <StatRow label="Avg interval" value={`${visitStats.avgInterval} days`} tooltip="Average gap between visits. Target: every 2-3 weeks" />
               <StatRow
                 label="By flight"
                 value={`${visitStats.flightVisits}x`}
                 icon={<Plane className="h-3 w-3 text-purple-400" />}
+                tooltip="ZRH→VIE flights. Avg CHF 180 round-trip (Swiss/Austrian)"
               />
               <StatRow
                 label="By train"
                 value={`${visitStats.trainVisits}x`}
                 icon={<Train className="h-3 w-3 text-info" />}
+                tooltip="Zurich HB→Wien Hbf via Railjet. ~8h, CHF 98 with Halbtax"
               />
             </div>
           </div>
@@ -160,31 +163,33 @@ export default function KatiePage() {
               <p className="text-[10px] text-text-muted uppercase">6-month total</p>
             </div>
             <div className="space-y-2 text-xs">
-              <StatRow label="Flights" value={formatCHF(visitStats.flightCost)} />
-              <StatRow label="Trains" value={formatCHF(visitStats.trainCost)} />
+              <StatRow label="Flights" value={formatCHF(visitStats.flightCost)} tooltip="Total flight costs (round-trip ZRH↔VIE)" />
+              <StatRow label="Trains" value={formatCHF(visitStats.trainCost)} tooltip={`Total train costs${hasHalfFare ? " with Halbtax discount" : " at full price"}`} />
               {hasHalfFare && (
-                <StatRow label="Halbtax card" value={formatCHF(visitStats.halfFareCost)} />
+                <StatRow label="Halbtax card" value={formatCHF(visitStats.halfFareCost)} tooltip="SBB Half-Fare card annual cost. 50% off all Swiss rail travel" />
               )}
               <div className="border-t border-border-subtle pt-2">
-                <StatRow label="Per visit avg" value={formatCHF(visitStats.avgCostPerVisit)} />
-                <StatRow label="Monthly avg" value={formatCHF(visitStats.monthlyCost)} />
+                <StatRow label="Per visit avg" value={formatCHF(visitStats.avgCostPerVisit)} tooltip="Total travel cost divided by number of visits" />
+                <StatRow label="Monthly avg" value={formatCHF(visitStats.monthlyCost)} tooltip="Total cost spread across 6 months (Jul-Dec 2026)" />
               </div>
             </div>
 
             {/* Half-fare toggle */}
-            <button
-              onClick={() => setHasHalfFare(!hasHalfFare)}
-              className={`w-full text-left text-[11px] rounded-lg border p-2 transition-colors ${
-                hasHalfFare
-                  ? "border-cyan-500/40 bg-cyan-500/10 text-info"
-                  : "border-border-default bg-bg-primary/50 text-text-muted"
-              }`}
-            >
-              <span className="font-medium">SBB Halbtax</span>
-              <span className="text-[10px] ml-1">
-                {hasHalfFare ? "Active (CHF 185/yr)" : "Not active — click to toggle"}
-              </span>
-            </button>
+            <Tip content="SBB Half-Fare card (Halbtax-Abo). CHF 185/yr for 50% off all Swiss public transport. Worth it with 3+ train trips/year" side="bottom">
+              <button
+                onClick={() => setHasHalfFare(!hasHalfFare)}
+                className={`w-full text-left text-[11px] rounded-lg border p-2 transition-colors ${
+                  hasHalfFare
+                    ? "border-cyan-500/40 bg-cyan-500/10 text-info"
+                    : "border-border-default bg-bg-primary/50 text-text-muted"
+                }`}
+              >
+                <span className="font-medium">SBB Halbtax</span>
+                <span className="text-[10px] ml-1">
+                  {hasHalfFare ? "Active (CHF 185/yr)" : "Not active — click to toggle"}
+                </span>
+              </button>
+            </Tip>
           </div>
         </div>
 
@@ -406,13 +411,15 @@ function StatRow({
   label,
   value,
   icon,
+  tooltip,
 }: {
   label: string;
   value: string;
   icon?: React.ReactNode;
+  tooltip?: string;
 }) {
-  return (
-    <div className="flex items-center justify-between">
+  const row = (
+    <div className="flex items-center justify-between" tabIndex={tooltip ? 0 : undefined}>
       <span className="flex items-center gap-1.5 text-text-muted">
         {icon}
         {label}
@@ -420,4 +427,8 @@ function StatRow({
       <span className="font-data text-text-primary tabular-nums">{value}</span>
     </div>
   );
+  if (tooltip) {
+    return <Tip content={tooltip}>{row}</Tip>;
+  }
+  return row;
 }

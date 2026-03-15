@@ -2,14 +2,15 @@
 
 import { useBudgetStore } from "@/lib/stores/budget-store";
 import { formatCHF } from "@/lib/utils";
+import { Tip } from "@/components/ui/tooltip";
 
 export const SETUP_COST_ITEMS = [
-  { key: "deposit", label: "Apartment deposit (3x rent)", defaultValue: 7200, min: 4500, max: 10500, step: 300, note: "Typically 3 months' rent" },
-  { key: "furniture", label: "Furniture & appliances", defaultValue: 3000, min: 500, max: 8000, step: 250, note: "IKEA to mid-range" },
-  { key: "moving", label: "Moving costs (VIE→ZRH)", defaultValue: 2500, min: 800, max: 6000, step: 250, note: "Depends on volume" },
-  { key: "anmeldung", label: "Anmeldung & permits", defaultValue: 200, min: 100, max: 500, step: 50, note: "Registration fees" },
-  { key: "healthSetup", label: "Health insurance setup", defaultValue: 350, min: 0, max: 700, step: 50, note: "First month premium" },
-  { key: "misc", label: "Misc setup (kitchen, linens, etc.)", defaultValue: 1500, min: 500, max: 4000, step: 250, note: "First-month essentials" },
+  { key: "deposit", label: "Apartment deposit (3x rent)", defaultValue: 7200, min: 4500, max: 10500, step: 300, note: "Typically 3 months' rent", tip: "Swiss landlords require a Mietkaution of up to 3 months' rent, held in a blocked bank account (Sperrkonto)" },
+  { key: "furniture", label: "Furniture & appliances", defaultValue: 3000, min: 500, max: 8000, step: 250, note: "IKEA to mid-range", tip: "Most Swiss rentals come without kitchen appliances (no fridge, dishwasher, or washing machine)" },
+  { key: "moving", label: "Moving costs (VIE→ZRH)", defaultValue: 2500, min: 800, max: 6000, step: 250, note: "Depends on volume", tip: "International move Amsterdam→Zurich. Get 3 quotes. Customs inventory list required for non-EU belongings" },
+  { key: "anmeldung", label: "Anmeldung & permits", defaultValue: 200, min: 100, max: 500, step: 50, note: "Registration fees", tip: "Einwohnerkontrolle registration within 14 days of arrival. B permit for EU nationals" },
+  { key: "healthSetup", label: "Health insurance setup", defaultValue: 350, min: 0, max: 700, step: 50, note: "First month premium", tip: "Swiss health insurance (KVG) is mandatory. Must enroll within 3 months of arrival. Premiums start ~CHF 300-450/mo" },
+  { key: "misc", label: "Misc setup (kitchen, linens, etc.)", defaultValue: 1500, min: 500, max: 4000, step: 250, note: "First-month essentials", tip: "Bedding, kitchenware, cleaning supplies, SBB travelcard, initial groceries" },
 ] as const;
 
 const DEFAULT_SETUP: Record<string, number> = Object.fromEntries(
@@ -40,7 +41,9 @@ export function SetupCosts() {
           return (
             <div key={item.key} className="space-y-0.5">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-text-secondary">{item.label}</span>
+                <Tip content={item.tip}>
+                  <span className="text-[10px] text-text-secondary" tabIndex={0}>{item.label}</span>
+                </Tip>
                 <span className="font-data text-[10px] text-text-primary tabular-nums">
                   {formatCHF(value)}
                 </span>

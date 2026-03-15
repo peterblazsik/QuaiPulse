@@ -2,6 +2,7 @@
 
 import { HOODMAP_VIBE_CONFIG } from "@/lib/data/hoodmap-config";
 import type { HoodmapVibe } from "@/lib/types";
+import { Tip } from "@/components/ui/tooltip";
 
 interface VibeBadgesProps {
   vibes: { vibe: HoodmapVibe; intensity: number }[];
@@ -17,6 +18,7 @@ export function VibeBadges({ vibes, size = "sm" }: VibeBadgesProps) {
         const config = HOODMAP_VIBE_CONFIG[vibe];
         const opacity = Math.max(0.4, intensity);
         return (
+          <Tip content={`${config.label} (${Math.round(intensity * 100)}%) — ${config.description}`}>
           <span
             key={vibe}
             className={`inline-flex items-center rounded-full border border-white/5 ${config.bgClass} ${config.textClass} ${
@@ -25,10 +27,11 @@ export function VibeBadges({ vibes, size = "sm" }: VibeBadgesProps) {
                 : "px-2 py-0.5 text-xs"
             } font-medium`}
             style={{ opacity }}
-            title={`${config.label} (${Math.round(intensity * 100)}%) — ${config.description}`}
+            tabIndex={0}
           >
             {config.label}
           </span>
+          </Tip>
         );
       })}
     </div>
@@ -46,6 +49,7 @@ export function CrowdTags({ tags, size = "sm" }: CrowdTagsProps) {
   return (
     <div className="flex flex-wrap gap-1">
       {tags.map((tag) => (
+        <Tip content="Crowd-sourced tag from Hoodmaps">
         <span
           key={tag}
           className={`inline-flex items-center rounded-full border border-white/5 bg-white/5 text-text-tertiary italic ${
@@ -53,10 +57,11 @@ export function CrowdTags({ tags, size = "sm" }: CrowdTagsProps) {
               ? "px-1.5 py-0.5 text-[10px]"
               : "px-2 py-0.5 text-xs"
           }`}
-          title={`Crowd-sourced tag from Hoodmaps`}
+          tabIndex={0}
         >
           &ldquo;{tag}&rdquo;
         </span>
+        </Tip>
       ))}
     </div>
   );

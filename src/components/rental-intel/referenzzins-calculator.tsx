@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Calculator, TrendingDown, Info } from "lucide-react";
+import { Tip } from "@/components/ui/tooltip";
 import { formatCHF } from "@/lib/utils";
 
 // BWO official Referenzzinssatz as of March 2026
@@ -44,7 +45,9 @@ export function ReferenzzinsCalculator() {
             </div>
             <div>
               <h3 className="text-sm font-semibold text-[var(--text-primary)]">
-                Referenzzinssatz Calculator
+                <Tip content="The Referenzzinssatz is the Swiss mortgage reference rate set by BWO. When it drops, tenants can legally request rent reductions. Each 0.25% decrease = ~3% less rent">
+                  <span tabIndex={0}>Referenzzinssatz Calculator</span>
+                </Tip>
               </h3>
               <p className="text-[10px] text-[var(--text-tertiary)]">
                 Swiss reference rate: {CURRENT_REFERENZZINSSATZ}% (Mar 2026)

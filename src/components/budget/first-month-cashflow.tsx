@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useBudgetStore } from "@/lib/stores/budget-store";
 import { AlertTriangle, TrendingDown, TrendingUp, Wallet } from "lucide-react";
+import { Tip } from "@/components/ui/tooltip";
 import { formatCHF } from "@/lib/utils";
 
 interface CashflowWeek {
@@ -123,7 +124,9 @@ export function FirstMonthCashflow() {
           <p className="font-data text-lg font-bold text-warning">
             {formatCHF(cashReserveNeeded)}
           </p>
-          <p className="text-[10px] text-text-muted">cash needed day 1</p>
+          <Tip content="Minimum cash you need in your Swiss bank account on move-in day to cover deposit, first rent, and moving costs before your first paycheck">
+            <p className="text-[10px] text-text-muted" tabIndex={0}>cash needed day 1</p>
+          </Tip>
         </div>
       </div>
 
