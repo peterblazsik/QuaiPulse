@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { trpc } from "@/lib/trpc/client";
 import { useApartmentFeedStore } from "@/lib/stores/apartment-feed-store";
+import { useAutoSave } from "./use-auto-save";
 
 const LS_KEY = "quaipulse-apartment-feed";
 
@@ -47,7 +48,7 @@ export function useSyncedFeedPrefs() {
     migrated.current = true;
   }, [session?.user?.id, query.isLoading, query.data, upsert]);
 
-  const saveFeedPrefs = () => {
+  const saveFeedPrefs = useCallback(() => {
     if (!session?.user?.id) return;
     const s = useApartmentFeedStore.getState();
     upsert.mutate({
@@ -55,7 +56,9 @@ export function useSyncedFeedPrefs() {
       filtersJson: s.filters,
       sortKey: s.sort,
     });
-  };
+  }, [session?.user?.id, upsert]);
+
+  useAutoSave(useApartmentFeedStore, saveFeedPrefs, migrated.current && !query.isLoading);
 
   return { saveFeedPrefs, isLoading: query.isLoading };
 }

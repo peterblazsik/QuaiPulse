@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { trpc } from "@/lib/trpc/client";
 import { useGymFilterStore } from "@/lib/stores/gym-filter-store";
+import { useAutoSave } from "./use-auto-save";
 import type { EquipmentType } from "@/lib/data/gyms";
 
 const LS_KEY = "quaipulse-gym-filter";
@@ -53,7 +54,7 @@ export function useSyncedGymFilter() {
     migrated.current = true;
   }, [session?.user?.id, query.isLoading, query.data, upsert]);
 
-  const saveGymFilter = () => {
+  const saveGymFilter = useCallback(() => {
     if (!session?.user?.id) return;
     const s = useGymFilterStore.getState();
     upsert.mutate({
@@ -64,7 +65,9 @@ export function useSyncedGymFilter() {
         compareIds: s.compareIds,
       },
     });
-  };
+  }, [session?.user?.id, upsert]);
+
+  useAutoSave(useGymFilterStore, saveGymFilter, migrated.current && !query.isLoading);
 
   return { saveGymFilter, isLoading: query.isLoading };
 }

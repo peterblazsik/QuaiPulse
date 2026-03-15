@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { trpc } from "@/lib/trpc/client";
 import { useDossierStore } from "@/lib/stores/dossier-store";
+import { useAutoSave } from "./use-auto-save";
 import type { DossierStatus } from "@/lib/types";
 
 const LS_KEY = "quaipulse-dossier";
@@ -48,7 +49,7 @@ export function useSyncedDossier() {
     migrated.current = true;
   }, [session?.user?.id, query.isLoading, query.data, upsert]);
 
-  const saveDossier = () => {
+  const saveDossier = useCallback(() => {
     if (!session?.user?.id) return;
     const s = useDossierStore.getState();
     upsert.mutate({
@@ -56,7 +57,9 @@ export function useSyncedDossier() {
       notesJson: s.notes,
       urlsJson: s.urls,
     });
-  };
+  }, [session?.user?.id, upsert]);
+
+  useAutoSave(useDossierStore, saveDossier, migrated.current && !query.isLoading);
 
   return { saveDossier, isLoading: query.isLoading };
 }

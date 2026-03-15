@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { trpc } from "@/lib/trpc/client";
 import { useSubscriptionStore } from "@/lib/stores/subscription-store";
+import { useAutoSave } from "./use-auto-save";
 import type { SubAction } from "@/lib/types";
 import type { SubscriptionData } from "@/lib/data/subscriptions";
 
@@ -47,14 +48,16 @@ export function useSyncedSubscription() {
     migrated.current = true;
   }, [session?.user?.id, query.isLoading, query.data, upsert]);
 
-  const saveSubscription = () => {
+  const saveSubscription = useCallback(() => {
     if (!session?.user?.id) return;
     const s = useSubscriptionStore.getState();
     upsert.mutate({
       decisionsJson: s.decisions,
       customSubsJson: s.customSubs,
     });
-  };
+  }, [session?.user?.id, upsert]);
+
+  useAutoSave(useSubscriptionStore, saveSubscription, migrated.current && !query.isLoading);
 
   return { saveSubscription, isLoading: query.isLoading };
 }

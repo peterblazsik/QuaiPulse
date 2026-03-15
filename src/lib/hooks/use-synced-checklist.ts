@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { trpc } from "@/lib/trpc/client";
 import { useChecklistStore } from "@/lib/stores/checklist-store";
+import { useAutoSave } from "./use-auto-save";
 import type { ChecklistItemData } from "@/lib/data/checklist-items";
 
 const LS_KEY = "quaipulse-checklist";
@@ -46,14 +47,16 @@ export function useSyncedChecklist() {
     migrated.current = true;
   }, [session?.user?.id, query.isLoading, query.data, upsert]);
 
-  const saveChecklist = () => {
+  const saveChecklist = useCallback(() => {
     if (!session?.user?.id) return;
     const s = useChecklistStore.getState();
     upsert.mutate({
       completedIdsJson: s.completedIds,
       customItemsJson: s.customItems,
     });
-  };
+  }, [session?.user?.id, upsert]);
+
+  useAutoSave(useChecklistStore, saveChecklist, migrated.current && !query.isLoading);
 
   return { saveChecklist, isLoading: query.isLoading };
 }

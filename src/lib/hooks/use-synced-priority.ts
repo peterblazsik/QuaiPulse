@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { trpc } from "@/lib/trpc/client";
 import { usePriorityStore } from "@/lib/stores/priority-store";
+import { useAutoSave } from "./use-auto-save";
 import type { PriorityWeights } from "@/lib/types";
 
 const LS_KEY = "quaipulse-priorities";
@@ -46,14 +47,16 @@ export function useSyncedPriority() {
     migrated.current = true;
   }, [session?.user?.id, query.isLoading, query.data, upsert]);
 
-  const savePriority = () => {
+  const savePriority = useCallback(() => {
     if (!session?.user?.id) return;
     const s = usePriorityStore.getState();
     upsert.mutate({
       weightsJson: s.weights,
       profilesJson: s.profiles,
     });
-  };
+  }, [session?.user?.id, upsert]);
+
+  useAutoSave(usePriorityStore, savePriority, migrated.current && !query.isLoading);
 
   return { savePriority, isLoading: query.isLoading };
 }

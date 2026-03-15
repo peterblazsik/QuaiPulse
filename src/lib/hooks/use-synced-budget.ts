@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { trpc } from "@/lib/trpc/client";
 import { useBudgetStore, type BudgetValues } from "@/lib/stores/budget-store";
+import { useAutoSave } from "./use-auto-save";
 
 const LS_KEY = "quaipulse-budget";
 
@@ -20,10 +21,8 @@ export function useSyncedBudget() {
     if (query.isLoading) return;
 
     const serverData = query.data;
-    const store = useBudgetStore.getState();
 
     if (!serverData) {
-      // Server empty — check localStorage for migration
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
         try {
@@ -51,7 +50,6 @@ export function useSyncedBudget() {
         } catch { /* ignore corrupt data */ }
       }
     } else {
-      // Server has data — hydrate Zustand from server
       const values = (serverData.valuesJson ?? {}) as BudgetValues;
       const setupCosts = (serverData.setupCostsJson ?? {}) as Record<string, number>;
       useBudgetStore.setState({
@@ -78,8 +76,7 @@ export function useSyncedBudget() {
     migrated.current = true;
   }, [session?.user?.id, query.isLoading, query.data, upsert]);
 
-  // Save to server whenever store changes
-  const saveBudget = () => {
+  const saveBudget = useCallback(() => {
     if (!session?.user?.id) return;
     const s = useBudgetStore.getState();
     upsert.mutate({
@@ -100,7 +97,9 @@ export function useSyncedBudget() {
       valuesJson: { ...s.values },
       setupCostsJson: { ...s.setupCosts },
     });
-  };
+  }, [session?.user?.id, upsert]);
+
+  useAutoSave(useBudgetStore, saveBudget, migrated.current && !query.isLoading);
 
   return { saveBudget, isLoading: query.isLoading };
 }
