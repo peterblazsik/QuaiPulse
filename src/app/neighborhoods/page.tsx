@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
-import { MapPin, BarChart3, TrendingUp, GitCompareArrows, X, Building2, Waves } from "lucide-react";
+import { MapPin, BarChart3, TrendingUp, GitCompareArrows, X, Building2, Waves, ArrowRight, Wallet } from "lucide-react";
 import { usePriorityStore } from "@/lib/stores/priority-store";
 import { useCompareStore } from "@/lib/stores/compare-store";
 import { NEIGHBORHOODS, LAKE_TOWNS, ALL_LOCATIONS } from "@/lib/data/neighborhoods";
@@ -110,6 +110,32 @@ export default function NeighborhoodsPage() {
               value={`${cheapest.name} (${formatCHF(cheapest.rentOneBrMin)})`}
             />
           </div>
+
+          {/* Contextual CTAs */}
+          {top && top.kreis && (
+            <div className="mt-4 space-y-2">
+              <Link
+                href={`/apartments?kreis=${top.kreis}`}
+                className="group flex items-center gap-2 rounded-lg border border-purple-500/20 bg-purple-500/5 p-2.5 hover:border-purple-500/40 transition-colors"
+              >
+                <Building2 className="h-3.5 w-3.5 text-purple-400 shrink-0" />
+                <span className="text-[10px] text-text-secondary flex-1">
+                  Apartments in {top.name}
+                </span>
+                <ArrowRight className="h-3 w-3 text-purple-400 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+              <Link
+                href="/budget"
+                className="group flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-2.5 hover:border-emerald-500/40 transition-colors"
+              >
+                <Wallet className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                <span className="text-[10px] text-text-secondary flex-1">
+                  Check budget fit
+                </span>
+                <ArrowRight className="h-3 w-3 text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 

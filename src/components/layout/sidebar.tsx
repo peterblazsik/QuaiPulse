@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -27,11 +28,13 @@ import {
   PanelLeftClose,
   PanelLeft,
   LogOut,
+  Compass,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useUIStore } from "@/lib/stores/ui-store";
 import { cn } from "@/lib/utils";
 import { ThemeSelector } from "./theme-selector";
+import { Tip } from "@/components/ui/tooltip";
 
 const ICON_MAP = {
   LayoutDashboard,
@@ -54,6 +57,7 @@ const ICON_MAP = {
   FileText,
   Settings,
   TrendingUp,
+  Compass,
 } as const;
 
 interface NavItem {
@@ -70,24 +74,23 @@ interface NavGroup {
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    label: "Overview",
+    label: "",
     items: [
       { label: "Dashboard", href: "/", icon: "LayoutDashboard", shortcut: "G D" },
+      { label: "Guide", href: "/guide", icon: "Compass", shortcut: "G G" },
       { label: "AI Chat", href: "/ai", icon: "Bot", shortcut: "G I" },
     ],
   },
   {
-    label: "Zurich Life",
+    label: "1. Choose Neighborhood",
     items: [
       { label: "Neighborhoods", href: "/neighborhoods", icon: "MapPin", shortcut: "G N" },
-      { label: "Apartments", href: "/apartments", icon: "Building2", shortcut: "G A" },
-      { label: "Rental Intel", href: "/rental-intel", icon: "TrendingUp", shortcut: "G R" },
       { label: "Gym Finder", href: "/gym-finder", icon: "Dumbbell", shortcut: "G F" },
       { label: "Social Map", href: "/social", icon: "Users", shortcut: "G S" },
     ],
   },
   {
-    label: "Finance",
+    label: "2. Plan Finances",
     items: [
       { label: "Budget", href: "/budget", icon: "Wallet", shortcut: "G B" },
       { label: "Subscriptions", href: "/subscriptions", icon: "CreditCard", shortcut: "G U" },
@@ -96,26 +99,28 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: "Travel & Katie",
+    label: "3. Find Apartment",
     items: [
-      { label: "Travel Intel", href: "/travel", icon: "Route", shortcut: "G T" },
-      { label: "Flights", href: "/flights", icon: "Plane", shortcut: "G L" },
-      { label: "Katie Planner", href: "/katie", icon: "Heart", shortcut: "G K" },
+      { label: "Apartments", href: "/apartments", icon: "Building2", shortcut: "G A" },
+      { label: "Rental Intel", href: "/rental-intel", icon: "TrendingUp", shortcut: "G R" },
+      { label: "Dossier", href: "/dossier", icon: "FileText", shortcut: "G O" },
     ],
   },
   {
-    label: "Wellness",
-    items: [
-      { label: "Sleep Intelligence", href: "/sleep", icon: "Moon", shortcut: "G Z" },
-      { label: "Weather", href: "/weather", icon: "CloudSun" },
-    ],
-  },
-  {
-    label: "Move Prep",
+    label: "4. Prepare Move",
     items: [
       { label: "Checklist", href: "/checklist", icon: "CheckSquare", shortcut: "G C" },
-      { label: "Dossier", href: "/dossier", icon: "FileText", shortcut: "G O" },
       { label: "Language Prep", href: "/language", icon: "Languages", shortcut: "G P" },
+    ],
+  },
+  {
+    label: "5. Life in Zurich",
+    items: [
+      { label: "Katie Planner", href: "/katie", icon: "Heart", shortcut: "G K" },
+      { label: "Travel Intel", href: "/travel", icon: "Route", shortcut: "G T" },
+      { label: "Flights", href: "/flights", icon: "Plane", shortcut: "G L" },
+      { label: "Sleep Intelligence", href: "/sleep", icon: "Moon", shortcut: "G Z" },
+      { label: "Weather", href: "/weather", icon: "CloudSun" },
     ],
   },
   {
@@ -185,7 +190,7 @@ export function Sidebar() {
                 item.href === "/"
                   ? pathname === "/"
                   : pathname.startsWith(item.href);
-              return (
+              const link = (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -210,6 +215,13 @@ export function Sidebar() {
                     </>
                   )}
                 </Link>
+              );
+              return sidebarCollapsed ? (
+                <Tip key={item.href} content={`${item.label}${item.shortcut ? ` (${item.shortcut})` : ""}`} side="right">
+                  {link}
+                </Tip>
+              ) : (
+                <React.Fragment key={item.href}>{link}</React.Fragment>
               );
             })}
           </div>
@@ -238,13 +250,14 @@ export function Sidebar() {
                 <span className="flex-1 truncate text-xs text-text-secondary">
                   {session.user.name ?? session.user.email}
                 </span>
-                <button
-                  onClick={() => signOut({ callbackUrl: "/login" })}
-                  className="text-text-muted hover:text-text-primary transition-colors"
-                  title="Sign out"
-                >
-                  <LogOut className="h-3.5 w-3.5" />
-                </button>
+                <Tip content="Sign out">
+                  <button
+                    onClick={() => signOut({ callbackUrl: "/login" })}
+                    className="text-text-muted hover:text-text-primary transition-colors"
+                  >
+                    <LogOut className="h-3.5 w-3.5" />
+                  </button>
+                </Tip>
               </>
             )}
           </div>

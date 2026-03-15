@@ -12,7 +12,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     signIn({ profile }) {
       const allowed = process.env.ALLOWED_EMAIL;
-      if (!allowed) return true;
+      if (!allowed) return false;
       return profile?.email === allowed;
     },
     async jwt({ token, profile, trigger }) {
@@ -46,11 +46,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             });
             token.userId = id;
           }
-          console.log("[auth] jwt callback: userId set to", token.userId);
+          if (process.env.NODE_ENV === "development") {
+            console.log("[auth] jwt callback: userId set to", token.userId);
+          }
         } catch (err) {
           console.error("[auth] jwt callback DB error:", err);
           // Still allow sign-in even if DB fails — use email as fallback id
-          token.userId = token.sub;
+          token.userId = `oauth_${token.sub}`;
         }
       }
       return token;

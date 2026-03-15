@@ -2,6 +2,7 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { router, protectedProcedure } from "../trpc";
 import { userPriorityConfig } from "../db/schema";
+import { WeightsSchema, ProfilesSchema } from "../schemas";
 
 export const priorityRouter = router({
   get: protectedProcedure.query(async ({ ctx }) => {
@@ -16,8 +17,8 @@ export const priorityRouter = router({
   upsert: protectedProcedure
     .input(
       z.object({
-        weightsJson: z.unknown(),
-        profilesJson: z.unknown(),
+        weightsJson: WeightsSchema,
+        profilesJson: ProfilesSchema,
       }),
     )
     .mutation(async ({ ctx, input }) => {

@@ -8,13 +8,9 @@ const handler = async (req: Request) => {
   await headers();
   const session = await auth();
 
-  // Debug log to help diagnose 401s
-  console.log("[tRPC] session:", JSON.stringify({
-    hasSession: !!session,
-    userId: session?.user?.id,
-    email: session?.user?.email,
-    name: session?.user?.name,
-  }));
+  if (process.env.NODE_ENV === "development") {
+    console.log("[tRPC] userId:", session?.user?.id ?? "none");
+  }
 
   return fetchRequestHandler({
     endpoint: "/api/trpc",

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { router, protectedProcedure } from "../trpc";
 import { userGymFilterState } from "../db/schema";
+import { GymFilterSchema } from "../schemas";
 
 export const gymFilterRouter = router({
   get: protectedProcedure.query(async ({ ctx }) => {
@@ -16,7 +17,7 @@ export const gymFilterRouter = router({
   upsert: protectedProcedure
     .input(
       z.object({
-        stateJson: z.unknown(),
+        stateJson: GymFilterSchema,
       }),
     )
     .mutation(async ({ ctx, input }) => {

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { router, protectedProcedure } from "../trpc";
 import { userBudgetConfig } from "../db/schema";
+import { BudgetValuesSchema } from "../schemas";
 
 export const budgetRouter = router({
   get: protectedProcedure.query(async ({ ctx }) => {
@@ -30,7 +31,7 @@ export const budgetRouter = router({
         childSupport: z.number(),
         viennaUtils: z.number(),
         carInsurance: z.number(),
-        valuesJson: z.record(z.string(), z.unknown()),
+        valuesJson: BudgetValuesSchema,
         setupCostsJson: z.record(z.string(), z.number()),
       }),
     )

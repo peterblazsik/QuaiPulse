@@ -2,6 +2,7 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { router, protectedProcedure } from "../trpc";
 import { userSubscriptionState } from "../db/schema";
+import { DecisionsSchema, CustomSubsSchema } from "../schemas";
 
 export const subscriptionRouter = router({
   get: protectedProcedure.query(async ({ ctx }) => {
@@ -16,8 +17,8 @@ export const subscriptionRouter = router({
   upsert: protectedProcedure
     .input(
       z.object({
-        decisionsJson: z.unknown(),
-        customSubsJson: z.unknown(),
+        decisionsJson: DecisionsSchema,
+        customSubsJson: CustomSubsSchema,
       }),
     )
     .mutation(async ({ ctx, input }) => {

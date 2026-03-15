@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Building2,
   ExternalLink,
@@ -14,6 +15,8 @@ import {
   ListFilter,
   ArrowUpDown,
   Clock,
+  TrendingUp,
+  ArrowRight,
 } from "lucide-react";
 import { PORTALS, SEARCH_CRITERIA } from "@/lib/data/portal-urls";
 import { formatCHF } from "@/lib/utils";
@@ -443,6 +446,28 @@ export default function ApartmentsPage() {
             ))}
           </div>
         </div>
+      )}
+
+      {/* Cross-link to Rental Intel */}
+      {(tab === "feed" || tab === "pipeline") && (
+        <Link
+          href="/rental-intel"
+          className="group flex items-center gap-3 rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-4 hover:border-cyan-500/40 transition-colors"
+        >
+          <TrendingUp className="h-5 w-5 text-cyan-400 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-text-primary">
+              Want market analytics?
+            </p>
+            <p className="text-[10px] text-text-muted mt-0.5">
+              Rental Intel has price distributions, value scoring, heatmaps, and supply/demand analysis across Kreise.
+            </p>
+          </div>
+          <span className="flex items-center gap-1 text-[10px] font-semibold text-cyan-400 shrink-0 group-hover:gap-1.5 transition-all">
+            Market Intel
+            <ArrowRight className="h-3 w-3" />
+          </span>
+        </Link>
       )}
 
       {/* PORTALS TAB */}

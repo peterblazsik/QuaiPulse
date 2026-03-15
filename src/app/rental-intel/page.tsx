@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { TrendingUp, Loader2, Map, Table2 } from "lucide-react";
+import Link from "next/link";
+import { TrendingUp, Loader2, Map, Table2, Building2, ArrowRight } from "lucide-react";
 import { useRentalIntelStore } from "@/lib/stores/rental-intel-store";
 import { RENTAL_INTEL_IMAGES } from "@/lib/data/images";
 import type { ListingSource } from "@/lib/types";
@@ -236,6 +237,26 @@ export default function RentalIntelPage() {
           onSelect={(id) => selectListing(id)}
         />
       )}
+
+      {/* Cross-link to Apartments */}
+      <Link
+        href="/apartments"
+        className="group flex items-center gap-3 rounded-xl border border-purple-500/20 bg-purple-500/5 p-4 hover:border-purple-500/40 transition-colors"
+      >
+        <Building2 className="h-5 w-5 text-purple-400 shrink-0" />
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold text-text-primary">
+            Looking for specific listings?
+          </p>
+          <p className="text-[10px] text-text-muted mt-0.5">
+            The Apartments page has a live Flatfox feed with save-to-pipeline, plus links to all major portals.
+          </p>
+        </div>
+        <span className="flex items-center gap-1 text-[10px] font-semibold text-purple-400 shrink-0 group-hover:gap-1.5 transition-all">
+          Live Feed
+          <ArrowRight className="h-3 w-3" />
+        </span>
+      </Link>
 
       {/* Detail Drawer */}
       <ListingDetailDrawer

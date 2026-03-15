@@ -2,6 +2,7 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { router, protectedProcedure } from "../trpc";
 import { userDossierState } from "../db/schema";
+import { DossierStatusesSchema, DossierNotesSchema, DossierUrlsSchema } from "../schemas";
 
 export const dossierRouter = router({
   get: protectedProcedure.query(async ({ ctx }) => {
@@ -16,9 +17,9 @@ export const dossierRouter = router({
   upsert: protectedProcedure
     .input(
       z.object({
-        statusesJson: z.unknown(),
-        notesJson: z.unknown(),
-        urlsJson: z.unknown(),
+        statusesJson: DossierStatusesSchema,
+        notesJson: DossierNotesSchema,
+        urlsJson: DossierUrlsSchema,
       }),
     )
     .mutation(async ({ ctx, input }) => {

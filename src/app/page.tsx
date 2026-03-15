@@ -19,6 +19,9 @@ import { NextActionsWidget } from "@/components/dashboard/next-actions-widget";
 import { ApartmentPipelineCard } from "@/components/dashboard/apartment-pipeline-card";
 import { HERO_IMAGES, NEIGHBORHOOD_IMAGES } from "@/lib/data/images";
 import { OnboardingWizard } from "@/components/layout/onboarding-wizard";
+import { Tip } from "@/components/ui/tooltip";
+import { JourneyPrompts } from "@/components/dashboard/journey-prompts";
+import { Compass } from "lucide-react";
 
 export default function DashboardPage() {
   const values = useBudgetStore((s) => s.values);
@@ -75,9 +78,11 @@ export default function DashboardPage() {
         <div className="card elevation-1 p-5 relative overflow-hidden">
           <div className="card-hover-line" />
           <p className="section-label">Days to Zurich</p>
-          <p className="mt-2 font-data text-4xl font-bold text-accent-primary">
-            {days}
-          </p>
+          <Tip content="Working days until your start date at Zurich Insurance, July 1 2026">
+            <p className="mt-2 font-data text-4xl font-bold text-accent-primary" tabIndex={0}>
+              {days}
+            </p>
+          </Tip>
           <p className="mt-1 text-xs text-text-tertiary">July 1, 2026</p>
         </div>
 
@@ -85,23 +90,30 @@ export default function DashboardPage() {
         <div className="card elevation-1 p-5 relative overflow-hidden">
           <div className="card-hover-line" />
           <p className="section-label">Monthly Surplus</p>
-          <p
-            className={`mt-2 font-data text-4xl font-bold ${surplus >= 0 ? "text-success" : "text-danger"}`}
-          >
-            {formatCHF(surplus)}
-          </p>
-          <p className="mt-1 text-xs text-text-tertiary">
-            of {formatCHF(totalMonthlyIncome)} take-home
-          </p>
+          <Tip content="Take-home income minus all expenses (Zurich + Vienna). Green = positive, Red = deficit">
+            <p
+              className={`mt-2 font-data text-4xl font-bold ${surplus >= 0 ? "text-success" : "text-danger"}`}
+              tabIndex={0}
+            >
+              {formatCHF(surplus)}
+            </p>
+          </Tip>
+          <Tip content="Net salary after social deductions, tax, plus employer benefits (expense allowance, insurance, mobility)">
+            <p className="mt-1 text-xs text-text-tertiary" tabIndex={0}>
+              of {formatCHF(totalMonthlyIncome)} take-home
+            </p>
+          </Tip>
         </div>
 
         {/* Savings Rate */}
         <div className="card elevation-1 p-5 relative overflow-hidden">
           <div className="card-hover-line" />
           <p className="section-label">Savings Rate</p>
-          <p className="mt-2 font-data text-4xl font-bold text-success">
-            {savingsRateInt}%
-          </p>
+          <Tip content="Percentage of take-home income saved each month. Target: 20%+ for healthy finances">
+            <p className="mt-2 font-data text-4xl font-bold text-success" tabIndex={0}>
+              {savingsRateInt}%
+            </p>
+          </Tip>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-bg-tertiary relative">
             <div
               className="h-full rounded-full bg-success transition-all progress-shimmer relative"
@@ -123,6 +135,30 @@ export default function DashboardPage() {
           <p className="text-xs text-text-muted">Zurich Insurance Group</p>
         </div>
       </div>
+
+      {/* Smart Journey Prompts */}
+      <JourneyPrompts />
+
+      {/* Journey Guide CTA */}
+      <Link
+        href="/guide"
+        className="group flex items-center gap-4 rounded-xl border border-accent-primary/20 bg-gradient-to-r from-accent-primary/5 to-transparent p-4 hover:border-accent-primary/40 transition-colors"
+      >
+        <div className="rounded-lg bg-accent-primary/10 p-2.5 shrink-0">
+          <Compass className="h-5 w-5 text-accent-primary" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-text-primary">
+            Your Relocation Journey
+          </p>
+          <p className="text-[10px] text-text-muted mt-0.5">
+            6 chapters from "Where should I live?" to "Life in Zurich" — follow the story or jump to any section.
+          </p>
+        </div>
+        <span className="rounded-lg bg-accent-primary/10 px-3 py-1.5 text-xs font-medium text-accent-primary group-hover:bg-accent-primary/20 transition-colors shrink-0">
+          Open Guide
+        </span>
+      </Link>
 
       {/* Top Neighborhoods */}
       <div>
@@ -156,15 +192,20 @@ export default function DashboardPage() {
                     <span className="font-display text-sm font-semibold text-text-primary">
                       {n.name}
                     </span>
-                    <span className="text-[10px] text-text-muted">
-                      K{n.kreis}
-                    </span>
+                    <Tip content="Zurich Kreis (district) number. Lower = more central">
+                      <span className="text-[10px] text-text-muted" tabIndex={0}>
+                        K{n.kreis}
+                      </span>
+                    </Tip>
                   </div>
-                  <span
-                    className={`font-data text-lg font-bold ${scoreTextClass(n.weightedScore)}`}
-                  >
-                    {formatScore(n.weightedScore)}
-                  </span>
+                  <Tip content="Weighted score (0–10) based on your priority sliders. Higher = better match for your lifestyle">
+                    <span
+                      className={`font-data text-lg font-bold ${scoreTextClass(n.weightedScore)}`}
+                      tabIndex={0}
+                    >
+                      {formatScore(n.weightedScore)}
+                    </span>
+                  </Tip>
                 </div>
                 <div className="flex justify-center">
                   <RadarChart scores={n.scores} size={120} showLabels={false} />
@@ -198,19 +239,23 @@ export default function DashboardPage() {
               const val = values[e.key as keyof typeof values];
               const pct = totalMonthlyIncome > 0 ? (val / totalMonthlyIncome) * 100 : 0;
               return (
-                <div
-                  key={e.key}
-                  className="h-full"
-                  style={{ width: `${pct}%`, backgroundColor: e.color }}
-                  title={`${e.label}: ${formatCHF(val)}`}
-                />
+                <Tip key={e.key} content={`${e.label}: ${formatCHF(val)}`}>
+                  <div
+                    className="h-full"
+                    style={{ width: `${pct}%`, backgroundColor: e.color }}
+                    tabIndex={0}
+                  />
+                </Tip>
               );
             })}
             {surplus > 0 && (
-              <div
-                className="h-full bg-success/40"
-                style={{ width: `${(surplus / totalMonthlyIncome) * 100}%` }}
-              />
+              <Tip content="Unallocated income — available for savings or discretionary spending">
+                <div
+                  className="h-full bg-success/40"
+                  style={{ width: `${(surplus / totalMonthlyIncome) * 100}%` }}
+                  tabIndex={0}
+                />
+              </Tip>
             )}
           </div>
           <div className="flex justify-between text-xs">

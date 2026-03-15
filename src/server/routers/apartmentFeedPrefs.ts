@@ -2,6 +2,7 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { router, protectedProcedure } from "../trpc";
 import { userApartmentFeedPrefs } from "../db/schema";
+import { DismissedIdsSchema, FeedFiltersSchema } from "../schemas";
 
 export const apartmentFeedPrefsRouter = router({
   get: protectedProcedure.query(async ({ ctx }) => {
@@ -16,8 +17,8 @@ export const apartmentFeedPrefsRouter = router({
   upsert: protectedProcedure
     .input(
       z.object({
-        dismissedIdsJson: z.unknown(),
-        filtersJson: z.unknown(),
+        dismissedIdsJson: DismissedIdsSchema,
+        filtersJson: FeedFiltersSchema,
         sortKey: z.string(),
       }),
     )

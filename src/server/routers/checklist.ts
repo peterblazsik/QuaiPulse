@@ -2,6 +2,7 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { router, protectedProcedure } from "../trpc";
 import { userChecklistState } from "../db/schema";
+import { CompletedIdsSchema, CustomItemsSchema } from "../schemas";
 
 export const checklistRouter = router({
   get: protectedProcedure.query(async ({ ctx }) => {
@@ -16,8 +17,8 @@ export const checklistRouter = router({
   upsert: protectedProcedure
     .input(
       z.object({
-        completedIdsJson: z.unknown(),
-        customItemsJson: z.unknown(),
+        completedIdsJson: CompletedIdsSchema,
+        customItemsJson: CustomItemsSchema,
       }),
     )
     .mutation(async ({ ctx, input }) => {

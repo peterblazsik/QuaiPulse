@@ -16,6 +16,7 @@ import { TaxComparison } from "@/components/budget/tax-comparison";
 import { BvgBuyback } from "@/components/budget/bvg-buyback";
 import { Pillar3aComparison } from "@/components/budget/pillar3a-comparison";
 import { FirstMonthCashflow } from "@/components/budget/first-month-cashflow";
+import { PensionOverview } from "@/components/budget/pension-overview";
 
 export default function BudgetPage() {
   const values = useBudgetStore((s) => s.values);
@@ -58,6 +59,11 @@ export default function BudgetPage() {
           {/* Surplus hero */}
           <div className="rounded-xl border border-border-default bg-bg-secondary p-5">
             <SurplusDisplay breakdown={breakdown} />
+          </div>
+
+          {/* Swiss Pension System Overview — Three Pillars */}
+          <div className="rounded-xl border border-cyan-500/20 bg-bg-secondary p-5">
+            <PensionOverview />
           </div>
 
           {/* Tax Comparison — Quellensteuer vs Ordinary */}
