@@ -9,6 +9,12 @@
  * it shows what you'd pay under withholding tax if the threshold didn't apply,
  * which is useful for understanding the effective tax delta.
  *
+ * Tariff codes:
+ *   A0 — Single, no church
+ *   B0 — Single with child(ren), no church
+ *   C0 — Married (single income), no church
+ *   D0 — Married dual income, no church
+ *
  * Sources:
  * - Steueramt Kanton Zürich — Quellensteuertarife 2025/2026
  * - EStV / ESTV Steuerrechner (Bundessteuer)
@@ -96,6 +102,7 @@ interface QuellensteuerBracket {
   rate: number;
 }
 
+/** A0: Single, no church */
 const QUELLENSTEUER_BRACKETS_A0: QuellensteuerBracket[] = [
   { upperBound: 30_800, rate: 2.79 },
   { upperBound: 40_300, rate: 6.32 },
@@ -109,10 +116,7 @@ const QUELLENSTEUER_BRACKETS_A0: QuellensteuerBracket[] = [
   { upperBound: Infinity, rate: 19.73 },
 ];
 
-/**
- * B0 tariff: single with child(ren), no church.
- * Rates are slightly lower than A0 due to child deductions built into the tariff.
- */
+/** B0: Single with child(ren), no church */
 const QUELLENSTEUER_BRACKETS_B0: QuellensteuerBracket[] = [
   { upperBound: 30_800, rate: 1.42 },
   { upperBound: 40_300, rate: 4.18 },
@@ -126,9 +130,47 @@ const QUELLENSTEUER_BRACKETS_B0: QuellensteuerBracket[] = [
   { upperBound: Infinity, rate: 17.58 },
 ];
 
+/**
+ * C0: Married (single earner), no church.
+ * Significantly lower rates due to married splitting (Ehepaar-Splitting)
+ * and higher deductions built into the tariff.
+ */
+const QUELLENSTEUER_BRACKETS_C0: QuellensteuerBracket[] = [
+  { upperBound: 30_800, rate: 0.00 },
+  { upperBound: 40_300, rate: 1.32 },
+  { upperBound: 54_200, rate: 3.63 },
+  { upperBound: 73_500, rate: 5.74 },
+  { upperBound: 98_600, rate: 7.87 },
+  { upperBound: 127_900, rate: 9.78 },
+  { upperBound: 166_800, rate: 11.42 },
+  { upperBound: 224_400, rate: 13.06 },
+  { upperBound: 301_900, rate: 14.57 },
+  { upperBound: Infinity, rate: 15.64 },
+];
+
+/**
+ * D0: Married dual income, no church.
+ * Rates are between C0 and A0. Applied to each spouse's income separately,
+ * but we model the total household income here.
+ */
+const QUELLENSTEUER_BRACKETS_D0: QuellensteuerBracket[] = [
+  { upperBound: 30_800, rate: 0.00 },
+  { upperBound: 40_300, rate: 1.82 },
+  { upperBound: 54_200, rate: 4.25 },
+  { upperBound: 73_500, rate: 6.42 },
+  { upperBound: 98_600, rate: 8.57 },
+  { upperBound: 127_900, rate: 10.45 },
+  { upperBound: 166_800, rate: 12.04 },
+  { upperBound: 224_400, rate: 13.62 },
+  { upperBound: 301_900, rate: 15.06 },
+  { upperBound: Infinity, rate: 16.09 },
+];
+
 const QUELLENSTEUER_TARIFFS: Record<string, QuellensteuerBracket[]> = {
   A0: QUELLENSTEUER_BRACKETS_A0,
   B0: QUELLENSTEUER_BRACKETS_B0,
+  C0: QUELLENSTEUER_BRACKETS_C0,
+  D0: QUELLENSTEUER_BRACKETS_D0,
 };
 
 // ─── Federal Tax Brackets ──────────────────────────────────────────────────────
@@ -146,7 +188,8 @@ interface FederalBracket {
   rate: number;
 }
 
-const FEDERAL_TAX_BRACKETS: FederalBracket[] = [
+/** Federal brackets for single taxpayers */
+const FEDERAL_TAX_BRACKETS_SINGLE: FederalBracket[] = [
   { from: 0, to: 14_500, rate: 0.0 },
   { from: 14_500, to: 31_600, rate: 0.77 },
   { from: 31_600, to: 41_400, rate: 0.88 },
@@ -159,6 +202,49 @@ const FEDERAL_TAX_BRACKETS: FederalBracket[] = [
   { from: 176_000, to: 755_200, rate: 13.2 },
   { from: 755_200, to: Infinity, rate: 11.5 },
 ];
+
+/**
+ * Federal brackets for married taxpayers (Ehepaar-Tarif).
+ * Wider brackets and lower rates compared to single filers.
+ * Source: Art. 36 DBG / ESTV Tarif für Verheiratete 2025
+ */
+const FEDERAL_TAX_BRACKETS_MARRIED: FederalBracket[] = [
+  { from: 0, to: 28_300, rate: 0.0 },
+  { from: 28_300, to: 50_900, rate: 1.0 },
+  { from: 50_900, to: 58_400, rate: 2.0 },
+  { from: 58_400, to: 75_300, rate: 3.0 },
+  { from: 75_300, to: 90_300, rate: 4.0 },
+  { from: 90_300, to: 103_400, rate: 5.0 },
+  { from: 103_400, to: 114_700, rate: 6.0 },
+  { from: 114_700, to: 124_200, rate: 7.0 },
+  { from: 124_200, to: 131_700, rate: 8.0 },
+  { from: 131_700, to: 137_300, rate: 9.0 },
+  { from: 137_300, to: 141_200, rate: 10.0 },
+  { from: 141_200, to: 143_100, rate: 11.0 },
+  { from: 143_100, to: 145_000, rate: 12.0 },
+  { from: 145_000, to: 895_800, rate: 13.0 },
+  { from: 895_800, to: Infinity, rate: 11.5 },
+];
+
+// ─── Tariff metadata ──────────────────────────────────────────────────────────
+
+interface TariffMeta {
+  code: string;
+  description: string;
+  isMarried: boolean;
+  hasChildren: boolean;
+}
+
+const TARIFF_META: TariffMeta[] = [
+  { code: "A0", description: "Single, no church", isMarried: false, hasChildren: false },
+  { code: "B0", description: "Single with child(ren), no church", isMarried: false, hasChildren: true },
+  { code: "C0", description: "Married (single income), no church", isMarried: true, hasChildren: false },
+  { code: "D0", description: "Married (dual income), no church", isMarried: true, hasChildren: false },
+];
+
+function getTariffMeta(code: string): TariffMeta {
+  return TARIFF_META.find((t) => t.code === code) ?? TARIFF_META[0];
+}
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -178,25 +264,23 @@ export const ZURICH_CITY_STEUERFUSS = 119;
  */
 const CANTONAL_SIMPLE_RATE = 0.08;
 
+/** Married couple cantonal rate is slightly lower due to splitting */
+const CANTONAL_SIMPLE_RATE_MARRIED = 0.075;
+
+/** Zurich married couple deduction (Verheiratetenabzug) from cantonal tax */
+const MARRIED_DEDUCTION_CANTONAL = 2_600;
+
+/** Zurich child deduction per child from cantonal tax */
+const CHILD_DEDUCTION_CANTONAL = 9_000;
+
+/** Federal child deduction per child */
+const CHILD_DEDUCTION_FEDERAL = 6_600;
+
+/** Federal married deduction (Zweiverdienerabzug) for dual income */
+const MARRIED_DEDUCTION_FEDERAL = 2_700;
+
 // ─── Quellensteuer Calculator ──────────────────────────────────────────────────
 
-/**
- * Calculate Quellensteuer (withholding tax) for Zurich canton.
- *
- * Uses flat-rate brackets — the rate for the bracket your gross falls into
- * applies to your entire gross income, not just the marginal amount.
- *
- * @param grossAnnual - Annual gross salary in CHF
- * @param tariffCode - Quellensteuer tariff code: "A0" (single, no church), "B0" (single + child, no church)
- * @returns Withholding tax amounts and effective rate
- * @throws Error if tariff code is not recognized
- *
- * @example
- * ```ts
- * const result = calculateQuellensteuer(195_000, "A0");
- * // => { annualTax: 34573, monthlyTax: 2881, effectiveRate: 17.73 }
- * ```
- */
 export function calculateQuellensteuer(
   grossAnnual: number,
   tariffCode: string,
@@ -212,9 +296,7 @@ export function calculateQuellensteuer(
     return { annualTax: 0, monthlyTax: 0, effectiveRate: 0 };
   }
 
-  // Find the applicable flat rate bracket
   const bracket = brackets.find((b) => grossAnnual <= b.upperBound);
-  // Safety: last bracket has Infinity upper bound, so this always resolves
   const rate = bracket?.rate ?? brackets[brackets.length - 1].rate;
 
   const annualTax = Math.round(grossAnnual * (rate / 100));
@@ -229,16 +311,13 @@ export function calculateQuellensteuer(
 
 // ─── Federal Tax Calculator ────────────────────────────────────────────────────
 
-/**
- * Calculate federal income tax using progressive marginal brackets.
- * Each bracket's rate applies only to the income portion within that bracket.
- */
-function calculateFederalTax(taxableIncome: number): number {
+function calculateFederalTax(taxableIncome: number, isMarried: boolean): number {
   if (taxableIncome <= 0) return 0;
 
+  const brackets = isMarried ? FEDERAL_TAX_BRACKETS_MARRIED : FEDERAL_TAX_BRACKETS_SINGLE;
   let totalTax = 0;
 
-  for (const bracket of FEDERAL_TAX_BRACKETS) {
+  for (const bracket of brackets) {
     if (taxableIncome <= bracket.from) break;
 
     const taxableInBracket = Math.min(taxableIncome, bracket.to) - bracket.from;
@@ -250,40 +329,11 @@ function calculateFederalTax(taxableIncome: number): number {
 
 // ─── Ordinary Tax Calculator ───────────────────────────────────────────────────
 
-/**
- * Calculate ordinary taxation (nachträgliche ordentliche Veranlagung) for Zurich canton.
- *
- * Computes three components:
- * 1. Federal income tax (direkte Bundessteuer) — progressive marginal brackets
- * 2. Cantonal simple tax (einfache Staatssteuer) — ~8% of taxable income
- * 3. Municipal tax (Gemeindesteuer) — cantonal simple × (Steuerfuss / 100)
- *
- * Deductions are subtracted from gross to arrive at taxable income.
- * Standard deductions (professional expenses flat rate, social insurance) are
- * applied automatically in addition to the explicit deductions passed in.
- *
- * @param grossAnnual - Annual gross salary in CHF
- * @param deductions - Itemized deductions (BVG, 3a, commute, etc.)
- * @param steuerfuss - Municipal tax multiplier (default: 119 for Zurich city)
- * @returns Tax amounts, effective rate, and component breakdown
- *
- * @example
- * ```ts
- * const result = calculateOrdinaryTax(195_000, {
- *   bvgContribution: 9_750,
- *   pillar3a: 7_258,
- *   bvgBuyback: 0,
- *   commuteDeduction: 2_400,
- *   mealDeduction: 3_200,
- *   insuranceDeduction: 5_200,
- *   otherDeductions: 700,
- * });
- * ```
- */
 export function calculateOrdinaryTax(
   grossAnnual: number,
   deductions: OrdinaryDeductions,
   steuerfuss: number = ZURICH_CITY_STEUERFUSS,
+  tariffCode: string = "A0",
 ): OrdinaryTaxResult {
   if (grossAnnual <= 0) {
     return {
@@ -300,10 +350,12 @@ export function calculateOrdinaryTax(
     };
   }
 
+  const meta = getTariffMeta(tariffCode);
+
   // Cap Pillar 3a at the legal maximum
   const cappedPillar3a = Math.min(deductions.pillar3a, MAX_PILLAR_3A);
 
-  const totalDeductions =
+  let totalDeductions =
     deductions.bvgContribution +
     cappedPillar3a +
     deductions.bvgBuyback +
@@ -312,19 +364,39 @@ export function calculateOrdinaryTax(
     deductions.insuranceDeduction +
     deductions.otherDeductions;
 
-  // AHV/IV/EO/ALV employee contributions (~6.4% of gross, approximate)
+  // Married couples get additional deductions
+  if (meta.isMarried) {
+    totalDeductions += MARRIED_DEDUCTION_CANTONAL;
+  }
+
+  // Child deduction (B0 = single with child, C0/D0 married may also have children via UI)
+  if (meta.hasChildren) {
+    totalDeductions += CHILD_DEDUCTION_CANTONAL;
+  }
+
+  // AHV/IV/EO/ALV employee contributions (~6.4% of gross)
   const socialInsuranceDeduction = Math.round(grossAnnual * 0.064);
 
-  // Taxable income floors at zero
   const taxableIncome = Math.max(0, grossAnnual - totalDeductions - socialInsuranceDeduction);
 
-  // 1. Federal tax — progressive marginal brackets
-  const federalTax = calculateFederalTax(taxableIncome);
+  // 1. Federal tax — use married brackets if applicable
+  let federalTax = calculateFederalTax(taxableIncome, meta.isMarried);
 
-  // 2. Cantonal simple tax — ~8% of taxable income
-  const cantonalSimpleTax = Math.round(taxableIncome * CANTONAL_SIMPLE_RATE);
+  // Federal married deduction (dual income)
+  if (tariffCode === "D0") {
+    federalTax = Math.max(0, federalTax - Math.round(MARRIED_DEDUCTION_FEDERAL * 0.13));
+  }
 
-  // 3. Municipal tax — cantonal simple × (Steuerfuss / 100)
+  // Federal child deduction reduces taxable base (already reflected in lower brackets for B0)
+  if (meta.hasChildren) {
+    federalTax = Math.max(0, federalTax - Math.round(CHILD_DEDUCTION_FEDERAL * 0.10));
+  }
+
+  // 2. Cantonal simple tax
+  const cantonalRate = meta.isMarried ? CANTONAL_SIMPLE_RATE_MARRIED : CANTONAL_SIMPLE_RATE;
+  const cantonalSimpleTax = Math.round(taxableIncome * cantonalRate);
+
+  // 3. Municipal tax
   const municipalTax = Math.round(cantonalSimpleTax * (steuerfuss / 100));
 
   const annualTax = federalTax + cantonalSimpleTax + municipalTax;
@@ -348,43 +420,11 @@ export function calculateOrdinaryTax(
 
 // ─── Tax Comparison ────────────────────────────────────────────────────────────
 
-/**
- * Compare Quellensteuer vs Ordinary Taxation side by side.
- *
- * NOTE: For gross income exceeding CHF 120,000/year, ordinary taxation
- * (nachträgliche ordentliche Veranlagung) is MANDATORY per § 90 StG ZH,
- * regardless of which method is cheaper. This comparison is still useful
- * to understand the effective delta and plan deductions optimally.
- *
- * @param inputs - Gross income, tariff code, deductions, and Steuerfuss
- * @returns Side-by-side comparison with delta and recommendation
- *
- * @example
- * ```ts
- * const result = compareTaxMethods({
- *   grossAnnual: 195_000,
- *   tariffCode: "A0",
- *   deductions: {
- *     bvgContribution: 9_750,
- *     pillar3a: 7_258,
- *     bvgBuyback: 0,
- *     commuteDeduction: 2_400,
- *     mealDeduction: 3_200,
- *     insuranceDeduction: 5_200,
- *     otherDeductions: 700,
- *   },
- *   steuerfuss: 119,
- * });
- *
- * console.log(result.betterMethod); // "ordinary" (with sufficient deductions)
- * console.log(result.delta);        // positive = ordinary saves this much
- * ```
- */
 export function compareTaxMethods(inputs: TaxComparisonInputs): TaxComparisonResult {
   const { grossAnnual, tariffCode, deductions, steuerfuss } = inputs;
 
   const qs = calculateQuellensteuer(grossAnnual, tariffCode);
-  const ord = calculateOrdinaryTax(grossAnnual, deductions, steuerfuss);
+  const ord = calculateOrdinaryTax(grossAnnual, deductions, steuerfuss, tariffCode);
 
   const delta = qs.annualTax - ord.annualTax;
   const betterMethod = delta >= 0 ? "ordinary" : "quellensteuer";
@@ -410,18 +450,19 @@ export function compareTaxMethods(inputs: TaxComparisonInputs): TaxComparisonRes
 // ─── Utilities ─────────────────────────────────────────────────────────────────
 
 /**
- * Create a default set of deductions for Peter's profile.
- * BVG contribution estimated at ~5% of gross, standard deductions for Zurich.
+ * Create a default set of deductions based on tariff code.
+ * Married tariffs get higher insurance deductions (two people).
  */
-export function createDefaultDeductions(grossAnnual: number): OrdinaryDeductions {
+export function createDefaultDeductions(grossAnnual: number, tariffCode: string = "A0"): OrdinaryDeductions {
+  const meta = getTariffMeta(tariffCode);
   return {
     bvgContribution: Math.round(grossAnnual * 0.05),
     pillar3a: MAX_PILLAR_3A,
     bvgBuyback: 0,
-    commuteDeduction: 2_400, // ZVV annual pass, capped at CHF 3,000 per tax law
-    mealDeduction: 3_200, // CHF 15/day × ~213 working days, standard deduction
-    insuranceDeduction: 5_200, // KVG premiums (~CHF 430/mo)
-    otherDeductions: 700, // Professional expenses remainder after flat rate
+    commuteDeduction: 2_400,
+    mealDeduction: 3_200,
+    insuranceDeduction: meta.isMarried ? 7_800 : 5_200, // Two adults' KVG premiums
+    otherDeductions: 700,
   };
 }
 
@@ -429,8 +470,5 @@ export function createDefaultDeductions(grossAnnual: number): OrdinaryDeductions
  * Get all supported Quellensteuer tariff codes with descriptions.
  */
 export function getSupportedTariffCodes(): Array<{ code: string; description: string }> {
-  return [
-    { code: "A0", description: "Single, no church affiliation" },
-    { code: "B0", description: "Single with child(ren), no church affiliation" },
-  ];
+  return TARIFF_META.map((t) => ({ code: t.code, description: t.description }));
 }

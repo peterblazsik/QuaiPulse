@@ -24,10 +24,10 @@ export function TaxComparison() {
   const [tariffCode, setTariffCode] = useState("A0");
   const [showDeductions, setShowDeductions] = useState(false);
 
-  // Editable deductions starting from defaults
+  // Editable deductions starting from defaults (recalculate when tariff changes)
   const defaultDeductions = useMemo(
-    () => createDefaultDeductions(grossAnnual),
-    [grossAnnual]
+    () => createDefaultDeductions(grossAnnual, tariffCode),
+    [grossAnnual, tariffCode]
   );
   const [deductionOverrides, setDeductionOverrides] = useState<Partial<OrdinaryDeductions>>({});
 

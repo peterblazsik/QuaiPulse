@@ -29,6 +29,20 @@ describe("calculateQuellensteuer", () => {
     expect(b0.annualTax).toBeLessThan(a0.annualTax);
   });
 
+  it("uses C0 tariff with lower rates for married", () => {
+    const a0 = calculateQuellensteuer(195_000, "A0");
+    const c0 = calculateQuellensteuer(195_000, "C0");
+    expect(c0.annualTax).toBeLessThan(a0.annualTax);
+  });
+
+  it("D0 married dual income is between C0 and A0", () => {
+    const a0 = calculateQuellensteuer(195_000, "A0");
+    const c0 = calculateQuellensteuer(195_000, "C0");
+    const d0 = calculateQuellensteuer(195_000, "D0");
+    expect(d0.annualTax).toBeLessThan(a0.annualTax);
+    expect(d0.annualTax).toBeGreaterThan(c0.annualTax);
+  });
+
   it("throws for unknown tariff code", () => {
     expect(() => calculateQuellensteuer(100_000, "Z9")).toThrow();
   });
@@ -49,11 +63,18 @@ describe("calculateOrdinaryTax", () => {
   it("calculates tax with standard deductions for CHF 195K", () => {
     const deductions = createDefaultDeductions(195_000);
     const result = calculateOrdinaryTax(195_000, deductions, ZURICH_CITY_STEUERFUSS);
-    // Should be in reasonable range: ~20K-35K for this income
     expect(result.annualTax).toBeGreaterThan(15_000);
     expect(result.annualTax).toBeLessThan(40_000);
     expect(result.effectiveRate).toBeGreaterThan(8);
     expect(result.effectiveRate).toBeLessThan(25);
+  });
+
+  it("married ordinary tax is lower than single", () => {
+    const singleDed = createDefaultDeductions(195_000, "A0");
+    const marriedDed = createDefaultDeductions(195_000, "C0");
+    const single = calculateOrdinaryTax(195_000, singleDed, 119, "A0");
+    const married = calculateOrdinaryTax(195_000, marriedDed, 119, "C0");
+    expect(married.annualTax).toBeLessThan(single.annualTax);
   });
 
   it("BVG buyback reduces ordinary tax", () => {
@@ -103,10 +124,27 @@ describe("compareTaxMethods", () => {
       steuerfuss: 119,
     });
 
-    // Both methods should produce reasonable tax amounts
     expect(result.quellensteuer.annual).toBeGreaterThan(20_000);
     expect(result.ordinary.annual).toBeGreaterThan(20_000);
     expect(result.ordinaryMandatory).toBe(true);
+  });
+
+  it("married C0 comparison shows lower tax than A0", () => {
+    const a0Result = compareTaxMethods({
+      grossAnnual: 195_000,
+      tariffCode: "A0",
+      deductions: createDefaultDeductions(195_000, "A0"),
+      steuerfuss: 119,
+    });
+    const c0Result = compareTaxMethods({
+      grossAnnual: 195_000,
+      tariffCode: "C0",
+      deductions: createDefaultDeductions(195_000, "C0"),
+      steuerfuss: 119,
+    });
+
+    expect(c0Result.quellensteuer.annual).toBeLessThan(a0Result.quellensteuer.annual);
+    expect(c0Result.ordinary.annual).toBeLessThan(a0Result.ordinary.annual);
   });
 
   it("flags mandatory ordinary for income > 120K", () => {
@@ -131,9 +169,8 @@ describe("compareTaxMethods", () => {
 });
 
 describe("getSupportedTariffCodes", () => {
-  it("returns A0 and B0", () => {
+  it("returns all four tariff codes", () => {
     const codes = getSupportedTariffCodes();
-    expect(codes.map((c) => c.code)).toContain("A0");
-    expect(codes.map((c) => c.code)).toContain("B0");
+    expect(codes.map((c) => c.code)).toEqual(["A0", "B0", "C0", "D0"]);
   });
 });
