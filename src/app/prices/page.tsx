@@ -197,7 +197,7 @@ export default function PricesPage() {
                   )}
                 </div>
 
-                <p className="text-[10px] text-text-muted mb-1">
+                <p className="text-[11px] text-text-secondary mb-1">
                   {STORE_LABELS[basket.store].city}
                 </p>
 
@@ -206,7 +206,7 @@ export default function PricesPage() {
                   <span className="font-data text-2xl font-bold text-text-primary">
                     {formatEUR(basket.monthlyTotal)}
                   </span>
-                  <span className="text-[10px] text-text-muted mb-1">
+                  <span className="text-[11px] text-text-secondary mb-1">
                     /month
                   </span>
                 </div>
@@ -290,7 +290,7 @@ export default function PricesPage() {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-text-secondary">
+                <span className="text-xs text-text-primary">
                   Globus vs Vienna
                 </span>
                 <span className="font-data text-sm font-bold text-danger">
@@ -298,7 +298,7 @@ export default function PricesPage() {
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-text-secondary">
+                <span className="text-xs text-text-primary">
                   Migros vs Vienna
                 </span>
                 <span className="font-data text-sm font-bold text-warning">
@@ -306,14 +306,14 @@ export default function PricesPage() {
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-text-secondary">
+                <span className="text-xs text-text-primary">
                   Globus vs Amsterdam
                 </span>
                 <span className="font-data text-sm font-bold text-danger">
                   +{markups.zurichGlobus.toFixed(0)}%
                 </span>
               </div>
-              <p className="text-[10px] text-text-muted mt-2 pt-2 border-t border-border-subtle">
+              <p className="text-[11px] text-text-secondary mt-2 pt-2 border-t border-border-subtle">
                 Swiss groceries are significantly more expensive. Migros offers
                 meaningful savings over Globus for everyday items.
               </p>
@@ -343,7 +343,7 @@ export default function PricesPage() {
                     key={store}
                     className="flex items-center justify-between"
                   >
-                    <span className="text-[11px] text-text-secondary">
+                    <span className="text-xs text-text-primary">
                       {STORE_LABELS[store].name}
                     </span>
                     <div className="flex items-center gap-2">
@@ -359,7 +359,7 @@ export default function PricesPage() {
                     </div>
                   </div>
                 ))}
-              <p className="text-[10px] text-text-muted mt-2 pt-2 border-t border-border-subtle">
+              <p className="text-[11px] text-text-secondary mt-2 pt-2 border-t border-border-subtle">
                 {STORE_LABELS[bestValueStore].name} wins the most categories.
                 Out of {totalItems} items compared.
               </p>
@@ -381,28 +381,28 @@ export default function PricesPage() {
             </div>
             <div className="space-y-3">
               <div>
-                <p className="text-[11px] font-semibold text-text-primary">
+                <p className="text-xs font-semibold text-text-primary">
                   Migros for everyday groceries
                 </p>
-                <p className="text-[10px] text-text-muted mt-0.5">
+                <p className="text-[11px] text-text-secondary mt-0.5">
                   15-25% cheaper than Globus on most items. Best Swiss option
                   for weekly shopping.
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold text-text-primary">
+                <p className="text-xs font-semibold text-text-primary">
                   Globus for premium & specialty
                 </p>
-                <p className="text-[10px] text-text-muted mt-0.5">
+                <p className="text-[11px] text-text-secondary mt-0.5">
                   Quality comparable to Billa Corso. Worth it for cheese,
                   deli, and international items.
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold text-text-primary">
+                <p className="text-xs font-semibold text-text-primary">
                   Monthly savings potential
                 </p>
-                <p className="text-[10px] text-text-muted mt-0.5">
+                <p className="text-[11px] text-text-secondary mt-0.5">
                   Switching from Globus to Migros saves ~
                   {formatEUR(
                     (baskets.find((b) => b.store === "zurichGlobus")
@@ -477,7 +477,7 @@ function CategorySection({
         <span className="text-sm font-medium text-text-primary">
           {category.name}
         </span>
-        <span className="text-[10px] text-text-muted">
+        <span className="text-[11px] text-text-secondary">
           {category.items.length} items
         </span>
 
@@ -596,10 +596,10 @@ function PriceRow({ item }: { item: PriceItem }) {
 
   return (
     <tr className="border-b border-border-subtle/50 hover:bg-bg-tertiary/20 transition-colors">
-      <td className="text-xs text-text-secondary py-1.5 px-1">
+      <td className="text-xs text-text-primary py-1.5 px-1">
         {item.name}
       </td>
-      <td className="text-[11px] text-text-muted py-1.5 px-1">{item.unit}</td>
+      <td className="text-[11px] text-text-secondary py-1.5 px-1">{item.unit}</td>
       {STORE_KEYS.map((key) => {
         const isCheapest = key === cheapest;
         const isExpensive = key === expensive;
@@ -611,7 +611,7 @@ function PriceRow({ item }: { item: PriceItem }) {
                 ? "text-success font-semibold"
                 : isExpensive
                   ? "text-danger"
-                  : "text-text-secondary"
+                  : "text-text-primary"
             }`}
           >
             {isCheapest && (
@@ -643,10 +643,10 @@ function BasketBreakdownBars({
           <div key={basket.store} className="space-y-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-semibold text-text-primary">
+                <span className="text-xs font-semibold text-text-primary">
                   {STORE_LABELS[basket.store].name}
                 </span>
-                <span className="text-[10px] text-text-muted">
+                <span className="text-[11px] text-text-secondary">
                   {STORE_LABELS[basket.store].city}
                 </span>
               </div>
@@ -669,7 +669,7 @@ function BasketBreakdownBars({
                         : "bg-accent-primary/60"
                 }`}
               >
-                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-data text-white/90 font-medium">
+                <span className="absolute inset-0 flex items-center justify-center text-[11px] font-data text-white font-medium">
                   {formatEUR(basket.monthlyTotal)}
                 </span>
               </motion.div>
